@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "delivery:block/cardboard_box_bottom_tier_3",
+    "down": "delivery:block/cardboard_box_bottom_tier_3",
+    "up": "delivery:block/cardboard_box_top_tier_3",
+    "north": "delivery:block/cardboard_box_front_tier_3",
+    "east": "delivery:block/cardboard_box_side_tier_3",
+    "south": "delivery:block/cardboard_box_front_tier_3",
+    "west": "delivery:block/cardboard_box_side_tier_3"
+  }
+}

@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "delivery:block/barrel_tier_3", "y": 270 },
+        "facing=south": { "model": "delivery:block/barrel_tier_3", "y": 90 },
+        "facing=west": { "model": "delivery:block/barrel_tier_3", "y": 180 },
+        "facing=east": { "model": "delivery:block/barrel_tier_3" }
+    }
+}

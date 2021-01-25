@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "facing=north,new_mail=false": { "model": "delivery:block/mailbox", "y": 270 },
+        "facing=south,new_mail=false": { "model": "delivery:block/mailbox", "y": 90 },
+        "facing=west,new_mail=false": { "model": "delivery:block/mailbox", "y": 180 },
+        "facing=east,new_mail=false": { "model": "delivery:block/mailbox" },
+        "facing=north,new_mail=true": { "model": "delivery:block/mailbox_new_mail", "y": 270 },
+        "facing=south,new_mail=true": { "model": "delivery:block/mailbox_new_mail", "y": 90 },
+        "facing=west,new_mail=true": { "model": "delivery:block/mailbox_new_mail", "y": 180 },
+        "facing=east,new_mail=true": { "model": "delivery:block/mailbox_new_mail" }
+    }
+}

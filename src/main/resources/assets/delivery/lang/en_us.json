@@ -1,0 +1,19 @@
+{
+  "block.delivery.cardboard_box_tier_1": "Cardboard Box Tier 1",
+  "block.delivery.cardboard_box_tier_2": "Cardboard Box Tier 2",
+  "block.delivery.cardboard_box_tier_3": "Cardboard Box Tier 3",
+  "block.delivery.cardboard_box_tier_4": "Cardboard Box Tier 4",
+  "block.delivery.cardboard_box_tier_5": "Cardboard Box Tier 5",
+  "block.delivery.cardboard_box_tier_6": "Cardboard Box Tier 6",
+  "block.delivery.barrel_tier_1": "Barrel Tier 1",
+  "block.delivery.barrel_tier_2": "Barrel Tier 2",
+  "block.delivery.barrel_tier_3": "Barrel Tier 3",
+  "block.delivery.barrel_tier_4": "Barrel Tier 4",
+  "block.delivery.barrel_tier_5": "Barrel Tier 5",
+  "block.delivery.barrel_tier_6": "Barrel Tier 6",
+  "block.delivery.mailbox_post": "Mailbox Post",
+  "block.delivery.mailbox": "Mailbox",
+  "itemGroup.delivery": "Delivery",
+  "message.delivery.inbox": "Inbox",
+  "message.delivery.outbox": "Outbox"
+}

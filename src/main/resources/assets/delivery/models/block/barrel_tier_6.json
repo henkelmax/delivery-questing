@@ -1,0 +1,10 @@
+{
+  "parent": "delivery:block/barrel",
+  "textures": {
+    "0": "delivery:block/barrel_side_tier_6",
+    "1": "delivery:block/barrel_front_tier_6",
+    "2": "delivery:block/barrel_top",
+    "3": "delivery:block/barrel_lid",
+    "particle": "minecraft:block/iron_block"
+  }
+}
