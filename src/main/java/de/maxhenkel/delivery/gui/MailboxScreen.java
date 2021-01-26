@@ -11,7 +11,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class MailboxScreen extends ScreenBase<MailboxContainer> {
 
-    public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/mailbox.png");
+    public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/mailbox_tasks.png");
 
     private PlayerInventory playerInventory;
 
@@ -19,13 +19,13 @@ public class MailboxScreen extends ScreenBase<MailboxContainer> {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
         xSize = 176;
-        ySize = 164;
+        ySize = 223;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.inbox"), 9, FONT_COLOR);
-        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.outbox"), 40, FONT_COLOR);
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.tasks"), 9, FONT_COLOR);
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.outbox"), 97, FONT_COLOR);
         font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
     }
 

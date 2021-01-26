@@ -4,7 +4,6 @@ import de.maxhenkel.delivery.blocks.CardboardBoxBlock;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Slot;
 
 public class CardboardBoxContainerTier4 extends CardboardBoxContainer {
 
@@ -13,7 +12,7 @@ public class CardboardBoxContainerTier4 extends CardboardBoxContainer {
 
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 2; j++) {
-                addSlot(new Slot(inventory, i + j * 9, 8 + i * 18, 20 + j * 18));
+                addSlot(new NonRecursiveSlot(inventory, i + j * 9, 8 + i * 18, 20 + j * 18));
             }
         }
 

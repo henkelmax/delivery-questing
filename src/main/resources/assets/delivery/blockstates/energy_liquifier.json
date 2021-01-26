@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "delivery:block/energy_liquifier" },
+        "facing=south": { "model": "delivery:block/energy_liquifier", "y": 180 },
+        "facing=west": { "model": "delivery:block/energy_liquifier", "y": 270 },
+        "facing=east": { "model": "delivery:block/energy_liquifier", "y": 90 }
+    }
+}

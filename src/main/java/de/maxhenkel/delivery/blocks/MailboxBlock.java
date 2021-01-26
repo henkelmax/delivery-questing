@@ -34,8 +34,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-import javax.annotation.Nullable;
-
 public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder()
@@ -86,10 +84,9 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
                 return new TranslationTextComponent(state.getBlock().getTranslationKey());
             }
 
-            @Nullable
             @Override
             public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity player) {
-                return new MailboxContainer(id, playerInventory, mailbox.getInbox(), mailbox.getOutbox());
+                return new MailboxContainer(id, playerInventory, mailbox.getOutbox());
             }
         });
         return ActionResultType.SUCCESS;
@@ -105,7 +102,6 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof MailboxTileEntity) {
             MailboxTileEntity mailbox = (MailboxTileEntity) te;
-            InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getInbox());
             InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
@@ -117,7 +113,6 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         builder.add(NEW_MAIL);
     }
 
-    @Nullable
     @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
         return new MailboxTileEntity();

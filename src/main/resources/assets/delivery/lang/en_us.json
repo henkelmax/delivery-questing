@@ -13,7 +13,19 @@
   "block.delivery.barrel_tier_6": "Barrel Tier 6",
   "block.delivery.mailbox_post": "Mailbox Post",
   "block.delivery.mailbox": "Mailbox",
+  "block.delivery.energy_liquifier": "Energy Liquifier",
+  "item.delivery.liquid_energy_bucket": "Liquid Energy Bucket",
+  "item.delivery.envelope": "Envelope",
+  "item.delivery.parcel": "Parcel",
+  "fluid.delivery.liquid_energy": "Liquid Energy",
+  "death.attack.electrocuted": "%s was electrocuted",
   "itemGroup.delivery": "Delivery",
-  "message.delivery.inbox": "Inbox",
-  "message.delivery.outbox": "Outbox"
+  "message.delivery.tasks": "Tasks",
+  "message.delivery.outbox": "Outbox",
+  "tooltip.delivery.energy": "%s FE",
+  "tooltip.delivery.fluid_type": "%s",
+  "tooltip.delivery.fluid": "%s mb",
+  "tooltip.delivery.stack_count": "%s stack(s)",
+  "tooltip.delivery.item_count": "%s item(s)",
+  "button.delivery.switch": "↔"
 }

@@ -2,6 +2,7 @@ package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.block.VoxelUtils;
+import de.maxhenkel.corelib.fluid.FluidUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.BarrelTileEntity;
@@ -10,9 +11,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -21,10 +25,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
 
@@ -51,7 +60,18 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY).maxStackSize(1)).setRegistryName(getRegistryName());
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+        if (blockEntityTag != null) {
+            FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_type", tank.getFluid().getDisplayName()).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid", tank.getFluidAmount()).mergeStyle(TextFormatting.GRAY));
+        }
     }
 
     public Tier getTier() {
@@ -60,7 +80,10 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        return ActionResultType.SUCCESS;
+        if (FluidUtils.tryFluidInteraction(player, handIn, worldIn, pos)) {
+            return ActionResultType.SUCCESS;
+        }
+        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
@@ -68,10 +91,9 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
         return SHAPE;
     }
 
-    @Nullable
     @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
-        return new BarrelTileEntity();
+        return new BarrelTileEntity(tier);
     }
 
     public static enum Tier {

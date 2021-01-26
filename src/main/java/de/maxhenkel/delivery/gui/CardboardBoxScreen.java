@@ -13,6 +13,7 @@ public abstract class CardboardBoxScreen extends ScreenBase<CardboardBoxContaine
     public CardboardBoxScreen(ResourceLocation texture, CardboardBoxContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(texture, container, playerInventory, name);
         this.playerInventory = playerInventory;
+
         xSize = 176;
         ySize = 133;
     }

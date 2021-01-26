@@ -1,28 +1,27 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
-import de.maxhenkel.corelib.inventory.ItemListInventory;
-import de.maxhenkel.delivery.blocks.CardboardBoxBlock;
+import de.maxhenkel.delivery.blocks.BarrelBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
-import javax.annotation.Nullable;
+public class BarrelTileEntity extends TileEntity implements IFluidHandler {
 
-public class BarrelTileEntity extends TileEntity {
+    private FluidTank tank;
+    private BarrelBlock.Tier tier;
 
-    private NonNullList<ItemStack> inventory;
-    @Nullable
-    private CardboardBoxBlock.Tier tier;
-
-    public BarrelTileEntity(CardboardBoxBlock.Tier tier) {
-        super(ModTileEntities.CARDBOARD_BOX);
+    public BarrelTileEntity(BarrelBlock.Tier tier) {
+        super(ModTileEntities.BARREL);
         this.tier = tier;
         if (tier != null) {
-            inventory = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
+            tank = new FluidTank(tier.getMillibuckets());
         }
     }
 
@@ -30,23 +29,64 @@ public class BarrelTileEntity extends TileEntity {
         this(null);
     }
 
+    public FluidTank getTank() {
+        return tank;
+    }
+
     @Override
     public void read(BlockState state, CompoundNBT compound) {
         super.read(state, compound);
-        if (state != null && state.getBlock() instanceof CardboardBoxBlock) {
-            tier = ((CardboardBoxBlock) state.getBlock()).getTier();
-            inventory = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
-        }
-        ItemStackHelper.loadAllItems(compound, inventory);
+        tier = ((BarrelBlock) state.getBlock()).getTier();
+        tank = new FluidTank(tier.getMillibuckets());
+        tank.readFromNBT(compound.getCompound("Fluid"));
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
-        ItemStackHelper.saveAllItems(compound, inventory, true);
+        compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
         return super.write(compound);
     }
 
-    public IInventory getInventory() {
-        return new ItemListInventory(inventory, this::markDirty);
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+        if (!removed && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+            return LazyOptional.of(() -> tank).cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public int getTanks() {
+        return tank.getTanks();
+    }
+
+    @Override
+    public FluidStack getFluidInTank(int t) {
+        return tank.getFluidInTank(t);
+    }
+
+    @Override
+    public int getTankCapacity(int t) {
+        return tank.getTankCapacity(t);
+    }
+
+    @Override
+    public boolean isFluidValid(int t, FluidStack stack) {
+        return tank.isFluidValid(t, stack);
+    }
+
+    @Override
+    public int fill(FluidStack resource, FluidAction action) {
+        return tank.fill(resource, action);
+    }
+
+    @Override
+    public FluidStack drain(FluidStack resource, FluidAction action) {
+        return tank.drain(resource, action);
+    }
+
+    @Override
+    public FluidStack drain(int maxDrain, FluidAction action) {
+        return tank.drain(maxDrain, action);
     }
 }

@@ -3,15 +3,27 @@ package de.maxhenkel.delivery;
 import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
+import de.maxhenkel.delivery.capability.CapabilityEvents;
+import de.maxhenkel.delivery.capability.Tasks;
+import de.maxhenkel.delivery.capability.TasksStorage;
+import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
 import de.maxhenkel.delivery.items.ModItems;
+import de.maxhenkel.delivery.net.MessageSwitchLiquifier;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -35,10 +47,14 @@ public class Main {
 
     public static SimpleChannel SIMPLE_CHANNEL;
 
+    @CapabilityInject(Tasks.class)
+    public static Capability<Tasks> TASKS_CAPABILITY = null;
+
     public Main() {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModBlocks::registerItems);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModItems::registerItems);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModBlocks::registerBlocks);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Fluid.class, ModFluids::registerFluids);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(TileEntityType.class, ModTileEntities::registerTileEntities);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(ContainerType.class, Containers::registerContainers);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
@@ -52,14 +68,22 @@ public class Main {
 
     @SubscribeEvent
     public void commonSetup(FMLCommonSetupEvent event) {
+        MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
+
+        CapabilityManager.INSTANCE.register(Tasks.class, new TasksStorage(), Tasks::new);
     }
 
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
         ModTileEntities.clientSetup();
         Containers.clientSetup();
+    }
+
+    public static Tasks getTasks(ServerPlayerEntity playerEntity) {
+        return playerEntity.server.getWorld(World.OVERWORLD).getCapability(TASKS_CAPABILITY).orElseThrow(() -> new RuntimeException("Tasks capability not found"));
     }
 
 }

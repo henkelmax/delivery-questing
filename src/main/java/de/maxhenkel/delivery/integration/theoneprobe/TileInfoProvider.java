@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.integration.theoneprobe;
 
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.blocks.tileentity.BarrelTileEntity;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
@@ -21,5 +22,12 @@ public class TileInfoProvider implements IProbeInfoProvider {
     public void addProbeInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, BlockState blockState, IProbeHitData iProbeHitData) {
         TileEntity te = world.getTileEntity(iProbeHitData.getPos());
 
+
+        if (te instanceof BarrelTileEntity) {
+            if (probeMode.equals(ProbeMode.EXTENDED)) {
+                BarrelTileEntity barrel = (BarrelTileEntity) te;
+                //iProbeInfo.progress(barrel.getTank().getFluidAmount(), barrel.getTank().getCapacity(), iProbeInfo.defaultProgressStyle().suffix("mb"));
+            }
+        }
     }
 }

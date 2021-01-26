@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.corelib.ClientRegistry;
+import de.maxhenkel.corelib.inventory.ContainerFactoryTileEntity;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.ResourceLocation;
@@ -17,6 +18,9 @@ public class Containers {
     public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_5_CONTAINER;
     public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_6_CONTAINER;
     public static ContainerType<MailboxContainer> MAILBOX_CONTAINER;
+    public static ContainerType<EnergyLiquifierContainer> ENERGY_LIQUIFIER_CONTAINER;
+    public static ContainerType<EnvelopeContainer> ENVELOPE_CONTAINER;
+    public static ContainerType<ParcelContainer> PARCEL_CONTAINER;
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
@@ -27,6 +31,9 @@ public class Containers {
         ClientRegistry.registerScreen(CARDBOARD_TIER_5_CONTAINER, CardboardBoxScreenTier5::new);
         ClientRegistry.registerScreen(CARDBOARD_TIER_6_CONTAINER, CardboardBoxScreenTier6::new);
         ClientRegistry.registerScreen(MAILBOX_CONTAINER, MailboxScreen::new);
+        ClientRegistry.registerScreen(ENERGY_LIQUIFIER_CONTAINER, EnergyLiquifierScreen::new);
+        ClientRegistry.registerScreen(ENVELOPE_CONTAINER, EnvelopeScreen::new);
+        ClientRegistry.registerScreen(PARCEL_CONTAINER, ParcelScreen::new);
     }
 
     public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
@@ -57,6 +64,19 @@ public class Containers {
         MAILBOX_CONTAINER = new ContainerType<>(MailboxContainer::new);
         MAILBOX_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "mailbox"));
         event.getRegistry().register(MAILBOX_CONTAINER);
+
+        ENERGY_LIQUIFIER_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(EnergyLiquifierContainer::new));
+        ENERGY_LIQUIFIER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "energy_liquifier"));
+        event.getRegistry().register(ENERGY_LIQUIFIER_CONTAINER);
+
+        ENVELOPE_CONTAINER = new ContainerType<>(EnvelopeContainer::new);
+        ENVELOPE_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "envelope"));
+        event.getRegistry().register(ENVELOPE_CONTAINER);
+
+        PARCEL_CONTAINER = new ContainerType<>(ParcelContainer::new);
+        PARCEL_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
+        event.getRegistry().register(PARCEL_CONTAINER);
+
     }
 
 }

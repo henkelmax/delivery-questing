@@ -1,6 +1,8 @@
 package de.maxhenkel.delivery.blocks;
 
+import de.maxhenkel.delivery.blocks.fluid.LiquidEnergyBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 
@@ -20,6 +22,9 @@ public class ModBlocks {
     public static final BarrelBlock BARREL_TIER_6 = new BarrelBlock(BarrelBlock.Tier.TIER_6);
     public static final MailboxPostBlock MAILBOX_POST = new MailboxPostBlock();
     public static final MailboxBlock MAILBOX = new MailboxBlock();
+    public static final EnergyLiquifierBlock ENERGY_LIQUIFIER = new EnergyLiquifierBlock();
+
+    public static final FlowingFluidBlock LIQUID_ENERGY = new LiquidEnergyBlock();
 
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(
@@ -36,7 +41,9 @@ public class ModBlocks {
                 BARREL_TIER_5,
                 BARREL_TIER_6,
                 MAILBOX_POST,
-                MAILBOX
+                MAILBOX,
+                ENERGY_LIQUIFIER,
+                LIQUID_ENERGY
         );
     }
 
@@ -55,7 +62,8 @@ public class ModBlocks {
                 BARREL_TIER_5.toItem(),
                 BARREL_TIER_6.toItem(),
                 MAILBOX_POST.toItem(),
-                MAILBOX.toItem()
+                MAILBOX.toItem(),
+                ENERGY_LIQUIFIER.toItem()
         );
     }
 

@@ -13,6 +13,7 @@ public class ModTileEntities {
     public static TileEntityType<CardboradBoxTileEntity> CARDBOARD_BOX;
     public static TileEntityType<BarrelTileEntity> BARREL;
     public static TileEntityType<MailboxTileEntity> MAILBOX;
+    public static TileEntityType<EnergyLiquifierTileEntity> ENERGY_LIQUIFIER;
 
     public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
         CARDBOARD_BOX = TileEntityType.Builder.create(CardboradBoxTileEntity::new,
@@ -40,6 +41,10 @@ public class ModTileEntities {
         MAILBOX = TileEntityType.Builder.create(MailboxTileEntity::new, ModBlocks.MAILBOX).build(null);
         MAILBOX.setRegistryName(new ResourceLocation(Main.MODID, "mailbox"));
         event.getRegistry().register(MAILBOX);
+
+        ENERGY_LIQUIFIER = TileEntityType.Builder.create(EnergyLiquifierTileEntity::new, ModBlocks.ENERGY_LIQUIFIER).build(null);
+        ENERGY_LIQUIFIER.setRegistryName(new ResourceLocation(Main.MODID, "energy_liquifier"));
+        event.getRegistry().register(ENERGY_LIQUIFIER);
 
     }
 
