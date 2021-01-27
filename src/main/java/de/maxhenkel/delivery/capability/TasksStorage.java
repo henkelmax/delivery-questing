@@ -12,11 +12,11 @@ public class TasksStorage implements Capability.IStorage<Tasks> {
     @Nullable
     @Override
     public INBT writeNBT(Capability<Tasks> capability, Tasks instance, Direction side) {
-        return instance.toNBT();
+        return instance.serializeNBT();
     }
 
     @Override
     public void readNBT(Capability<Tasks> capability, Tasks instance, Direction side, INBT nbt) {
-        instance.fromNBT((CompoundNBT) nbt);
+        instance.deserializeNBT((CompoundNBT) nbt);
     }
 }

@@ -12,28 +12,28 @@ import javax.annotation.Nullable;
 
 public class TasksCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
 
-    private Tasks baseWorld;
+    private Tasks tasks;
 
     public TasksCapabilityProvider(Tasks baseWorld) {
-        this.baseWorld = baseWorld;
+        this.tasks = baseWorld;
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if (cap.equals(Main.TASKS_CAPABILITY)) {
-            return LazyOptional.of(() -> (T) baseWorld);
+            return LazyOptional.of(() -> (T) tasks);
         }
         return LazyOptional.empty();
     }
 
     @Override
     public CompoundNBT serializeNBT() {
-        return baseWorld.toNBT();
+        return tasks.serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        baseWorld.fromNBT(nbt);
+    public void deserializeNBT(CompoundNBT compound) {
+        tasks.deserializeNBT(compound);
     }
 }

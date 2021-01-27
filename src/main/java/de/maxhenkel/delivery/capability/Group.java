@@ -1,7 +1,9 @@
 package de.maxhenkel.delivery.capability;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
@@ -24,6 +26,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.completedTasks = new ArrayList<>();
     }
 
+    public Group() {
+
+    }
+
     public List<Task> getTasks() {
         return tasks;
     }
@@ -32,16 +38,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return completedTasks;
     }
 
-    public boolean addMember(UUID member) {
+    public void addMember(UUID member) throws CommandException {
         if (members.stream().anyMatch(uuid -> uuid.equals(member))) {
-            return false;
+            throw new CommandException(new TranslationTextComponent("command.delivery.already_member"));
         }
         members.add(member);
-        return true;
     }
 
     public boolean removeMember(UUID member) {
         return members.removeIf(uuid -> uuid.equals(member));
+    }
+
+    public boolean isMember(UUID player) {
+        return members.stream().anyMatch(uuid -> uuid.equals(player));
     }
 
     public String getName() {

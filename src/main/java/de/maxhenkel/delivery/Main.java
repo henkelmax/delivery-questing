@@ -6,6 +6,7 @@ import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
 import de.maxhenkel.delivery.capability.Tasks;
 import de.maxhenkel.delivery.capability.TasksStorage;
+import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +26,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -68,6 +71,7 @@ public class Main {
 
     @SubscribeEvent
     public void commonSetup(FMLCommonSetupEvent event) {
+        MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
@@ -82,8 +86,17 @@ public class Main {
         Containers.clientSetup();
     }
 
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        GroupCommand.register(event.getDispatcher());
+    }
+
     public static Tasks getTasks(ServerPlayerEntity playerEntity) {
-        return playerEntity.server.getWorld(World.OVERWORLD).getCapability(TASKS_CAPABILITY).orElseThrow(() -> new RuntimeException("Tasks capability not found"));
+        return getTasks(playerEntity.server);
+    }
+
+    public static Tasks getTasks(MinecraftServer server) {
+        return server.getWorld(World.OVERWORLD).getCapability(TASKS_CAPABILITY).orElseThrow(() -> new RuntimeException("Tasks capability not found"));
     }
 
 }
