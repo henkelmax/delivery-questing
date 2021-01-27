@@ -9,18 +9,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CapabilityEvents {
 
-    public static final ResourceLocation TASKS_CAPABILITY = new ResourceLocation(Main.MODID, "tasks");
+    public static final ResourceLocation PROGRESSION_CAPABILITY = new ResourceLocation(Main.MODID, "progression");
 
     @SubscribeEvent
     public void onCapabilityAttach(AttachCapabilitiesEvent<World> event) {
         if (!event.getObject().getDimensionKey().equals(Dimension.OVERWORLD)) {
             return;
         }
-        if (event.getObject().getCapability(Main.TASKS_CAPABILITY).isPresent()) {
+        if (event.getObject().getCapability(Main.PROGRESSION_CAPABILITY).isPresent()) {
             return;
         }
 
-        event.addCapability(TASKS_CAPABILITY, new TasksCapabilityProvider(new Tasks()));
+        event.addCapability(PROGRESSION_CAPABILITY, new ProgressionCapabilityProvider(new Progression()));
     }
 
 }

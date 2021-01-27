@@ -17,6 +17,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private List<UUID> members;
     private List<Task> tasks;
     private List<UUID> completedTasks;
+    private long experience;
 
     public Group(String name, String password) {
         this.name = name;
@@ -24,6 +25,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.members = new ArrayList<>();
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
+        this.experience = 0L;
     }
 
     public Group() {
@@ -69,6 +71,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return members;
     }
 
+    public long getExperience() {
+        return experience;
+    }
+
+    public void addExperience(int experience) {
+        this.experience += experience;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -97,6 +107,8 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
         compound.put("CompletedTasks", completedTasksList);
 
+        compound.putLong("Experience", experience);
+
         return compound;
     }
 
@@ -124,5 +136,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         for (int i = 0; i < completedTasksList.size(); i++) {
             this.completedTasks.add(completedTasksList.getCompound(i).getUniqueId("ID"));
         }
+
+        this.experience = compound.getLong("Experience");
     }
 }

@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Tasks implements INBTSerializable<CompoundNBT> {
+public class Progression implements INBTSerializable<CompoundNBT> {
 
     private List<Group> groups;
 
-    public Tasks() {
+    public Progression() {
         groups = new ArrayList<>();
     }
 

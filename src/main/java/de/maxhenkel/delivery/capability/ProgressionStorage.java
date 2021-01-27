@@ -7,16 +7,16 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nullable;
 
-public class TasksStorage implements Capability.IStorage<Tasks> {
+public class ProgressionStorage implements Capability.IStorage<Progression> {
 
     @Nullable
     @Override
-    public INBT writeNBT(Capability<Tasks> capability, Tasks instance, Direction side) {
+    public INBT writeNBT(Capability<Progression> capability, Progression instance, Direction side) {
         return instance.serializeNBT();
     }
 
     @Override
-    public void readNBT(Capability<Tasks> capability, Tasks instance, Direction side, INBT nbt) {
+    public void readNBT(Capability<Progression> capability, Progression instance, Direction side, INBT nbt) {
         instance.deserializeNBT((CompoundNBT) nbt);
     }
 }

@@ -10,30 +10,30 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TasksCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
+public class ProgressionCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
 
-    private Tasks tasks;
+    private Progression progression;
 
-    public TasksCapabilityProvider(Tasks baseWorld) {
-        this.tasks = baseWorld;
+    public ProgressionCapabilityProvider(Progression progression) {
+        this.progression = progression;
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap.equals(Main.TASKS_CAPABILITY)) {
-            return LazyOptional.of(() -> (T) tasks);
+        if (cap.equals(Main.PROGRESSION_CAPABILITY)) {
+            return LazyOptional.of(() -> (T) progression);
         }
         return LazyOptional.empty();
     }
 
     @Override
     public CompoundNBT serializeNBT() {
-        return tasks.serializeNBT();
+        return progression.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        tasks.deserializeNBT(compound);
+        progression.deserializeNBT(compound);
     }
 }
