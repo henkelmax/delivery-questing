@@ -26,9 +26,4 @@ public class ParcelScreen extends ScreenBase<ParcelContainer> {
         drawCentered(matrixStack, title, 9, FONT_COLOR);
         font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
     }
-
-    protected void drawCentered(MatrixStack matrixStack, ITextComponent text, int y, int color) {
-        int width = font.getStringWidth(text.getString());
-        font.func_243248_b(matrixStack, text, xSize / 2F - width / 2F, y, color);
-    }
 }

@@ -2,39 +2,39 @@ package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.DirectionalVoxelShape;
 import de.maxhenkel.corelib.block.IItemBlock;
+import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.MailboxTileEntity;
+import de.maxhenkel.delivery.tasks.Group;
+import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.gui.MailboxContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
+import javax.annotation.Nullable;
+
+public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IGroupBlock {
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder()
             .direction(Direction.NORTH,
@@ -69,27 +69,47 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
         TileEntity te = worldIn.getTileEntity(pos);
 
         if (!(te instanceof MailboxTileEntity)) {
-            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+            return super.onBlockActivated(state, worldIn, pos, p, handIn, hit);
         }
+
+        if (!(p instanceof ServerPlayerEntity)) {
+            return ActionResultType.SUCCESS;
+        }
+        ServerPlayerEntity player = (ServerPlayerEntity) p;
 
         MailboxTileEntity mailbox = (MailboxTileEntity) te;
 
-        player.openContainer(new INamedContainerProvider() {
-            @Override
-            public ITextComponent getDisplayName() {
-                return new TranslationTextComponent(state.getBlock().getTranslationKey());
-            }
+        return checkGroup(worldIn, pos, p, (group) -> TileEntityContainerProvider.openGui(player, mailbox, (i, playerInventory, playerEntity) -> new MailboxContainer(i, playerInventory, mailbox)));
+    }
 
-            @Override
-            public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity player) {
-                return new MailboxContainer(id, playerInventory, mailbox.getOutbox());
-            }
-        });
-        return ActionResultType.SUCCESS;
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+
+        if (!(placer instanceof ServerPlayerEntity)) {
+            return;
+        }
+        ServerPlayerEntity player = (ServerPlayerEntity) placer;
+        Progression progression = Main.getProgression(player);
+        Group group = null;
+        try {
+            group = progression.getGroup(player.getUniqueID());
+        } catch (Exception e) {
+        }
+
+        if (group == null) {
+            return;
+        }
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (!(te instanceof MailboxTileEntity)) {
+            return;
+        }
+        MailboxTileEntity mailbox = (MailboxTileEntity) te;
+        mailbox.setGroup(group.getId());
     }
 
     @Override
@@ -102,6 +122,7 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof MailboxTileEntity) {
             MailboxTileEntity mailbox = (MailboxTileEntity) te;
+            InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getInbox());
             InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);

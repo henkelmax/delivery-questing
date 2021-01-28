@@ -1,4 +1,4 @@
-package de.maxhenkel.delivery.capability;
+package de.maxhenkel.delivery.tasks;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.nbt.CompoundNBT;
@@ -52,14 +52,18 @@ public class Progression implements INBTSerializable<CompoundNBT> {
         group.addMember(player);
     }
 
-    public Group leaveGroup(UUID player) throws CommandException {
+    public Group getGroup(UUID player) throws CommandException {
         Optional<Group> optionalGroup = groups.stream().filter(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player))).findAny();
 
         if (!optionalGroup.isPresent()) {
             throw new CommandException(new TranslationTextComponent("command.delivery.player_not_in_group"));
         }
 
-        Group group = optionalGroup.get();
+        return optionalGroup.get();
+    }
+
+    public Group leaveGroup(UUID player) throws CommandException {
+        Group group = getGroup(player);
         group.removeMember(player);
         return group;
     }

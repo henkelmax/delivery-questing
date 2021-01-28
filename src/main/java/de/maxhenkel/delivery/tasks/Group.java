@@ -1,5 +1,6 @@
-package de.maxhenkel.delivery.capability;
+package de.maxhenkel.delivery.tasks;
 
+import de.maxhenkel.delivery.Main;
 import net.minecraft.command.CommandException;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -12,14 +13,16 @@ import java.util.UUID;
 
 public class Group implements INBTSerializable<CompoundNBT> {
 
+    private UUID id;
     private String name;
     private String password;
     private List<UUID> members;
-    private List<Task> tasks;
+    private List<TaskProgress> tasks;
     private List<UUID> completedTasks;
     private long experience;
 
     public Group(String name, String password) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.password = password;
         this.members = new ArrayList<>();
@@ -32,8 +35,16 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     }
 
-    public List<Task> getTasks() {
+    public UUID getId() {
+        return id;
+    }
+
+    public List<TaskProgress> getTasks() {
         return tasks;
+    }
+
+    public void addTask(UUID taskID) {
+        tasks.add(new TaskProgress(taskID));
     }
 
     public List<UUID> getCompletedTasks() {
@@ -79,9 +90,25 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.experience += experience;
     }
 
+    public ActiveTasks getActiveTasks() {
+        List<ActiveTask> t = new ArrayList<>();
+        for (TaskProgress taskProgress : tasks) {
+            Task task = Main.TASK_MANAGER.getTask(taskProgress.getTaskID());
+            if (task != null) {
+                t.add(new ActiveTask(task, taskProgress));
+            }
+        }
+        return new ActiveTasks(t);
+    }
+
+    public float getLevel() {
+        return experience / 100F; //TODO
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
+        compound.putUniqueId("ID", id);
         compound.putString("Name", name);
         compound.putString("Password", password);
 
@@ -94,7 +121,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         compound.put("Members", memberList);
 
         ListNBT taskList = new ListNBT();
-        for (Task task : tasks) {
+        for (TaskProgress task : tasks) {
             taskList.add(task.serializeNBT());
         }
         compound.put("Tasks", taskList);
@@ -114,6 +141,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
+        this.id = compound.getUniqueId("ID");
         this.name = compound.getString("Name");
         this.password = compound.getString("Name");
 
@@ -126,7 +154,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ListNBT taskList = compound.getList("Tasks", 10);
         this.tasks = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
-            Task task = new Task();
+            TaskProgress task = new TaskProgress();
             task.deserializeNBT(taskList.getCompound(i));
             this.tasks.add(task);
         }

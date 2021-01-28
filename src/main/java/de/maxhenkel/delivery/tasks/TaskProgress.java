@@ -1,4 +1,4 @@
-package de.maxhenkel.delivery.capability;
+package de.maxhenkel.delivery.tasks;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -10,20 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Task implements INBTSerializable<CompoundNBT> {
+public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
     private UUID taskID;
     private List<ItemStack> taskItems;
     private List<FluidStack> taskFluids;
 
-    public Task(UUID taskID) {
+    public TaskProgress(UUID taskID) {
         this.taskID = taskID;
         taskItems = new ArrayList<>();
         taskFluids = new ArrayList<>();
     }
 
-    public Task() {
+    public TaskProgress() {
 
+    }
+
+    public UUID getTaskID() {
+        return taskID;
     }
 
     public List<ItemStack> getTaskItems() {

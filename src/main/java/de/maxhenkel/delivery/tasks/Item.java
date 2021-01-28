@@ -1,45 +1,42 @@
 package de.maxhenkel.delivery.tasks;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
 import de.maxhenkel.corelib.tag.TagUtils;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
 
-public class Item {
+public class Item extends TaskElement<net.minecraft.item.Item> {
 
-    private ITag<net.minecraft.item.Item> item;
-    private int amount;
-
-    public Item(ITag<net.minecraft.item.Item> item, int amount) {
-        this.item = item;
-        this.amount = amount;
+    public Item(String tag, ITag.INamedTag<net.minecraft.item.Item> item, long amount) {
+        super(tag, item, amount);
     }
 
-    private Item() {
+    public Item() {
 
     }
 
-    public ITag<net.minecraft.item.Item> getItem() {
-        return item;
-    }
-
-    public int getAmount() {
-        return amount;
+    @Override
+    protected ITag.INamedTag<net.minecraft.item.Item> getTag(String tag) {
+        return TagUtils.getItem(tag, true);
     }
 
     public static final JsonDeserializer<Item> DESERIALIZER = (json, typeOfT, context) -> {
         JsonObject obj = json.getAsJsonObject();
         Item item = new Item();
         if (obj.has("tag")) {
-            item.item = ItemTags.getCollection().get(new ResourceLocation(obj.get("tag").getAsString()));
+            item.tag = "#" + obj.get("tag").getAsString();
         } else if (obj.has("item")) {
-            item.item = TagUtils.getItem(obj.get("item").getAsString(), true);
+            item.tag = obj.get("item").getAsString();
         }
+
+        if (item.tag != null) {
+            item.item = item.getTag(item.tag);
+        }
+
         if (obj.has("amount")) {
-            item.amount = obj.get("amount").getAsInt();
+            item.amount = obj.get("amount").getAsLong();
         } else {
-            item.amount = 1;
+            item.amount = 1L;
         }
 
         return item;

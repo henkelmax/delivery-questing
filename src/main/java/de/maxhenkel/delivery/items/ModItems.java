@@ -9,14 +9,18 @@ import net.minecraftforge.event.RegistryEvent;
 public class ModItems {
 
     public static final EnvelopeItem ENVELOPE = new EnvelopeItem();
+    public static final SealedEnvelopeItem SEALED_ENVELOPE = new SealedEnvelopeItem();
     public static final ParcelItem PARCEL = new ParcelItem();
+    public static final ContractItem CONTRACT = new ContractItem();
     public static final ModBucketItem LIQUID_ENERGY_BUCKET = new ModBucketItem(ModFluids.LIQUID_ENERGY, new ResourceLocation(Main.MODID, "liquid_energy_bucket"));
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
-                LIQUID_ENERGY_BUCKET,
                 ENVELOPE,
-                PARCEL
+                SEALED_ENVELOPE,
+                PARCEL,
+                CONTRACT,
+                LIQUID_ENERGY_BUCKET
         );
     }
 

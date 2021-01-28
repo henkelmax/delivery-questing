@@ -31,4 +31,5 @@ public class InventoryItem extends Item {
             tooltip.add(new TranslationTextComponent("tooltip.delivery.item_count", items.stream().filter(stack1 -> !stack1.isEmpty()).map(ItemStack::getCount).reduce(Integer::sum).orElse(0)).mergeStyle(TextFormatting.GRAY));
         }
     }
+
 }

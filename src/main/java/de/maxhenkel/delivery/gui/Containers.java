@@ -3,6 +3,8 @@ package de.maxhenkel.delivery.gui;
 import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.inventory.ContainerFactoryTileEntity;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTask;
+import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTaskList;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,6 +23,8 @@ public class Containers {
     public static ContainerType<EnergyLiquifierContainer> ENERGY_LIQUIFIER_CONTAINER;
     public static ContainerType<EnvelopeContainer> ENVELOPE_CONTAINER;
     public static ContainerType<ParcelContainer> PARCEL_CONTAINER;
+    public static ContainerType<BulletinBoardContainer> BULLETIN_BOARD_CONTAINER;
+    public static ContainerType<ContractContainer> CONTRACT_CONTAINER;
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
@@ -34,6 +38,8 @@ public class Containers {
         ClientRegistry.registerScreen(ENERGY_LIQUIFIER_CONTAINER, EnergyLiquifierScreen::new);
         ClientRegistry.registerScreen(ENVELOPE_CONTAINER, EnvelopeScreen::new);
         ClientRegistry.registerScreen(PARCEL_CONTAINER, ParcelScreen::new);
+        ClientRegistry.registerScreen(BULLETIN_BOARD_CONTAINER, BulletinBoardScreen::new);
+        ClientRegistry.registerScreen(CONTRACT_CONTAINER, ContractScreen::new);
     }
 
     public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
@@ -61,7 +67,7 @@ public class Containers {
         CARDBOARD_TIER_6_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_6"));
         event.getRegistry().register(CARDBOARD_TIER_6_CONTAINER);
 
-        MAILBOX_CONTAINER = new ContainerType<>(MailboxContainer::new);
+        MAILBOX_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(MailboxContainer::new));
         MAILBOX_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "mailbox"));
         event.getRegistry().register(MAILBOX_CONTAINER);
 
@@ -77,6 +83,13 @@ public class Containers {
         PARCEL_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
         event.getRegistry().register(PARCEL_CONTAINER);
 
+        BULLETIN_BOARD_CONTAINER = new ContainerType<>(new ContainerFactoryTaskList<>(BulletinBoardContainer::new));
+        BULLETIN_BOARD_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "bulletin_board"));
+        event.getRegistry().register(BULLETIN_BOARD_CONTAINER);
+
+        CONTRACT_CONTAINER = new ContainerType<>(new ContainerFactoryTask<>(ContractContainer::new));
+        CONTRACT_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "contract"));
+        event.getRegistry().register(CONTRACT_CONTAINER);
     }
 
 }

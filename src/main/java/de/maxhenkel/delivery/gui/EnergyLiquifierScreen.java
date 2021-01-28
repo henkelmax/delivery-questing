@@ -56,11 +56,6 @@ public class EnergyLiquifierScreen extends ScreenBase<EnergyLiquifierContainer> 
         drawHoverAreas(matrixStack, x, y);
     }
 
-    protected void drawCentered(MatrixStack matrixStack, ITextComponent text, int y, int color) {
-        int width = font.getStringPropertyWidth(text);
-        font.func_243248_b(matrixStack, text, xSize / 2F - width / 2F, y, color);
-    }
-
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);

@@ -31,7 +31,7 @@ public class ItemInventory implements IInventory {
     public void openInventory(PlayerEntity player) {
         SoundEvent openSound = getOpenSound();
         if (openSound != null) {
-            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), openSound, SoundCategory.BLOCKS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
         }
     }
 
@@ -39,7 +39,7 @@ public class ItemInventory implements IInventory {
     public void closeInventory(PlayerEntity player) {
         SoundEvent closeSound = getCloseSound();
         if (closeSound != null) {
-            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), closeSound, SoundCategory.BLOCKS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), closeSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
         }
     }
 

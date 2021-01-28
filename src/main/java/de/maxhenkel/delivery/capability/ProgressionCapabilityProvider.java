@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.capability;
 
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.tasks.Progression;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;

@@ -1,24 +1,43 @@
 package de.maxhenkel.delivery.tasks;
 
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraftforge.common.util.INBTSerializable;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Task {
+public class Task implements INBTSerializable<CompoundNBT> {
 
-    private final UUID id;
-    private final int minLevel;
-    private final int maxLevel;
-    private final int experience;
-    private final List<Item> items;
-    private final List<Fluid> fluids;
+    private UUID id;
+    private String name;
+    private String description;
+    private String contractorName;
+    private String skin;
+    private String profession;
+    private int minLevel;
+    private int maxLevel;
+    private int experience;
+    private List<Item> items;
+    private List<Fluid> fluids;
 
-    public Task(UUID id, int minLevel, int maxLevel, int experience, List<Item> items, List<Fluid> fluids) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, List<Item> items, List<Fluid> fluids) {
         this.id = id;
+        this.name = name;
+        this.description = description;
+        this.contractorName = contractorName;
+        this.skin = skin;
+        this.profession = profession;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.experience = experience;
         this.items = items;
         this.fluids = fluids;
+    }
+
+    public Task() {
+
     }
 
     public UUID getId() {
@@ -45,4 +64,82 @@ public class Task {
         return items;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getContractorName() {
+        return contractorName;
+    }
+
+    public String getSkin() {
+        return skin;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    @Override
+    public CompoundNBT serializeNBT() {
+        CompoundNBT compound = new CompoundNBT();
+        compound.putUniqueId("ID", id);
+        compound.putString("Name", name);
+        compound.putString("Description", description);
+        compound.putString("ContractorName", contractorName);
+        compound.putString("Skin", skin);
+        compound.putString("Profession", profession);
+        compound.putInt("MinLevel", minLevel);
+        compound.putInt("MaxLevel", maxLevel);
+        compound.putInt("Experience", experience);
+
+        ListNBT itemList = new ListNBT();
+        for (Item item : items) {
+            itemList.add(item.serializeNBT());
+        }
+        compound.put("Items", itemList);
+
+        ListNBT fluidList = new ListNBT();
+        for (Fluid fluid : fluids) {
+            fluidList.add(fluid.serializeNBT());
+        }
+        compound.put("Fluids", fluidList);
+
+        return compound;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT compound) {
+        id = compound.getUniqueId("ID");
+        name = compound.getString("Name");
+        description = compound.getString("Description");
+        contractorName = compound.getString("ContractorName");
+        skin = compound.getString("Skin");
+        profession = compound.getString("Profession");
+        minLevel = compound.getInt("MinLevel");
+        maxLevel = compound.getInt("MaxLevel");
+        experience = compound.getInt("Experience");
+
+        items = new ArrayList<>();
+        ListNBT itemList = compound.getList("Items", 10);
+        for (int i = 0; i < itemList.size(); i++) {
+            CompoundNBT e = itemList.getCompound(i);
+            Item item = new Item();
+            item.deserializeNBT(e);
+            items.add(item);
+        }
+
+        fluids = new ArrayList<>();
+        ListNBT fluidList = compound.getList("Fluids", 10);
+        for (int i = 0; i < fluidList.size(); i++) {
+            CompoundNBT e = fluidList.getCompound(i);
+            Fluid fluid = new Fluid();
+            fluid.deserializeNBT(e);
+            fluids.add(fluid);
+        }
+    }
 }

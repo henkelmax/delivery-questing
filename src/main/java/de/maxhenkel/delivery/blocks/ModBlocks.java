@@ -23,6 +23,7 @@ public class ModBlocks {
     public static final MailboxPostBlock MAILBOX_POST = new MailboxPostBlock();
     public static final MailboxBlock MAILBOX = new MailboxBlock();
     public static final EnergyLiquifierBlock ENERGY_LIQUIFIER = new EnergyLiquifierBlock();
+    public static final BulletinBoardBlock BULLETIN_BOARD = new BulletinBoardBlock();
 
     public static final FlowingFluidBlock LIQUID_ENERGY = new LiquidEnergyBlock();
 
@@ -43,7 +44,8 @@ public class ModBlocks {
                 MAILBOX_POST,
                 MAILBOX,
                 ENERGY_LIQUIFIER,
-                LIQUID_ENERGY
+                LIQUID_ENERGY,
+                BULLETIN_BOARD
         );
     }
 
@@ -63,7 +65,8 @@ public class ModBlocks {
                 BARREL_TIER_6.toItem(),
                 MAILBOX_POST.toItem(),
                 MAILBOX.toItem(),
-                ENERGY_LIQUIFIER.toItem()
+                ENERGY_LIQUIFIER.toItem(),
+                BULLETIN_BOARD.toItem()
         );
     }
 

@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "delivery:block/bulletin_board" },
+        "facing=south": { "model": "delivery:block/bulletin_board", "y": 180 },
+        "facing=west": { "model": "delivery:block/bulletin_board", "y": 270 },
+        "facing=east": { "model": "delivery:block/bulletin_board", "y": 90 }
+    }
+}

@@ -4,7 +4,7 @@ import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
-import de.maxhenkel.delivery.capability.Progression;
+import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.capability.ProgressionStorage;
 import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.fluid.ModFluids;
@@ -102,11 +102,11 @@ public class Main {
         GroupCommand.register(event.getDispatcher());
     }
 
-    public static Progression getTasks(ServerPlayerEntity playerEntity) {
-        return getTasks(playerEntity.server);
+    public static Progression getProgression(ServerPlayerEntity playerEntity) {
+        return getProgression(playerEntity.server);
     }
 
-    public static Progression getTasks(MinecraftServer server) {
+    public static Progression getProgression(MinecraftServer server) {
         return server.getWorld(World.OVERWORLD).getCapability(PROGRESSION_CAPABILITY).orElseThrow(() -> new RuntimeException("Progression capability not found"));
     }
 
