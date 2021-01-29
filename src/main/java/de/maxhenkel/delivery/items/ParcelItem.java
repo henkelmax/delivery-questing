@@ -13,7 +13,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
-public class ParcelItem extends InventoryItem {
+public class ParcelItem extends SingleSlotInventoryItem {
 
     public ParcelItem() {
         super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));

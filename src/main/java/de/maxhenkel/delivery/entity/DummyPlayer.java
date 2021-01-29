@@ -32,7 +32,7 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
         recalculateSize();
     }
 
-    protected void loadSkin(String filename, Consumer<ResourceLocation> consumer) {
+    public static void loadSkin(String filename, Consumer<ResourceLocation> consumer) {
         ResourceLocation location = new ResourceLocation(Main.MODID, "textures/entities/dynamic/" + filename + ".png");
 
         if (cache.containsKey(filename)) {

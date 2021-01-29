@@ -41,7 +41,7 @@ public interface IGroupBlock {
         } catch (Exception e) {
 
         }
-        if (groupTileEntity.getGroup() == null) {
+        if (groupTileEntity.getGroupID() == null) {
 
             if (playerGroup == null) {
                 player.sendMessage(
@@ -67,7 +67,7 @@ public interface IGroupBlock {
             } else {
                 groupTileEntity.setGroup(playerGroup.getId());
             }
-        } else if (playerGroup != null && !groupTileEntity.getGroup().equals(playerGroup.getId())) {
+        } else if (playerGroup != null && !groupTileEntity.getGroupID().equals(playerGroup.getId())) {
             player.sendMessage(new TranslationTextComponent("message.delivery.no_member"), Util.DUMMY_UUID);
             return ActionResultType.SUCCESS;
         } else if (playerGroup == null) {

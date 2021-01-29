@@ -33,6 +33,7 @@
   "message.delivery.task_page": "Task %s of %s",
   "message.delivery.no_tasks": "No active tasks",
   "message.delivery.reward_xp": "XP: %s",
+  "message.delivery.contract_already_accepted": "You already accepted this contract",
   "tooltip.delivery.energy": "%sFE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%smb",
@@ -66,5 +67,6 @@
   "command.delivery.backup_success": "Backup saved as '%s'",
   "command.delivery.backup_load_success": "Successfully loaded backup",
   "button.delivery.previous": "<",
-  "button.delivery.next": ">"
+  "button.delivery.next": ">",
+  "toast.delivery.contract_completed": "Contract completed"
 }

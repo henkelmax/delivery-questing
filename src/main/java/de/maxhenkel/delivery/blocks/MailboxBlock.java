@@ -119,12 +119,14 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
 
     @Override
     public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof MailboxTileEntity) {
-            MailboxTileEntity mailbox = (MailboxTileEntity) te;
-            InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
+        if (!state.isIn(newState.getBlock())) {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof MailboxTileEntity) {
+                MailboxTileEntity mailbox = (MailboxTileEntity) te;
+                InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
+            }
+            super.onReplaced(state, worldIn, pos, newState, isMoving);
         }
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
     }
 
     @Override

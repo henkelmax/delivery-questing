@@ -1,11 +1,13 @@
 package de.maxhenkel.delivery.tasks;
 
+import de.maxhenkel.delivery.Main;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +38,11 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
     public List<FluidStack> getTaskFluids() {
         return taskFluids;
+    }
+
+    @Nullable
+    public Task findTask() {
+        return Main.TASK_MANAGER.getTask(taskID);
     }
 
     @Override

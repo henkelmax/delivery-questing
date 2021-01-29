@@ -6,6 +6,7 @@ import de.maxhenkel.corelib.fluid.FluidUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.BarrelTileEntity;
+import de.maxhenkel.delivery.tasks.ITaskContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -30,12 +32,13 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
+public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer {
 
     private static final VoxelShape SHAPE = VoxelUtils.combine(
             Block.makeCuboidShape(5D, 0D, 0D, 11D, 16D, 1D),
@@ -94,6 +97,22 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
         return new BarrelTileEntity(tier);
+    }
+
+    @Override
+    public NonNullList<ItemStack> getItems(ItemStack stack) {
+        return NonNullList.create();
+    }
+
+    @Override
+    public NonNullList<FluidStack> getFluids(ItemStack stack) {
+        NonNullList<FluidStack> fluids = NonNullList.create();
+        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+        if (blockEntityTag != null) {
+            FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
+            fluids.add(tank.getFluid());
+        }
+        return fluids;
     }
 
     public static enum Tier {

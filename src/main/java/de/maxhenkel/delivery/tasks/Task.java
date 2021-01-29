@@ -37,7 +37,8 @@ public class Task implements INBTSerializable<CompoundNBT> {
     }
 
     public Task() {
-
+        this.items = new ArrayList<>();
+        this.fluids = new ArrayList<>();
     }
 
     public UUID getId() {

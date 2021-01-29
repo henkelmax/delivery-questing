@@ -1,17 +1,27 @@
 package de.maxhenkel.delivery.tasks;
 
+import de.maxhenkel.corelib.helpers.Triple;
 import de.maxhenkel.corelib.item.ItemUtils;
+import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import net.minecraft.command.CommandException;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Group implements INBTSerializable<CompoundNBT> {
@@ -99,6 +109,16 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return mailboxInbox;
     }
 
+    public boolean canAcceptTask(UUID taskID) {
+        if (completedTasks.stream().anyMatch(uuid -> uuid.equals(taskID))) {
+            return false;
+        }
+        if (tasks.stream().anyMatch(taskProgress -> taskProgress.getTaskID().equals(taskID))) {
+            return false;
+        }
+        return true;
+    }
+
     public ActiveTasks getActiveTasks() {
         List<ActiveTask> t = new ArrayList<>();
         for (TaskProgress taskProgress : tasks) {
@@ -110,8 +130,152 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return new ActiveTasks(t);
     }
 
+    public void handInTaskItems(NonNullList<ItemStack> items) {
+        NonNullList<ItemStack> taskItems = NonNullList.create();
+        NonNullList<FluidStack> taskFluids = NonNullList.create();
+
+        for (ItemStack stack : items) {
+            if (stack.getItem() instanceof ITaskContainer) {
+                ITaskContainer container = (ITaskContainer) stack.getItem();
+                taskItems.addAll(container.getItems(stack));
+                taskFluids.addAll(container.getFluids(stack));
+            } else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ITaskContainer) {
+                ITaskContainer container = (ITaskContainer) ((BlockItem) stack.getItem()).getBlock();
+                taskItems.addAll(container.getItems(stack));
+                taskFluids.addAll(container.getFluids(stack));
+            } else {
+                taskItems.add(stack);
+            }
+        }
+
+
+        for (ItemStack stack : taskItems) {
+            while (putItemStack(stack)) {
+            }
+        }
+
+        for (FluidStack stack : taskFluids) {
+            while (putFluidStack(stack)) {
+            }
+        }
+
+        tasks.removeIf(taskProgress -> {
+            if (isFinished(taskProgress)) {
+                onTaskCompleted(taskProgress);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void onTaskCompleted(TaskProgress taskProgress) {
+        completedTasks.add(taskProgress.getTaskID());
+
+        Task task = taskProgress.findTask();
+
+        if (task == null) {
+            return;
+        }
+
+        PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
+        MessageTaskCompletedToast msg = new MessageTaskCompletedToast(task);
+        for (UUID member : members) {
+            ServerPlayerEntity player = playerList.getPlayerByUUID(member);
+            if (player != null) {
+                NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, msg);
+            }
+        }
+    }
+
+    private boolean isFinished(TaskProgress taskProgress) {
+        Task task = taskProgress.findTask();
+
+        if (task == null) {
+            return true; //TODO check
+        }
+
+        boolean itemsFinished = task.getItems().stream().allMatch(item -> getCurrentAmount(taskProgress, item) >= item.amount);
+        boolean fluidsFinished = task.getFluids().stream().allMatch(fluid -> getCurrentAmount(taskProgress, fluid) >= fluid.amount);
+
+        return itemsFinished && fluidsFinished;
+    }
+
+    private boolean putItemStack(ItemStack stack) {
+        Triple<Task, TaskProgress, Item> triple = findTask(stack);
+        if (triple == null) {
+            return false;
+        }
+        long itemsNeeded = triple.getValue3().amount - getCurrentAmount(triple.getValue2(), triple.getValue3());
+
+        int insertAmount = (int) Math.min(itemsNeeded, stack.getCount());
+
+        ItemStack insertStack = stack.split(insertAmount);
+
+        triple.getValue2().getTaskItems().add(insertStack);
+
+        return !stack.isEmpty();
+    }
+
+    private boolean putFluidStack(FluidStack stack) {
+        Triple<Task, TaskProgress, Fluid> triple = findTask(stack);
+        if (triple == null) {
+            return false;
+        }
+        long itemsNeeded = triple.getValue3().amount - getCurrentAmount(triple.getValue2(), triple.getValue3());
+
+        int insertAmount = (int) Math.min(itemsNeeded, stack.getAmount());
+
+        FluidStack insertStack = stack.copy();
+        insertStack.setAmount(insertAmount);
+        stack.setAmount(stack.getAmount() - insertAmount);
+
+        triple.getValue2().getTaskFluids().add(insertStack);
+
+        return !stack.isEmpty();
+    }
+
+    private long getCurrentAmount(TaskProgress progress, Item element) {
+        return progress.getTaskItems().stream().map(stack -> stack.getItem().isIn(element.item) ? (long) stack.getCount() : 0L).reduce(0L, Long::sum);
+    }
+
+    private long getCurrentAmount(TaskProgress progress, Fluid element) {
+        return progress.getTaskFluids().stream().map(stack -> stack.getFluid().isIn(element.item) ? (long) stack.getAmount() : 0L).reduce(0L, Long::sum);
+    }
+
+    @Nullable
+    private Triple<Task, TaskProgress, Item> findTask(ItemStack stack) {
+        for (TaskProgress taskProgress : tasks) {
+            Task task = taskProgress.findTask();
+            if (task == null) {
+                continue;
+            }
+            Optional<Item> item = task.getItems().stream().filter(i -> stack.getItem().isIn(i.getItem())).findAny();
+            if (item.isPresent()) {
+                return new Triple<>(task, taskProgress, item.get());
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private Triple<Task, TaskProgress, Fluid> findTask(FluidStack stack) {
+        for (TaskProgress taskProgress : tasks) {
+            Task task = taskProgress.findTask();
+            if (task == null) {
+                continue;
+            }
+            Optional<Fluid> item = task.getFluids().stream().filter(i -> stack.getFluid().isIn(i.getItem())).findAny();
+            if (item.isPresent()) {
+                return new Triple<>(task, taskProgress, item.get());
+            }
+        }
+
+        return null;
+    }
+
     public float getLevel() {
-        return experience / 100F; //TODO
+        return experience / 10F; //TODO
     }
 
     @Override

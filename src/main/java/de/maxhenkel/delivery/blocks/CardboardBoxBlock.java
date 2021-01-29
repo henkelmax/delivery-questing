@@ -1,10 +1,12 @@
 package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.CardboradBoxTileEntity;
 import de.maxhenkel.delivery.gui.*;
+import de.maxhenkel.delivery.tasks.ITaskContainer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
@@ -12,7 +14,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -30,11 +31,12 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
+public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer {
 
     protected Tier tier;
 
@@ -55,7 +57,7 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
         if (blockEntityTag != null) {
             NonNullList<ItemStack> itemStacks = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
-            ItemStackHelper.loadAllItems(blockEntityTag, itemStacks);
+            ItemUtils.readInventory(blockEntityTag, "Items", itemStacks);
             tooltip.add(new TranslationTextComponent("tooltip.delivery.stack_count", itemStacks.stream().filter(stack1 -> !stack1.isEmpty()).count()).mergeStyle(TextFormatting.GRAY));
         }
     }
@@ -130,6 +132,20 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
     @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
         return new CardboradBoxTileEntity(tier);
+    }
+
+    @Override
+    public NonNullList<ItemStack> getItems(ItemStack stack) {
+        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+        if (blockEntityTag != null) {
+            return ItemUtils.readItemList(blockEntityTag, "Items", false); //TODO
+        }
+        return NonNullList.create();
+    }
+
+    @Override
+    public NonNullList<FluidStack> getFluids(ItemStack stack) {
+        return NonNullList.create();
     }
 
     public static enum Tier {

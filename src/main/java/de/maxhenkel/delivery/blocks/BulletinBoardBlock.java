@@ -88,8 +88,12 @@ public class BulletinBoardBlock extends HorizontalRotatableBlock implements IIte
                 UUID task = ModItems.CONTRACT.getTask(heldItem);
                 if (task != null) {
                     heldItem.setCount(heldItem.getCount() - 1);
-                    group.addTask(task);
-                    player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+                    if (group.canAcceptTask(task)) {
+                        group.addTask(task);
+                        player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+                    } else {
+                        player.sendStatusMessage(new TranslationTextComponent("message.delivery.contract_already_accepted"), true);
+                    }
                     return;
                 }
             }

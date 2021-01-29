@@ -1,11 +1,11 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.corelib.inventory.ItemListInventory;
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.blocks.CardboardBoxBlock;
 import de.maxhenkel.delivery.gui.NonRecursiveSlot;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -40,12 +40,12 @@ public class CardboradBoxTileEntity extends TileEntity {
         super.read(state, compound);
         tier = ((CardboardBoxBlock) state.getBlock()).getTier();
         inventory = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound, inventory);
+        ItemUtils.readInventory(compound, "Items", inventory);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
-        ItemStackHelper.saveAllItems(compound, inventory, true);
+        ItemUtils.saveInventory(compound, "Items", inventory);
         return super.write(compound);
     }
 

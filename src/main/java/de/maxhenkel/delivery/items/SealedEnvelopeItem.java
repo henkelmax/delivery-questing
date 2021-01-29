@@ -17,7 +17,9 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class SealedEnvelopeItem extends Item {
 
@@ -74,6 +76,17 @@ public class SealedEnvelopeItem extends Item {
     public ItemStack setContents(ItemStack stack, NonNullList<ItemStack> contents) {
         CompoundNBT tag = stack.getOrCreateTag();
         ItemUtils.saveItemList(tag, "Items", contents, false);
+        return stack;
+    }
+
+    public static ItemStack createTask(UUID taskID, ItemStack... additionalItems) {
+        ItemStack stack = new ItemStack(ModItems.SEALED_ENVELOPE);
+        NonNullList<ItemStack> contents = NonNullList.create();
+        ItemStack task = new ItemStack(ModItems.CONTRACT);
+        ModItems.CONTRACT.setTask(task, taskID);
+        contents.add(task);
+        contents.addAll(Arrays.asList(additionalItems));
+        ModItems.SEALED_ENVELOPE.setContents(stack, contents);
         return stack;
     }
 

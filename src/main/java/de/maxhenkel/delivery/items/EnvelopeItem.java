@@ -14,7 +14,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
-public class EnvelopeItem extends InventoryItem {
+public class EnvelopeItem extends SingleSlotInventoryItem {
 
     public EnvelopeItem() {
         super(new Item.Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));

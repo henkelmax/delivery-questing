@@ -4,14 +4,16 @@ import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
-import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.capability.ProgressionStorage;
 import de.maxhenkel.delivery.commands.GroupCommand;
+import de.maxhenkel.delivery.commands.TestCommand;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.net.MessageSwitchLiquifier;
+import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
+import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.tasks.TaskManager;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -28,14 +30,17 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,9 +86,13 @@ public class Main {
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageTaskCompletedToast.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
+    }
 
+    @SubscribeEvent
+    public void serverStarted(FMLServerStartedEvent event) {
         try {
             TASK_MANAGER = TaskManager.load();
         } catch (IOException e) {
@@ -100,6 +109,14 @@ public class Main {
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         GroupCommand.register(event.getDispatcher());
+        TestCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase.equals(TickEvent.Phase.START)) {
+            TASK_MANAGER.onServerTick(ServerLifecycleHooks.getCurrentServer());
+        }
     }
 
     public static Progression getProgression(ServerPlayerEntity playerEntity) {
