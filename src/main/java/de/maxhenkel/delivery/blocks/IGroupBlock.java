@@ -37,7 +37,7 @@ public interface IGroupBlock {
         Group playerGroup = null;
 
         try {
-            playerGroup = Main.getProgression(player).getGroup(player.getUniqueID());
+            playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
         } catch (Exception e) {
 
         }

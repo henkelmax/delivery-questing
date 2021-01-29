@@ -1,9 +1,12 @@
 package de.maxhenkel.delivery.tasks;
 
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.command.CommandException;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 
@@ -20,6 +23,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private List<TaskProgress> tasks;
     private List<UUID> completedTasks;
     private long experience;
+    private NonNullList<ItemStack> mailboxInbox;
 
     public Group(String name, String password) {
         this.id = UUID.randomUUID();
@@ -29,6 +33,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
         this.experience = 0L;
+        this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
     }
 
     public Group() {
@@ -90,6 +95,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.experience += experience;
     }
 
+    public NonNullList<ItemStack> getMailboxInbox() {
+        return mailboxInbox;
+    }
+
     public ActiveTasks getActiveTasks() {
         List<ActiveTask> t = new ArrayList<>();
         for (TaskProgress taskProgress : tasks) {
@@ -136,6 +145,8 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         compound.putLong("Experience", experience);
 
+        ItemUtils.saveInventory(compound, "MailboxInbox", mailboxInbox);
+
         return compound;
     }
 
@@ -166,5 +177,8 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         this.experience = compound.getLong("Experience");
+
+        this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
+        ItemUtils.readInventory(compound, "MailboxInbox", mailboxInbox);
     }
 }

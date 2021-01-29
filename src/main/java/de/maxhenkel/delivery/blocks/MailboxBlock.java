@@ -97,7 +97,7 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         Progression progression = Main.getProgression(player);
         Group group = null;
         try {
-            group = progression.getGroup(player.getUniqueID());
+            group = progression.getPlayerGroup(player.getUniqueID());
         } catch (Exception e) {
         }
 
@@ -122,7 +122,6 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof MailboxTileEntity) {
             MailboxTileEntity mailbox = (MailboxTileEntity) te;
-            InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getInbox());
             InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);

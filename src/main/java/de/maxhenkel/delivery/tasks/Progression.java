@@ -6,6 +6,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class Progression implements INBTSerializable<CompoundNBT> {
         group.addMember(player);
     }
 
-    public Group getGroup(UUID player) throws CommandException {
+    public Group getPlayerGroup(UUID player) throws CommandException {
         Optional<Group> optionalGroup = groups.stream().filter(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player))).findAny();
 
         if (!optionalGroup.isPresent()) {
@@ -62,8 +63,13 @@ public class Progression implements INBTSerializable<CompoundNBT> {
         return optionalGroup.get();
     }
 
+    @Nullable
+    public Group getGroup(UUID groupID) {
+        return groups.stream().filter(group -> group.getId().equals(groupID)).findAny().orElse(null);
+    }
+
     public Group leaveGroup(UUID player) throws CommandException {
-        Group group = getGroup(player);
+        Group group = getPlayerGroup(player);
         group.removeMember(player);
         return group;
     }
