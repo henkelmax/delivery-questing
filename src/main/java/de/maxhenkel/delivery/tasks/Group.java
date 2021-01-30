@@ -37,6 +37,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private List<TaskProgress> tasks;
     private List<UUID> completedTasks;
     private long experience;
+    private long balance;
     private NonNullList<ItemStack> mailboxInbox;
     private NonNullList<ItemStack> pendingInbox;
 
@@ -48,6 +49,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
         this.experience = 0L;
+        this.balance = 0L;
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         this.pendingInbox = NonNullList.create();
     }
@@ -121,6 +123,18 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public NonNullList<ItemStack> getPendingInbox() {
         return pendingInbox;
+    }
+
+    public long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(long balance) {
+        this.balance = balance;
+    }
+
+    public void addBalance(long balance) {
+        this.balance += balance;
     }
 
     public void addItemToInbox(ItemStack stack) {
@@ -265,6 +279,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         addExperience(task.getExperience());
+        addBalance(task.getMoney());
 
         NonNullList<ItemStack> rewards = task.getRewards().stream().filter(Objects::nonNull).filter(stack -> !stack.isEmpty()).collect(NonNullListCollector.toNonNullList());
 
@@ -404,6 +419,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         compound.put("CompletedTasks", completedTasksList);
 
         compound.putLong("Experience", experience);
+        compound.putLong("Balance", balance);
 
         ItemUtils.saveInventory(compound, "MailboxInbox", mailboxInbox);
         ItemUtils.saveItemList(compound, "PendingMailboxInbox", pendingInbox, false);
@@ -438,6 +454,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         this.experience = compound.getLong("Experience");
+        this.balance = compound.getLong("Balance");
 
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "MailboxInbox", mailboxInbox);

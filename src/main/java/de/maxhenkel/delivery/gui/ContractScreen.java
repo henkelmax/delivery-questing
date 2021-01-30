@@ -47,7 +47,10 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
         float width = font.getStringWidth(profession.getString()) * 0.75F;
 
         font.func_243248_b(matrixStack, profession, 40F - width / 2F, 113, 0);
-        font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", container.getTask().getExperience()), 11, 128, FONT_COLOR);
+        font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", container.getTask().getExperience()), 11, 126, FONT_COLOR);
+        if (container.getTask().getMoney() > 0) {
+            font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_money", container.getTask().getMoney()), 11, 136, FONT_COLOR);
+        }
 
         matrixStack.pop();
 

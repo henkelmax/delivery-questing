@@ -20,11 +20,12 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private int minLevel;
     private int maxLevel;
     private int experience;
+    private int money;
     private List<Item> items;
     private List<Fluid> fluids;
     private List<ItemStack> rewards;
 
-    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, int money, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,6 +35,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.experience = experience;
+        this.money = money;
         this.items = items;
         this.fluids = fluids;
         this.rewards = rewards;
@@ -93,6 +95,10 @@ public class Task implements INBTSerializable<CompoundNBT> {
         return rewards;
     }
 
+    public int getMoney() {
+        return money;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -105,6 +111,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         compound.putInt("MinLevel", minLevel);
         compound.putInt("MaxLevel", maxLevel);
         compound.putInt("Experience", experience);
+        compound.putInt("Money", money);
 
         ListNBT itemList = new ListNBT();
         for (Item item : items) {
@@ -138,6 +145,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         minLevel = compound.getInt("MinLevel");
         maxLevel = compound.getInt("MaxLevel");
         experience = compound.getInt("Experience");
+        money = compound.getInt("Money");
 
         items = new ArrayList<>();
         ListNBT itemList = compound.getList("Items", 10);

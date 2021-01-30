@@ -41,7 +41,7 @@ public abstract class SealedItem extends Item {
 
         IFormattableTextComponent t = getTooltip(stack);
         if (t != null) {
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.sealed_envelope").mergeStyle(TextFormatting.GRAY));
+            tooltip.add(t);
         }
         NonNullList<ItemStack> items = getContents(stack);
         if (!items.isEmpty()) {

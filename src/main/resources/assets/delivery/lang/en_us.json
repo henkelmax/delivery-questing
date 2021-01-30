@@ -34,6 +34,7 @@
   "message.delivery.task_page": "Task %s of %s",
   "message.delivery.no_tasks": "No active tasks",
   "message.delivery.reward_xp": "XP: %s",
+  "message.delivery.reward_money": "Money: %s$",
   "message.delivery.contract_already_accepted": "You already accepted this contract",
   "message.delivery.experience": "Experience Level",
   "message.delivery.next_emptying": "Next emptying in %s:%s",
