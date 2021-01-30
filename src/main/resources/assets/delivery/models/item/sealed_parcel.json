@@ -1,0 +1,20 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"0": "delivery:item/sealed_parcel"
+	},
+	"elements": [
+		{
+			"from": [0, 4, 2],
+			"to": [16, 12, 14],
+			"faces": {
+				"north": {"uv": [8, 6, 16, 10], "texture": "#0"},
+				"east": {"uv": [0, 10, 6, 14], "texture": "#0"},
+				"south": {"uv": [8, 10, 16, 14], "texture": "#0"},
+				"west": {"uv": [0, 6, 6, 10], "texture": "#0"},
+				"up": {"uv": [0, 0, 8, 6], "texture": "#0"},
+				"down": {"uv": [8, 0, 16, 6], "texture": "#0"}
+			}
+		}
+	]
+}

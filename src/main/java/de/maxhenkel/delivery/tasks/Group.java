@@ -2,8 +2,12 @@ package de.maxhenkel.delivery.tasks;
 
 import de.maxhenkel.corelib.helpers.Triple;
 import de.maxhenkel.corelib.item.ItemUtils;
+import de.maxhenkel.corelib.item.NonNullListCollector;
 import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.items.ContractItem;
+import de.maxhenkel.delivery.items.ModItems;
+import de.maxhenkel.delivery.items.SealedEnvelopeItem;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -11,18 +15,18 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Group implements INBTSerializable<CompoundNBT> {
 
@@ -34,6 +38,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private List<UUID> completedTasks;
     private long experience;
     private NonNullList<ItemStack> mailboxInbox;
+    private NonNullList<ItemStack> pendingInbox;
 
     public Group(String name, String password) {
         this.id = UUID.randomUUID();
@@ -44,6 +49,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.completedTasks = new ArrayList<>();
         this.experience = 0L;
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
+        this.pendingInbox = NonNullList.create();
     }
 
     public Group() {
@@ -113,6 +119,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return mailboxInbox;
     }
 
+    public NonNullList<ItemStack> getPendingInbox() {
+        return pendingInbox;
+    }
+
+    public void addItemToInbox(ItemStack stack) {
+        pendingInbox.add(stack);
+    }
+
     public boolean canAcceptTask(UUID taskID) {
         if (completedTasks.stream().anyMatch(uuid -> uuid.equals(taskID))) {
             return false;
@@ -132,6 +146,69 @@ public class Group implements INBTSerializable<CompoundNBT> {
             }
         }
         return new ActiveTasks(t);
+    }
+
+    public void tick(MinecraftServer server) {
+        if (server.getTickCounter() % 1200 == 0 && getLevel() < 10) {
+            generateMailboxTask();
+        }
+
+        inboxLoop:
+        while (!pendingInbox.isEmpty()) {
+            NonNullList<ItemStack> mailboxInbox = getMailboxInbox();
+            for (int i = 0; i < mailboxInbox.size(); i++) {
+                if (mailboxInbox.get(i).isEmpty()) {
+                    mailboxInbox.set(i, pendingInbox.remove(0));
+                    continue inboxLoop;
+                }
+            }
+            break;
+        }
+    }
+
+    public void generateMailboxTask() {
+        if (!hasTaskInMailbox() && getActiveTasks().getTasks().isEmpty()) {
+            Task task = generateNewTask();
+            if (task != null) {
+                addItemToInbox(SealedEnvelopeItem.createTask(task));
+            }
+        }
+    }
+
+    @Nullable
+    public Task generateNewTask() {
+        List<Task> possibleTasks = Main.TASK_MANAGER.getTasks().stream()
+                .filter(task -> task.getMinLevel() <= getLevel())
+                .filter(task -> task.getMaxLevel() >= getLevel())
+                .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId())))
+                .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))).collect(Collectors.toList());
+
+        if (possibleTasks.isEmpty()) {
+            Main.LOGGER.warn("Could not find a new task for group '{}'", getName());
+            return null;
+        }
+
+        return possibleTasks.get(Main.TASK_MANAGER.getRandom().nextInt(possibleTasks.size()));
+    }
+
+    public boolean hasTaskInMailbox() {
+        return getMailboxInbox().stream().anyMatch(stack -> getTaskID(stack) != null);
+    }
+
+    @Nullable
+    public UUID getTaskID(ItemStack stack) {
+        if (stack.getItem() instanceof SealedEnvelopeItem) {
+            NonNullList<ItemStack> contents = ModItems.SEALED_ENVELOPE.getContents(stack);
+            for (ItemStack s : contents) {
+                if (s.getItem() instanceof ContractItem) {
+                    UUID task = ModItems.CONTRACT.getTask(s);
+                    if (task != null) {
+                        return task;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public void handInTaskItems(NonNullList<ItemStack> items) {
@@ -154,12 +231,18 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
 
         for (ItemStack stack : taskItems) {
-            while (putItemStack(stack)) {
+            for (int i = 0; i < tasks.size(); i++) {
+                if (!putItemStack(stack)) {
+                    break;
+                }
             }
         }
 
         for (FluidStack stack : taskFluids) {
-            while (putFluidStack(stack)) {
+            for (int i = 0; i < tasks.size(); i++) {
+                if (!putFluidStack(stack)) {
+                    break;
+                }
             }
         }
 
@@ -179,6 +262,15 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         if (task == null) {
             return;
+        }
+
+        addExperience(task.getExperience());
+
+        NonNullList<ItemStack> rewards = task.getRewards().stream().filter(Objects::nonNull).filter(stack -> !stack.isEmpty()).collect(NonNullListCollector.toNonNullList());
+
+        if (!rewards.isEmpty()) {
+            ItemStack stack = ModItems.SEALED_PARCEL.setSender(ModItems.SEALED_PARCEL.setContents(new ItemStack(ModItems.SEALED_PARCEL), rewards), new StringTextComponent(task.getContractorName()));
+            addItemToInbox(stack);
         }
 
         PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
@@ -314,6 +406,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         compound.putLong("Experience", experience);
 
         ItemUtils.saveInventory(compound, "MailboxInbox", mailboxInbox);
+        ItemUtils.saveItemList(compound, "PendingMailboxInbox", pendingInbox, false);
 
         return compound;
     }
@@ -348,5 +441,6 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "MailboxInbox", mailboxInbox);
+        this.pendingInbox = ItemUtils.readItemList(compound, "PendingMailboxInbox", false);
     }
 }

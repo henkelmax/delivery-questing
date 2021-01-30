@@ -1,5 +1,6 @@
 package de.maxhenkel.delivery.tasks;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -21,8 +22,9 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private int experience;
     private List<Item> items;
     private List<Fluid> fluids;
+    private List<ItemStack> rewards;
 
-    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, List<Item> items, List<Fluid> fluids) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,11 +36,13 @@ public class Task implements INBTSerializable<CompoundNBT> {
         this.experience = experience;
         this.items = items;
         this.fluids = fluids;
+        this.rewards = rewards;
     }
 
     public Task() {
         this.items = new ArrayList<>();
         this.fluids = new ArrayList<>();
+        this.rewards = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -85,6 +89,10 @@ public class Task implements INBTSerializable<CompoundNBT> {
         return profession;
     }
 
+    public List<ItemStack> getRewards() {
+        return rewards;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -109,6 +117,12 @@ public class Task implements INBTSerializable<CompoundNBT> {
             fluidList.add(fluid.serializeNBT());
         }
         compound.put("Fluids", fluidList);
+
+        ListNBT rewardList = new ListNBT();
+        for (ItemStack stack : rewards) {
+            rewardList.add(stack.write(new CompoundNBT()));
+        }
+        compound.put("Rewards", rewardList);
 
         return compound;
     }
@@ -141,6 +155,12 @@ public class Task implements INBTSerializable<CompoundNBT> {
             Fluid fluid = new Fluid();
             fluid.deserializeNBT(e);
             fluids.add(fluid);
+        }
+
+        rewards = new ArrayList<>();
+        ListNBT rewardList = compound.getList("Rewards", 10);
+        for (int i = 0; i < rewardList.size(); i++) {
+            rewards.add(ItemStack.read(rewardList.getCompound(i)));
         }
     }
 }

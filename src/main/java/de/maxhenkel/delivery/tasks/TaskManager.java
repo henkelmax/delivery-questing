@@ -2,14 +2,14 @@ package de.maxhenkel.delivery.tasks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
 import de.maxhenkel.delivery.Main;
-import de.maxhenkel.delivery.items.ContractItem;
-import de.maxhenkel.delivery.items.ModItems;
-import de.maxhenkel.delivery.items.SealedEnvelopeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class TaskManager {
 
@@ -57,6 +56,7 @@ public class TaskManager {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Item.class, Item.DESERIALIZER);
         gsonBuilder.registerTypeAdapter(Fluid.class, Fluid.DESERIALIZER);
+        gsonBuilder.registerTypeAdapter(ItemStack.class, ITEM_STACK_DESERIALIZER);
 
         Gson customGson = gsonBuilder.create();
         BufferedReader bufferedReader = Files.newBufferedReader(tasks);
@@ -66,62 +66,20 @@ public class TaskManager {
     public void onServerTick(MinecraftServer server) {
         Progression progression = Main.getProgression(server);
         for (Group group : progression.getGroups()) {
-            if (server.getTickCounter() % 1200 == 0 && group.getLevel() < 10) {
-                generateMailboxTask(group);
-            }
+            group.tick(server);
         }
     }
 
-    public void generateMailboxTask(Group group) {
-        if (!hasTaskInMailbox(group) && group.getActiveTasks().getTasks().isEmpty()) {
-            Task task = generateNewTask(group);
-            if (task != null) {
-                NonNullList<ItemStack> mailboxInbox = group.getMailboxInbox();
-                for (int i = 0; i < mailboxInbox.size(); i++) {
-                    if (mailboxInbox.get(i).isEmpty()) {
-                        mailboxInbox.set(i, SealedEnvelopeItem.createTask(task.getId()));
-                        break;
-                    }
-                }
-            }
-        }
+    public Random getRandom() {
+        return random;
     }
 
-    @Nullable
-    public Task generateNewTask(Group group) {
-        List<Task> possibleTasks = tasks.stream()
-                .filter(task -> task.getMinLevel() <= group.getLevel())
-                .filter(task -> task.getMaxLevel() >= group.getLevel())
-                .filter(task -> group.getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId())))
-                .filter(task -> group.getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))).collect(Collectors.toList());
-
-        if (possibleTasks.isEmpty()) {
-            Main.LOGGER.warn("Could not find a new task for group '{}'", group.getName());
-            return null;
-        }
-
-        return possibleTasks.get(random.nextInt(possibleTasks.size()));
-    }
-
-    public boolean hasTaskInMailbox(Group group) {
-        return group.getMailboxInbox().stream().anyMatch(stack -> getTaskID(stack) != null);
-    }
-
-    @Nullable
-    public UUID getTaskID(ItemStack stack) {
-        if (stack.getItem() instanceof SealedEnvelopeItem) {
-            NonNullList<ItemStack> contents = ModItems.SEALED_ENVELOPE.getContents(stack);
-            for (ItemStack s : contents) {
-                if (s.getItem() instanceof ContractItem) {
-                    UUID task = ModItems.CONTRACT.getTask(s);
-                    if (task != null) {
-                        return task;
-                    }
-                }
-            }
-        }
-        return null;
-    }
+    public static final JsonDeserializer<ItemStack> ITEM_STACK_DESERIALIZER = (json, typeOfT, context) -> {
+        JsonObject obj = json.getAsJsonObject();
+        net.minecraft.item.Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(obj.get("item").getAsString()));
+        int amount = obj.get("amount").getAsInt();
+        return new ItemStack(value, amount);
+    };
 
 
 }
