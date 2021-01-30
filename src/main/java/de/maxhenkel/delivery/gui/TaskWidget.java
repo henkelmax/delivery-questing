@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.net.MessageShowTask;
 import de.maxhenkel.delivery.tasks.ActiveTask;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -28,11 +29,13 @@ public class TaskWidget extends Widget {
     private ActiveTask task;
     private int page;
     private boolean showProgress;
+    private boolean showInfo;
 
-    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress) {
+    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo) {
         super(x, y, 106, 104, new StringTextComponent(""));
         this.task = task;
         this.showProgress = showProgress;
+        this.showInfo = showInfo;
         elements = new ArrayList<>();
 
         for (de.maxhenkel.delivery.tasks.Item item : task.getTask().getItems()) {
@@ -76,6 +79,14 @@ public class TaskWidget extends Widget {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         blit(matrixStack, x, y, 0, 0, width, height);
+
+        if (showInfo) {
+            if (isInfoHovered(mouseX, mouseY)) {
+                blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11);
+            } else {
+                blit(matrixStack, x + width - 13, y + 2, 153, 0, 11, 11);
+            }
+        }
 
         if (hasPrev()) {
             if (isLeftButtonHovered(mouseX, mouseY)) {
@@ -194,6 +205,16 @@ public class TaskWidget extends Widget {
         return false;
     }
 
+    private boolean isInfoHovered(int mouseX, int mouseY) {
+        if (mouseX >= x + width - 13 && mouseX < x + width - 2) {
+            if (mouseY >= y + 2 && mouseY < y + 13) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (hasPrev() && isLeftButtonHovered((int) mouseX, (int) mouseY)) {
@@ -204,6 +225,11 @@ public class TaskWidget extends Widget {
         if (hasNext() && isRightButtonHovered((int) mouseX, (int) mouseY)) {
             playDownSound(Minecraft.getInstance().getSoundHandler());
             nextPage();
+            return true;
+        }
+        if (isInfoHovered((int) mouseX, (int) mouseY)) {
+            playDownSound(Minecraft.getInstance().getSoundHandler());
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageShowTask(task.getTaskProgress().getTaskID()));
             return true;
         }
         return false;

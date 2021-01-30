@@ -7,7 +7,7 @@ import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.BulletinBoardTileEntity;
 import de.maxhenkel.delivery.gui.BulletinBoardContainer;
-import de.maxhenkel.delivery.gui.containerprovider.TaskListContainerProvider;
+import de.maxhenkel.delivery.gui.containerprovider.GroupContainerProvider;
 import de.maxhenkel.delivery.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -98,7 +98,7 @@ public class BulletinBoardBlock extends HorizontalRotatableBlock implements IIte
                 }
             }
 
-            TaskListContainerProvider.openGui(player, group.getActiveTasks(), new TranslationTextComponent(getBlock().getTranslationKey()), BulletinBoardContainer::new);
+            GroupContainerProvider.openGui(player, group, new TranslationTextComponent(getBlock().getTranslationKey()), BulletinBoardContainer::new);
         });
     }
 

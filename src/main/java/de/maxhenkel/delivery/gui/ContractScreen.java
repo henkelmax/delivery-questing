@@ -30,7 +30,7 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
     protected void init() {
         super.init();
         ActiveTask task = new ActiveTask(container.getTask(), null);
-        taskWidget = new TaskWidget(guiLeft + 61, guiTop + 6, task, false);
+        taskWidget = new TaskWidget(guiLeft + 61, guiTop + 6, task, false, false);
         player = new DummyPlayer(minecraft.world, container.getTask().getSkin(), container.getTask().getContractorName());
 
         addButton(taskWidget);

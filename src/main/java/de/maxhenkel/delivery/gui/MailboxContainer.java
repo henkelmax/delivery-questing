@@ -25,11 +25,11 @@ public class MailboxContainer extends ContainerBase {
         IInventory outbox = mailbox.getOutbox();
 
         for (int i = 0; i < 4; i++) {
-            addSlot(new LockedSlot(inbox, i, 8 + i * 18, 32, true, false));
+            addSlot(new LockedSlot(inbox, i, 8 + i * 18, 46, true, false));
         }
 
         for (int i = 0; i < 4; i++) {
-            addSlot(new MailboxOutboxSlot(outbox, i, 98 + i * 18, 32));
+            addSlot(new MailboxOutboxSlot(outbox, i, 98 + i * 18, 46));
         }
 
         addPlayerInventorySlots();
@@ -41,7 +41,7 @@ public class MailboxContainer extends ContainerBase {
 
     @Override
     public int getInvOffset() {
-        return -21;
+        return -7;
     }
 
     @Override

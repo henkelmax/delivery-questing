@@ -18,16 +18,28 @@ public class MailboxScreen extends ScreenBase<MailboxContainer> {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
         xSize = 176;
-        ySize = 145;
+        ySize = 159;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
         drawCentered(matrixStack, title, 6, FONT_COLOR);
-        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.inbox"), 42, 21, FONT_COLOR);
-        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.outbox"), 132, 21, FONT_COLOR);
+
+        long nextEmptying = getNextEmptying();
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.next_emptying", String.format("%02d", nextEmptying / 1000), String.format("%02d", (int) ((float) (nextEmptying % 1000) * 0.06F))), 20, FONT_COLOR);
+
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.inbox"), 42, 35, FONT_COLOR);
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.outbox"), 132, 35, FONT_COLOR);
 
         font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8, (float) (ySize - 96 + 3), FONT_COLOR);
+    }
+
+    public long getNextEmptying() {
+        long time = minecraft.world.getDayTime() % 24000;
+        if (time <= 20) {
+            time += 24000;
+        }
+        return 24020 - time;
     }
 
 }

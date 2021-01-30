@@ -6,7 +6,9 @@ import de.maxhenkel.delivery.Main;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
@@ -31,7 +33,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
         xSize = 176;
-        ySize = 223;
+        ySize = 167;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
         prev = null;
         next = null;
 
-        tasks = container.getTasks().getTasks().stream().map(activeTask -> new TaskWidget(guiLeft + 35, guiTop + 5, activeTask, true)).collect(Collectors.toList());
+        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(guiLeft + 35, guiTop + 35, activeTask, true, true)).collect(Collectors.toList());
 
         if (tasks.isEmpty()) {
             return;
@@ -56,11 +58,11 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
 
         currentTaskWidget = tasks.get(currentTask);
 
-        prev = new Button(guiLeft + 6, guiTop + 105, 26, 20, new TranslationTextComponent("button.delivery.previous"), button -> {
+        prev = new Button(guiLeft + 6, guiTop + 140, 26, 20, new TranslationTextComponent("button.delivery.previous"), button -> {
             currentTask = Math.floorMod(currentTask - 1, tasks.size());
             updateScreen();
         });
-        next = new Button(guiLeft + 144, guiTop + 105, 26, 20, new TranslationTextComponent("button.delivery.next"), button -> {
+        next = new Button(guiLeft + 144, guiTop + 140, 26, 20, new TranslationTextComponent("button.delivery.next"), button -> {
             currentTask = Math.floorMod(currentTask + 1, tasks.size());
             updateScreen();
         });
@@ -77,13 +79,33 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
 
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-        if (!tasks.isEmpty()) {
-            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 114, FONT_COLOR);
-        } else {
-            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), 50, FONT_COLOR);
-        }
+        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.experience"), 8, FONT_COLOR);
 
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
+        drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(container.getGroup().getLevel()))));
+
+        if (!tasks.isEmpty()) {
+            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 145, FONT_COLOR);
+        } else {
+            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), 65, FONT_COLOR);
+        }
+    }
+
+    private void drawLevel(MatrixStack matrixStack, IFormattableTextComponent text) {
+        int w = font.getStringPropertyWidth(text);
+        int xPos = xSize / 2 - w / 2;
+        font.func_243248_b(matrixStack, text, xPos + 1, 20, 0);
+        font.func_243248_b(matrixStack, text, xPos - 1, 20, 0);
+        font.func_243248_b(matrixStack, text, xPos, 21, 0);
+        font.func_243248_b(matrixStack, text, xPos, 19, 0);
+        font.func_243248_b(matrixStack, text, xPos, 20, 0xFFFFFF);
+    }
+
+    @Override
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
+
+        blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 223, 162, 5);
+        blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 228, (int) (((float) 162) * (container.getGroup().getLevel() - Math.floor(container.getGroup().getLevel()))), 5);
     }
 
     @Override

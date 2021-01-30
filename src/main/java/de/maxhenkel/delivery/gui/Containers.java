@@ -4,7 +4,7 @@ import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.inventory.ContainerFactoryTileEntity;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTask;
-import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTaskList;
+import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryGroup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -83,7 +83,7 @@ public class Containers {
         PARCEL_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
         event.getRegistry().register(PARCEL_CONTAINER);
 
-        BULLETIN_BOARD_CONTAINER = new ContainerType<>(new ContainerFactoryTaskList<>(BulletinBoardContainer::new));
+        BULLETIN_BOARD_CONTAINER = new ContainerType<>(new ContainerFactoryGroup<>(BulletinBoardContainer::new));
         BULLETIN_BOARD_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "bulletin_board"));
         event.getRegistry().register(BULLETIN_BOARD_CONTAINER);
 

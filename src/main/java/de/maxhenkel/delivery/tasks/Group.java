@@ -105,6 +105,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.experience += experience;
     }
 
+    public void setExperience(long experience) {
+        this.experience = experience;
+    }
+
     public NonNullList<ItemStack> getMailboxInbox() {
         return mailboxInbox;
     }
@@ -275,7 +279,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public float getLevel() {
-        return experience / 10F; //TODO
+        return (float) (Math.sqrt(0.2F * experience + 0.25F) - 0.5F);
     }
 
     @Override

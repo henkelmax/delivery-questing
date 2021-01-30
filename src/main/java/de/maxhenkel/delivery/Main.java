@@ -11,6 +11,7 @@ import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
 import de.maxhenkel.delivery.items.ModItems;
+import de.maxhenkel.delivery.net.MessageShowTask;
 import de.maxhenkel.delivery.net.MessageSwitchLiquifier;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.Progression;
@@ -87,6 +88,7 @@ public class Main {
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageTaskCompletedToast.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageShowTask.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }
