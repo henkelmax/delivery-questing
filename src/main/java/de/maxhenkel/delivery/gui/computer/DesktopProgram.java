@@ -15,8 +15,10 @@ public class DesktopProgram extends ComputerProgram {
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/computer/desktop.png");
     public static final ResourceLocation ICONS = new ResourceLocation(Main.MODID, "textures/gui/computer/icons.png");
     private IFormattableTextComponent MINTERNET = new TranslationTextComponent("tooltip.delivery.minternet");
+    private IFormattableTextComponent MAIL = new TranslationTextComponent("message.delivery.email");
 
-    private ScreenBase.HoverArea internet;
+    private ScreenBase.HoverArea minternet;
+    private ScreenBase.HoverArea mail;
 
     public DesktopProgram(ComputerScreen screen) {
         super(screen);
@@ -26,28 +28,31 @@ public class DesktopProgram extends ComputerProgram {
     protected void init() {
         super.init();
 
-        internet = new ScreenBase.HoverArea(16, 16, 32, 32, () -> Collections.singletonList(MINTERNET.mergeStyle(TextFormatting.WHITE).func_241878_f()));
-        addHoverArea(internet);
+        minternet = new ScreenBase.HoverArea(16, 16, 32, 32, () -> Collections.singletonList(MINTERNET.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        addHoverArea(minternet);
+
+        mail = new ScreenBase.HoverArea(64, 16, 32, 32, () -> Collections.singletonList(MAIL.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        addHoverArea(mail);
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
 
-        mc.getTextureManager().bindTexture(ICONS);
-
-        drawIcon(matrixStack, internet, mouseX, mouseY, 0, 0);
+        drawIcon(matrixStack, minternet, mouseX, mouseY, 0, 0, MINTERNET);
+        drawIcon(matrixStack, mail, mouseX, mouseY, 0, 32, MAIL);
 
         screen.drawHoverAreas(matrixStack, mouseX, mouseY);
     }
 
-    private void drawIcon(MatrixStack matrixStack, ScreenBase.HoverArea hoverArea, int mouseX, int mouseY, int xOffset, int yOffset) {
+    private void drawIcon(MatrixStack matrixStack, ScreenBase.HoverArea hoverArea, int mouseX, int mouseY, int xOffset, int yOffset, IFormattableTextComponent name) {
+        mc.getTextureManager().bindTexture(ICONS);
         if (hoverArea.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, hoverArea.getPosX(), hoverArea.getPosY(), xOffset + hoverArea.getWidth(), yOffset, hoverArea.getWidth(), hoverArea.getHeight());
         }
         screen.blit(matrixStack, hoverArea.getPosX(), hoverArea.getPosY(), xOffset, yOffset, hoverArea.getWidth(), hoverArea.getHeight());
-        screen.drawCentered(matrixStack, MINTERNET, hoverArea.getPosX() + hoverArea.getWidth() / 2 + 1, hoverArea.getPosY() + hoverArea.getHeight() + 1, TextFormatting.DARK_GRAY.getColor());
-        screen.drawCentered(matrixStack, MINTERNET, hoverArea.getPosX() + hoverArea.getWidth() / 2, hoverArea.getPosY() + hoverArea.getHeight(), TextFormatting.WHITE.getColor());
+        screen.drawCentered(matrixStack, name, hoverArea.getPosX() + hoverArea.getWidth() / 2 + 1, hoverArea.getPosY() + hoverArea.getHeight() + 2, TextFormatting.DARK_GRAY.getColor());
+        screen.drawCentered(matrixStack, name, hoverArea.getPosX() + hoverArea.getWidth() / 2, hoverArea.getPosY() + hoverArea.getHeight() + 1, TextFormatting.WHITE.getColor());
     }
 
     @Override
@@ -59,8 +64,13 @@ public class DesktopProgram extends ComputerProgram {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (internet.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+        if (minternet.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
             screen.setProgram(new MinazonProgram(screen));
+            playClickSound();
+            return true;
+        }
+        if (mail.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+            screen.setProgram(new MailProgram(screen));
             playClickSound();
             return true;
         }

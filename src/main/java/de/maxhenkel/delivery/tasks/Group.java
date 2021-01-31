@@ -9,6 +9,8 @@ import de.maxhenkel.delivery.items.ContractItem;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.items.SealedEnvelopeItem;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
+import de.maxhenkel.delivery.tasks.email.ContractEMail;
+import de.maxhenkel.delivery.tasks.email.EMail;
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -28,6 +30,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Group implements INBTSerializable<CompoundNBT> {
 
@@ -42,6 +45,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private NonNullList<ItemStack> mailboxInbox;
     private NonNullList<ItemStack> pendingInbox;
     private NonNullList<ItemStack> pendingDeliveries;
+    private List<EMail> eMails;
 
     public Group(String name, String password) {
         this.id = UUID.randomUUID();
@@ -55,6 +59,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         this.pendingInbox = NonNullList.create();
         this.pendingDeliveries = NonNullList.create();
+        this.eMails = new ArrayList<>();
     }
 
     public Group() {
@@ -132,6 +137,26 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return pendingDeliveries;
     }
 
+    public List<EMail> getEMails() {
+        return eMails;
+    }
+
+    public void addEMail(EMail eMail) {
+        eMails.add(eMail);
+    }
+
+    @Nullable
+    public EMail getEMail(UUID mailID) {
+        return eMails.stream().filter(eMail -> eMail.getId().equals(mailID)).findAny().orElse(null);
+    }
+
+    public void markEMailRead(UUID mailID) {
+        EMail mail = getEMail(mailID);
+        if (mail != null) {
+            mail.setRead(true);
+        }
+    }
+
     public void addPendingDelivery(ItemStack stack) {
         pendingDeliveries.add(stack);
     }
@@ -176,6 +201,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public void tick(MinecraftServer server) {
         if (server.getTickCounter() % 1200 == 0 && getLevel() < 10) {
             generateMailboxTask();
+        }
+
+        if (server.getTickCounter() % 3600 == 0 && getLevel() >= 10) {
+            generateEMailTask();
         }
 
         if (server.getWorld(World.OVERWORLD).getDayTime() % 24000 == 20) {
@@ -226,13 +255,24 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
     }
 
+    public void generateEMailTask() {
+        if (getUnacceptedTasksInEmails() < 3 && getActiveTasks().getTasks().size() < 3) {
+            Task task = generateNewTask();
+            if (task != null) {
+                addEMail(new ContractEMail(task));
+            }
+        }
+    }
+
     @Nullable
     public Task generateNewTask() {
         List<Task> possibleTasks = Main.TASK_MANAGER.getTasks().stream()
                 .filter(task -> task.getMinLevel() <= getLevel())
                 .filter(task -> task.getMaxLevel() >= getLevel())
-                .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId())))
-                .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))).collect(Collectors.toList());
+                .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for completed tasks
+                .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))) // Filter for accepted tasks
+                .filter(task -> getUnacceptedEmailTasks().anyMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
+                .collect(Collectors.toList());
 
         if (possibleTasks.isEmpty()) {
             Main.LOGGER.warn("Could not find a new task for group '{}'", getName());
@@ -244,6 +284,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public boolean hasTaskInMailbox() {
         return getMailboxInbox().stream().anyMatch(stack -> getTaskID(stack) != null);
+    }
+
+    public long getUnacceptedTasksInEmails() {
+        return getUnacceptedEmailTasks().count();
+    }
+
+    public Stream<UUID> getUnacceptedEmailTasks() {
+        return getEMails()
+                .stream()
+                .filter(eMail -> eMail instanceof ContractEMail)
+                .map(ContractEMail.class::cast)
+                .map(ContractEMail::getTaskID)
+                .filter(this::canAcceptTask);
     }
 
     @Nullable
@@ -462,6 +515,12 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ItemUtils.saveItemList(compound, "PendingMailboxInbox", pendingInbox, false);
         ItemUtils.saveItemList(compound, "PendingDeliveries", pendingDeliveries, false);
 
+        ListNBT eMailList = new ListNBT();
+        for (EMail email : eMails) {
+            eMailList.add(email.serializeNBT());
+        }
+        compound.put("EMails", eMailList);
+
         return compound;
     }
 
@@ -498,5 +557,11 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ItemUtils.readInventory(compound, "MailboxInbox", mailboxInbox);
         this.pendingInbox = ItemUtils.readItemList(compound, "PendingMailboxInbox", false);
         this.pendingDeliveries = ItemUtils.readItemList(compound, "PendingDeliveries", false);
+
+        ListNBT emailList = compound.getList("EMails", 10);
+        this.eMails = new ArrayList<>();
+        for (int i = 0; i < emailList.size(); i++) {
+            this.eMails.add(EMail.deserialize(emailList.getCompound(i)));
+        }
     }
 }

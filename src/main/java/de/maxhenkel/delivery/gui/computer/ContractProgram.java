@@ -1,0 +1,120 @@
+package de.maxhenkel.delivery.gui.computer;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import de.maxhenkel.corelib.inventory.ScreenBase;
+import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.entity.DummyPlayer;
+import de.maxhenkel.delivery.gui.TaskWidget;
+import de.maxhenkel.delivery.net.MessageAcceptTask;
+import de.maxhenkel.delivery.tasks.ActiveTask;
+import de.maxhenkel.delivery.tasks.Task;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
+
+import java.util.List;
+import java.util.UUID;
+
+public class ContractProgram extends ComputerProgram {
+
+    public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/computer/contract.png");
+    public static final ResourceLocation TASK = new ResourceLocation(Main.MODID, "textures/gui/container/computer_task.png");
+
+    private Task task;
+    private MailProgram mailProgram;
+    private DummyPlayer player;
+    private TaskWidget taskWidget;
+    private ScreenBase.HoverArea close;
+    private Button accept;
+
+    public ContractProgram(ComputerScreen screen, MailProgram mailProgram, UUID taskID) {
+        super(screen);
+        this.mailProgram = mailProgram;
+        task = Main.TASK_MANAGER.getTask(taskID);
+
+        if (task == null) {
+            screen.setProgram(mailProgram);
+        }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        player = new DummyPlayer(mc.world, task.getSkin(), task.getContractorName());
+        taskWidget = new TaskWidget(guiLeft + xSize - 106 - 6, guiTop + 15, new ActiveTask(task, null), false, false, TASK);
+        addWidget(taskWidget);
+
+        close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
+
+        accept = new Button(guiLeft + 3 + 54 + 10, guiTop + 3 + 67, 68, 20, new TranslationTextComponent("message.delivery.accept"), button -> {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageAcceptTask(task.getId()));
+            screen.getContainer().getGroup().addTask(task.getId());
+            screen.setProgram(mailProgram);
+        });
+        accept.active = screen.getContainer().getGroup().canAcceptTask(task.getId());
+        addWidget(accept);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
+        super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
+
+        if (accept.isHovered() && !accept.active) {
+            screen.renderTooltip(matrixStack, new TranslationTextComponent("message.delivery.contract_already_accepted"), mouseX - guiLeft, mouseY - guiTop);
+        }
+    }
+
+    @Override
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
+        mc.getTextureManager().bindTexture(BACKGROUND);
+        screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
+
+        if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
+            screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
+        }
+
+        InventoryScreen.drawEntityOnScreen(guiLeft + 31, guiTop + 87, 30, guiLeft + 31 - mouseX, guiTop + 51 - mouseY, player);
+
+        FontRenderer font = mc.fontRenderer;
+
+        mc.fontRenderer.func_243248_b(matrixStack, new StringTextComponent(task.getName()), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+
+        mc.fontRenderer.func_243248_b(matrixStack, new StringTextComponent(task.getProfession()), guiLeft + 3 + 3, guiTop + 3 + 90, 0);
+
+        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.rewards"), guiLeft + 3 + 54 + 44, guiTop + 3 + 9 + 3, 0);
+        font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", task.getExperience()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 10, screen.FONT_COLOR);
+        if (task.getMoney() > 0) {
+            font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_money", task.getMoney()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 20, screen.FONT_COLOR);
+        }
+
+        int paddingLeft = guiLeft + 8 + 3;
+        int lineHeight = font.FONT_HEIGHT + 2;
+        int yPos = guiTop + 104 + 9 + 3 + 3 + 4;
+
+        screen.drawCentered(matrixStack, new StringTextComponent(task.getName()).mergeStyle(TextFormatting.BLACK), guiLeft + xSize / 2, yPos, 0);
+
+        yPos += lineHeight + 2;
+
+        List<IReorderingProcessor> list = font.trimStringToWidth(new StringTextComponent(task.getDescription()), xSize - 16);
+        for (IReorderingProcessor text : list) {
+            font.func_238422_b_(matrixStack, text, paddingLeft, yPos, screen.FONT_COLOR);
+            yPos += lineHeight;
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+            screen.setProgram(mailProgram);
+            playClickSound();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+}

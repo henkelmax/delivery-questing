@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.entity;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -44,7 +46,6 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
         if (!textureFile.exists()) {
             return;
         }
-        cache.put(filename, location);
 
         TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
         texturemanager.deleteTexture(location);
@@ -52,12 +53,20 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
         new Thread(() -> {
             try {
                 NativeImage image = NativeImage.read(new FileInputStream(textureFile));
-                texturemanager.loadTexture(location, new DynamicTexture(image));
-                consumer.accept(location);
+                RenderSystem.recordRenderCall(() -> {
+                    texturemanager.loadTexture(location, new DynamicTexture(image));
+                    cache.put(filename, location);
+                    consumer.accept(location);
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    @Override
+    public boolean isWearing(PlayerModelPart part) {
+        return true;
     }
 
     @Override

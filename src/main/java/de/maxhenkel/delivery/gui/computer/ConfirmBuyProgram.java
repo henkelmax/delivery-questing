@@ -98,9 +98,11 @@ public class ConfirmBuyProgram extends ComputerProgram {
             return true;
         } else if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
             screen.setProgram(new DesktopProgram(screen));
+            playClickSound();
             return true;
         } else if (closeDialog.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
             screen.setProgram(minazonProgram);
+            playClickSound();
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);

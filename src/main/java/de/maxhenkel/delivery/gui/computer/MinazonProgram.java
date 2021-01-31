@@ -85,6 +85,7 @@ public class MinazonProgram extends ComputerProgram {
         screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.balance").mergeStyle(TextFormatting.DARK_GRAY), 3 + 56 / 2, 9, 0);
         screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.price", getContainer().getBalance()).mergeStyle(TextFormatting.DARK_GREEN), 3 + 56 / 2, 21, 0);
 
+        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.minazon"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
         mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
 
         for (int i = offset; i < offers.size() && i < offset + 5; i++) {
@@ -165,6 +166,7 @@ public class MinazonProgram extends ComputerProgram {
         }
         if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
             screen.setProgram(new DesktopProgram(screen));
+            playClickSound();
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);

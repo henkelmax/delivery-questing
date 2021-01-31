@@ -30,9 +30,15 @@ public class TaskWidget extends Widget {
     private int page;
     private boolean showProgress;
     private boolean showInfo;
+    private ResourceLocation background;
 
-    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo) {
+    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo, ResourceLocation background) {
         super(x, y, 106, 104, new StringTextComponent(""));
+        if (background != null) {
+            this.background = background;
+        } else {
+            this.background = BACKGROUND;
+        }
         this.task = task;
         this.showProgress = showProgress;
         this.showInfo = showInfo;
@@ -46,6 +52,10 @@ public class TaskWidget extends Widget {
             elements.add(new Element<>(fluid.getItem(), 0, fluid.getAmount()));
         }
 
+    }
+
+    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo) {
+        this(x, y, task, showProgress, showInfo, null);
     }
 
     public void nextPage() {
@@ -73,7 +83,7 @@ public class TaskWidget extends Widget {
     public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
         FontRenderer font = mc.fontRenderer;
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bindTexture(background);
         RenderSystem.color4f(1F, 1F, 1F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

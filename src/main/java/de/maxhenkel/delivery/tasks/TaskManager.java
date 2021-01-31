@@ -2,7 +2,10 @@ package de.maxhenkel.delivery.tasks;
 
 import com.google.gson.Gson;
 import de.maxhenkel.delivery.Main;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import javax.annotation.Nullable;
@@ -15,7 +18,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class TaskManager {
+public class TaskManager implements INBTSerializable<CompoundNBT> {
 
     private List<Task> tasks;
     private final Random random;
@@ -61,6 +64,30 @@ public class TaskManager {
 
     public Random getRandom() {
         return random;
+    }
+
+    @Override
+    public CompoundNBT serializeNBT() {
+        CompoundNBT compound = new CompoundNBT();
+
+        ListNBT taskList = new ListNBT();
+        for (Task task : tasks) {
+            taskList.add(task.serializeNBT());
+        }
+        compound.put("Tasks", taskList);
+
+        return compound;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT compound) {
+        ListNBT taskList = compound.getList("Tasks", 10);
+        this.tasks = new ArrayList<>();
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = new Task();
+            task.deserializeNBT(taskList.getCompound(i));
+            this.tasks.add(task);
+        }
     }
 
 }

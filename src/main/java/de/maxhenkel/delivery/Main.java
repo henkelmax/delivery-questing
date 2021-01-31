@@ -92,7 +92,10 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageTaskCompletedToast.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageShowTask.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageSyncOffers.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageBuyOffer.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageSyncTasks.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 5, MessageBuyOffer.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageAcceptTask.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 7, MessageMarkEMailRead.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }
@@ -118,7 +121,7 @@ public class Main {
     }
 
     @SubscribeEvent
-    public void onRegisterCommands(RegisterCommandsEvent event) {
+    public void onPlayerLogIn(RegisterCommandsEvent event) {
         GroupCommand.register(event.getDispatcher());
         TestCommand.register(event.getDispatcher());
     }
@@ -131,10 +134,11 @@ public class Main {
     }
 
     @SubscribeEvent
-    public void onRegisterCommands(PlayerEvent.PlayerLoggedInEvent event) {
+    public void onPlayerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getPlayer() instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
             NetUtils.sendTo(SIMPLE_CHANNEL, player, new MessageSyncOffers(OFFER_MANAGER));
+            NetUtils.sendTo(SIMPLE_CHANNEL, player, new MessageSyncTasks(TASK_MANAGER));
         }
     }
 
