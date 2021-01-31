@@ -23,6 +23,7 @@ public class MinazonProgram extends ComputerProgram {
     private List<Offer> offers;
 
     private ScreenBase.HoverArea[] hoverAreas;
+    private ScreenBase.HoverArea close;
 
     public MinazonProgram(ComputerScreen screen) {
         super(screen);
@@ -44,6 +45,8 @@ public class MinazonProgram extends ComputerProgram {
         for (int i = 0; i < hoverAreas.length; i++) {
             hoverAreas[i] = new ScreenBase.HoverArea(3, 26 + i * 33, 239, 33);
         }
+
+        close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
     }
 
     @Override
@@ -61,10 +64,15 @@ public class MinazonProgram extends ComputerProgram {
             List<ITextComponent> tooltipFromItem = mc.currentScreen.getTooltipFromItem(offer.getItem());
             tooltipFromItem.set(0, new TranslationTextComponent("message.delivery.item_amount", tooltipFromItem.get(0), offer.getItem().getCount()));
             tooltipFromItem.add(1, new TranslationTextComponent("message.delivery.price", offer.getPrice()).mergeStyle(TextFormatting.GRAY));
+            if (offer.getPrice() > getContainer().getBalance()) {
+                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_balance").mergeStyle(TextFormatting.DARK_RED));
+            }
+            if (offer.getLevelRequirement() > getContainer().getLevel()) {
+                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_level").mergeStyle(TextFormatting.DARK_RED));
+            }
             mc.currentScreen.renderWrappedToolTip(matrixStack, tooltipFromItem, mouseX - guiLeft, mouseY - guiTop, mc.fontRenderer);
             break;
         }
-
     }
 
     @Override
@@ -73,6 +81,10 @@ public class MinazonProgram extends ComputerProgram {
         mc.getTextureManager().bindTexture(BACKGROUND);
         AbstractGui.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188, 512, 512);
 
+        AbstractGui.blit(matrixStack, 3, 3, 0, 287, 56, 32, 512, 512);
+        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.balance").mergeStyle(TextFormatting.DARK_GRAY), 3 + 56 / 2, 9, 0);
+        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.price", getContainer().getBalance()).mergeStyle(TextFormatting.DARK_GREEN), 3 + 56 / 2, 21, 0);
+
         mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
 
         for (int i = offset; i < offers.size() && i < offset + 5; i++) {
@@ -80,7 +92,7 @@ public class MinazonProgram extends ComputerProgram {
             int pos = i - offset;
             int startY = guiTop + 26 + pos * 33;
             Offer offer = offers.get(i);
-            if (offer.getLevelRequirement() > (int) screen.getContainer().getGroup().getLevel()) {
+            if (offer.getLevelRequirement() > screen.getContainer().getLevel()) {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 254, 239, 33, 512, 512);
             } else if (hoverAreas[pos].isHovered(guiLeft, guiTop, mouseX, mouseY)) {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 221, 239, 33, 512, 512);
@@ -90,8 +102,15 @@ public class MinazonProgram extends ComputerProgram {
 
             mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, offer.getItem(), guiLeft + 10, startY + 8);
             mc.getItemRenderer().renderItemOverlayIntoGUI(mc.fontRenderer, offer.getItem(), guiLeft + 10, startY + 8, null);
-            mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.price", offer.getPrice()), guiLeft + 35, startY + 13, 0xFFFFFF);
-            if (offer.getLevelRequirement() > (int) screen.getContainer().getGroup().getLevel()) {
+
+            IFormattableTextComponent price = new TranslationTextComponent("message.delivery.price", offer.getPrice());
+
+            if (getContainer().getBalance() < offer.getPrice()) {
+                price = price.mergeStyle(TextFormatting.DARK_RED);
+            }
+
+            mc.fontRenderer.func_243248_b(matrixStack, price, guiLeft + 35, startY + 13, 0xFFFFFF);
+            if (offer.getLevelRequirement() > screen.getContainer().getLevel()) {
                 IFormattableTextComponent lvl = new TranslationTextComponent("message.delivery.level_required", offer.getLevelRequirement()).mergeStyle(TextFormatting.DARK_RED);
                 int w = mc.fontRenderer.getStringPropertyWidth(lvl);
                 mc.fontRenderer.func_243248_b(matrixStack, lvl, guiLeft + xSize - w - 22, startY + 13, 0);
@@ -109,6 +128,9 @@ public class MinazonProgram extends ComputerProgram {
             AbstractGui.blit(matrixStack, guiLeft + xSize - 13, guiTop + 26, 239, 215, 10, 27, 512, 512);
         }
 
+        if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
+            AbstractGui.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 319, close.getWidth(), close.getHeight(), 512, 512);
+        }
     }
 
     @Override
@@ -122,5 +144,29 @@ public class MinazonProgram extends ComputerProgram {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (int i = 0; i < hoverAreas.length; i++) {
+            if (offset + i >= offers.size()) {
+                break;
+            }
+            if (!hoverAreas[i].isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+                continue;
+            }
+            Offer offer = offers.get(offset + i);
+            if (offer.getLevelRequirement() > getContainer().getLevel() || offer.getPrice() > getContainer().getBalance()) {
+                break;
+            }
+            screen.setProgram(new ConfirmBuyProgram(screen, this, offer));
+            playClickSound();
+            return true;
+        }
+        if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+            screen.setProgram(new DesktopProgram(screen));
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

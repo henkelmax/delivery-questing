@@ -2,8 +2,11 @@ package de.maxhenkel.delivery.gui.computer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
+import de.maxhenkel.delivery.sounds.ModSounds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.SoundEvent;
 
 public abstract class ComputerProgram {
 
@@ -57,5 +60,11 @@ public abstract class ComputerProgram {
         screen.addHoverArea(hoverArea);
     }
 
+    public void playSound(SoundEvent sound) {
+        mc.getSoundHandler().play(SimpleSound.master(sound, 1F));
+    }
 
+    public void playClickSound() {
+        playSound(ModSounds.MOUSE_CLICK);
+    }
 }

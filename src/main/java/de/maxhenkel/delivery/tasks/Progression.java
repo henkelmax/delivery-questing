@@ -38,6 +38,10 @@ public class Progression implements INBTSerializable<CompoundNBT> {
     }
 
     public void joinGroup(UUID player, String name, String password) throws CommandException {
+        if (groups.stream().anyMatch(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player)))) {
+            throw new CommandException(new TranslationTextComponent("command.delivery.already_in_another_group"));
+        }
+
         Optional<Group> optionalGroup = groups.stream().filter(g -> g.getName().equals(name)).findAny();
 
         if (!optionalGroup.isPresent()) {

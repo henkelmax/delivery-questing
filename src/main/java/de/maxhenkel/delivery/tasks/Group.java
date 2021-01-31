@@ -20,6 +20,7 @@ import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -40,6 +41,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private long balance;
     private NonNullList<ItemStack> mailboxInbox;
     private NonNullList<ItemStack> pendingInbox;
+    private NonNullList<ItemStack> pendingDeliveries;
 
     public Group(String name, String password) {
         this.id = UUID.randomUUID();
@@ -52,6 +54,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.balance = 0L;
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         this.pendingInbox = NonNullList.create();
+        this.pendingDeliveries = NonNullList.create();
     }
 
     public Group() {
@@ -125,6 +128,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return pendingInbox;
     }
 
+    public NonNullList<ItemStack> getPendingDeliveries() {
+        return pendingDeliveries;
+    }
+
+    public void addPendingDelivery(ItemStack stack) {
+        pendingDeliveries.add(stack);
+    }
+
     public long getBalance() {
         return balance;
     }
@@ -167,9 +178,13 @@ public class Group implements INBTSerializable<CompoundNBT> {
             generateMailboxTask();
         }
 
+        if (server.getWorld(World.OVERWORLD).getDayTime() % 24000 == 20) {
+            pendingDeliveries.forEach(this::addItemToInbox);
+            pendingDeliveries.clear();
+        }
+
         inboxLoop:
         while (!pendingInbox.isEmpty()) {
-            NonNullList<ItemStack> mailboxInbox = getMailboxInbox();
             for (int i = 0; i < mailboxInbox.size(); i++) {
                 if (mailboxInbox.get(i).isEmpty()) {
                     mailboxInbox.set(i, pendingInbox.remove(0));
@@ -178,6 +193,28 @@ public class Group implements INBTSerializable<CompoundNBT> {
             }
             break;
         }
+    }
+
+    public void onBuyOffer(UUID offerID) {
+        Offer offer = Main.OFFER_MANAGER.getOffer(offerID);
+        if (offer == null) {
+            return;
+        }
+        if (offer.getPrice() > balance) {
+            return;
+        }
+        if (offer.getLevelRequirement() > (int) getLevel()) {
+            return;
+        }
+        if (offer.getItem().isEmpty()) {
+            return;
+        }
+
+        balance -= offer.getPrice();
+        ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
+        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY, offer.getItem()));
+        ModItems.SEALED_PARCEL.setSender(parcel, new TranslationTextComponent("tooltip.delivery.minazon"));
+        addPendingDelivery(parcel);
     }
 
     public void generateMailboxTask() {
@@ -423,6 +460,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         ItemUtils.saveInventory(compound, "MailboxInbox", mailboxInbox);
         ItemUtils.saveItemList(compound, "PendingMailboxInbox", pendingInbox, false);
+        ItemUtils.saveItemList(compound, "PendingDeliveries", pendingDeliveries, false);
 
         return compound;
     }
@@ -459,5 +497,6 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.mailboxInbox = NonNullList.withSize(4, ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "MailboxInbox", mailboxInbox);
         this.pendingInbox = ItemUtils.readItemList(compound, "PendingMailboxInbox", false);
+        this.pendingDeliveries = ItemUtils.readItemList(compound, "PendingDeliveries", false);
     }
 }

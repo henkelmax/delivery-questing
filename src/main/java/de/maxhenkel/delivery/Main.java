@@ -12,10 +12,7 @@ import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
 import de.maxhenkel.delivery.items.ModItems;
-import de.maxhenkel.delivery.net.MessageShowTask;
-import de.maxhenkel.delivery.net.MessageSwitchLiquifier;
-import de.maxhenkel.delivery.net.MessageSyncOffers;
-import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
+import de.maxhenkel.delivery.net.*;
 import de.maxhenkel.delivery.tasks.OfferManager;
 import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.tasks.TaskManager;
@@ -95,6 +92,7 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageTaskCompletedToast.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageShowTask.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageSyncOffers.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageBuyOffer.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }

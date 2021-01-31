@@ -47,6 +47,22 @@ public class TestCommand {
             return 1;
         })));
 
+        literalBuilder.then(Commands.literal("test").then(Commands.literal("set_balance").then(Commands.argument("balance", IntegerArgumentType.integer(0)).executes(context -> {
+            ServerPlayerEntity player = context.getSource().asPlayer();
+            int balance = IntegerArgumentType.getInteger(context, "balance");
+            Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+            playerGroup.setBalance(balance);
+            return 1;
+        }))));
+
+        literalBuilder.then(Commands.literal("test").then(Commands.literal("add_balance").then(Commands.argument("balance", IntegerArgumentType.integer(0)).executes(context -> {
+            ServerPlayerEntity player = context.getSource().asPlayer();
+            int balance = IntegerArgumentType.getInteger(context, "balance");
+            Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+            playerGroup.addBalance(balance);
+            return 1;
+        }))));
+
         dispatcher.register(literalBuilder);
     }
 

@@ -13,5 +13,14 @@
         "name": "delivery:mouse_click_3"
       }
     ]
+  },
+  "cash_register": {
+    "category": "master",
+    "subtitle": "sound.delivery.cash_register",
+    "sounds": [
+      {
+        "name": "delivery:cash_register"
+      }
+    ]
   }
 }

@@ -7,12 +7,14 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.loading.FMLPaths;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class OfferManager implements INBTSerializable<CompoundNBT> {
 
@@ -28,6 +30,11 @@ public class OfferManager implements INBTSerializable<CompoundNBT> {
 
     public List<Offer> getOffers() {
         return offers;
+    }
+
+    @Nullable
+    public Offer getOffer(UUID id) {
+        return offers.stream().filter(offer -> offer.getId().equals(id)).findAny().orElse(null);
     }
 
     public static OfferManager load() throws IOException {
