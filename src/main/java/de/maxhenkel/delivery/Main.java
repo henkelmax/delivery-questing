@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery;
 
 import de.maxhenkel.corelib.CommonRegistry;
+import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
@@ -13,7 +14,9 @@ import de.maxhenkel.delivery.integration.IMC;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.net.MessageShowTask;
 import de.maxhenkel.delivery.net.MessageSwitchLiquifier;
+import de.maxhenkel.delivery.net.MessageSyncOffers;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
+import de.maxhenkel.delivery.tasks.OfferManager;
 import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.tasks.TaskManager;
 import net.minecraft.block.Block;
@@ -32,6 +35,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -63,6 +67,7 @@ public class Main {
     public static Capability<Progression> PROGRESSION_CAPABILITY = null;
 
     public static TaskManager TASK_MANAGER;
+    public static OfferManager OFFER_MANAGER;
 
     public Main() {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModBlocks::registerItems);
@@ -89,6 +94,7 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageTaskCompletedToast.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageShowTask.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageSyncOffers.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }
@@ -99,6 +105,11 @@ public class Main {
             TASK_MANAGER = TaskManager.load();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load tasks", e);
+        }
+        try {
+            OFFER_MANAGER = OfferManager.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load offers", e);
         }
     }
 
@@ -118,6 +129,14 @@ public class Main {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase.equals(TickEvent.Phase.START)) {
             TASK_MANAGER.onServerTick(ServerLifecycleHooks.getCurrentServer());
+        }
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getPlayer() instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            NetUtils.sendTo(SIMPLE_CHANNEL, player, new MessageSyncOffers(OFFER_MANAGER));
         }
     }
 

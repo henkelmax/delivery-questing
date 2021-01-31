@@ -1,15 +1,9 @@
 package de.maxhenkel.delivery.tasks;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonObject;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -53,12 +47,7 @@ public class TaskManager {
             return new TaskManager(new ArrayList<>());
         }
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Item.class, Item.DESERIALIZER);
-        gsonBuilder.registerTypeAdapter(Fluid.class, Fluid.DESERIALIZER);
-        gsonBuilder.registerTypeAdapter(ItemStack.class, ITEM_STACK_DESERIALIZER);
-
-        Gson customGson = gsonBuilder.create();
+        Gson customGson = Deserializers.getGson();
         BufferedReader bufferedReader = Files.newBufferedReader(tasks);
         return customGson.fromJson(bufferedReader, TaskManager.class);
     }
@@ -73,13 +62,5 @@ public class TaskManager {
     public Random getRandom() {
         return random;
     }
-
-    public static final JsonDeserializer<ItemStack> ITEM_STACK_DESERIALIZER = (json, typeOfT, context) -> {
-        JsonObject obj = json.getAsJsonObject();
-        net.minecraft.item.Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(obj.get("item").getAsString()));
-        int amount = obj.get("amount").getAsInt();
-        return new ItemStack(value, amount);
-    };
-
 
 }

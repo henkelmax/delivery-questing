@@ -3,6 +3,8 @@ package de.maxhenkel.delivery.gui;
 import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.inventory.ContainerFactoryTileEntity;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.gui.computer.ComputerContainer;
+import de.maxhenkel.delivery.gui.computer.ComputerScreen;
 import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTask;
 import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryGroup;
 import net.minecraft.inventory.container.ContainerType;
@@ -25,6 +27,7 @@ public class Containers {
     public static ContainerType<ParcelContainer> PARCEL_CONTAINER;
     public static ContainerType<BulletinBoardContainer> BULLETIN_BOARD_CONTAINER;
     public static ContainerType<ContractContainer> CONTRACT_CONTAINER;
+    public static ContainerType<ComputerContainer> COMPUTER_CONTAINER;
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
@@ -40,6 +43,7 @@ public class Containers {
         ClientRegistry.registerScreen(PARCEL_CONTAINER, ParcelScreen::new);
         ClientRegistry.registerScreen(BULLETIN_BOARD_CONTAINER, BulletinBoardScreen::new);
         ClientRegistry.registerScreen(CONTRACT_CONTAINER, ContractScreen::new);
+        ClientRegistry.registerScreen(COMPUTER_CONTAINER, ComputerScreen::new);
     }
 
     public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
@@ -90,6 +94,10 @@ public class Containers {
         CONTRACT_CONTAINER = new ContainerType<>(new ContainerFactoryTask<>(ContractContainer::new));
         CONTRACT_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "contract"));
         event.getRegistry().register(CONTRACT_CONTAINER);
+
+        COMPUTER_CONTAINER = new ContainerType<>(new ContainerFactoryGroup<>(ComputerContainer::new));
+        COMPUTER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "computer"));
+        event.getRegistry().register(COMPUTER_CONTAINER);
     }
 
 }

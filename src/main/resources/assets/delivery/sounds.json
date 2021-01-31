@@ -1,3 +1,17 @@
 {
-
+  "mouse_click": {
+    "category": "master",
+    "subtitle": "sound.delivery.mouse_click",
+    "sounds": [
+      {
+        "name": "delivery:mouse_click_1"
+      },
+      {
+        "name": "delivery:mouse_click_2"
+      },
+      {
+        "name": "delivery:mouse_click_3"
+      }
+    ]
+  }
 }
