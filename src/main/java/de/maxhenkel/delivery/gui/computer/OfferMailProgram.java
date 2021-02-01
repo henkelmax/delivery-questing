@@ -41,7 +41,7 @@ public class OfferMailProgram extends ComputerProgram {
         item = new ScreenBase.HoverArea(xSize / 2 - 8, ySize - 3 - 3 - 8 - 20 - 32, 16, 16);
 
         openMinazon = new Button(guiLeft + xSize / 2 - 50, guiTop + ySize - 3 - 3 - 8 - 20, 100, 20, new TranslationTextComponent("message.delivery.view"), button -> {
-            screen.setProgram(new MinazonProgram(screen));
+            screen.setProgram(new MinazonProgram(screen, this));
         });
         addWidget(openMinazon);
     }

@@ -19,12 +19,10 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
 
     private DummyPlayer player;
 
-    private PlayerInventory playerInventory;
     private TaskWidget taskWidget;
 
     public ContractScreen(ContractContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
-        this.playerInventory = playerInventory;
         xSize = 176;
         ySize = 222;
     }
@@ -33,7 +31,7 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
     protected void init() {
         super.init();
         ActiveTask task = new ActiveTask(container.getTask(), null);
-        taskWidget = new TaskWidget(guiLeft + 61, guiTop + 6, task, false, false);
+        taskWidget = new TaskWidget(guiLeft + 61, guiTop + 6, task, false, null);
         player = new DummyPlayer(minecraft.world, container.getTask().getSkin(), container.getTask().getContractorName());
 
         addButton(taskWidget);

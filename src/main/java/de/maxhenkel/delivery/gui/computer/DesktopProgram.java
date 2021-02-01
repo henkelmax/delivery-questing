@@ -17,9 +17,11 @@ public class DesktopProgram extends ComputerProgram {
     public static final ResourceLocation ICONS = new ResourceLocation(Main.MODID, "textures/gui/computer/icons.png");
     private IFormattableTextComponent MINTERNET = new TranslationTextComponent("tooltip.delivery.minternet");
     private IFormattableTextComponent MAIL = new TranslationTextComponent("message.delivery.email");
+    private IFormattableTextComponent NOTES = new TranslationTextComponent("message.delivery.notes");
 
     private ScreenBase.HoverArea minternet;
     private ScreenBase.HoverArea mail;
+    private ScreenBase.HoverArea notes;
 
     public DesktopProgram(ComputerScreen screen) {
         super(screen);
@@ -34,6 +36,9 @@ public class DesktopProgram extends ComputerProgram {
 
         mail = new ScreenBase.HoverArea(64, 16, 32, 32, () -> Collections.singletonList(MAIL.mergeStyle(TextFormatting.WHITE).func_241878_f()));
         addHoverArea(mail);
+
+        notes = new ScreenBase.HoverArea(112, 16, 32, 32, () -> Collections.singletonList(NOTES.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        addHoverArea(notes);
     }
 
     @Override
@@ -42,13 +47,10 @@ public class DesktopProgram extends ComputerProgram {
 
         drawIcon(matrixStack, minternet, mouseX, mouseY, 0, 0, MINTERNET);
         drawIcon(matrixStack, mail, mouseX, mouseY, 0, 32, MAIL);
+        drawIcon(matrixStack, notes, mouseX, mouseY, 0, 64, NOTES);
 
-        int unreadEMailCount = getContainer().getGroup().getUnreadEMailCount();
-        if (unreadEMailCount > 0) {
-            IFormattableTextComponent num = new StringTextComponent(String.valueOf(unreadEMailCount)).mergeStyle(TextFormatting.DARK_RED);
-            int w = mc.fontRenderer.getStringPropertyWidth(num);
-            mc.fontRenderer.func_243248_b(matrixStack, num, mail.getPosX() + mail.getWidth() - 1 - w, mail.getPosY() + 4, 0);
-        }
+        drawCount(matrixStack, mail, getContainer().getGroup().getUnreadEMailCount());
+        drawCount(matrixStack, notes, getContainer().getGroup().getActiveTasks().getTasks().size());
 
         screen.drawHoverAreas(matrixStack, mouseX, mouseY);
     }
@@ -63,6 +65,14 @@ public class DesktopProgram extends ComputerProgram {
         screen.drawCentered(matrixStack, name, hoverArea.getPosX() + hoverArea.getWidth() / 2, hoverArea.getPosY() + hoverArea.getHeight() + 1, TextFormatting.WHITE.getColor());
     }
 
+    private void drawCount(MatrixStack matrixStack, ScreenBase.HoverArea hoverArea, int count) {
+        if (count > 0) {
+            IFormattableTextComponent num = new StringTextComponent(String.valueOf(count)).mergeStyle(TextFormatting.DARK_RED);
+            int w = mc.fontRenderer.getStringPropertyWidth(num);
+            mc.fontRenderer.func_243248_b(matrixStack, num, hoverArea.getPosX() + hoverArea.getWidth() - 1 - w, hoverArea.getPosY() + 4, 0);
+        }
+    }
+
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
@@ -73,12 +83,17 @@ public class DesktopProgram extends ComputerProgram {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (minternet.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(new MinazonProgram(screen));
+            screen.setProgram(new MinazonProgram(screen, this));
             playClickSound();
             return true;
         }
         if (mail.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(new MailProgram(screen));
+            screen.setProgram(new MailProgram(screen, this));
+            playClickSound();
+            return true;
+        }
+        if (notes.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
+            screen.setProgram(new NotesProgram(screen, this));
             playClickSound();
             return true;
         }

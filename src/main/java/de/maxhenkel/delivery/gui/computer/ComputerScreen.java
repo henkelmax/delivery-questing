@@ -30,6 +30,8 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> {
 
     @Override
     protected void init() {
+        buttons.clear();
+        children.clear();
         super.init();
         if (program != null) {
             program.init();

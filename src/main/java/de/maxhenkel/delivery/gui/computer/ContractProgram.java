@@ -26,19 +26,19 @@ public class ContractProgram extends ComputerProgram {
     public static final ResourceLocation TASK = new ResourceLocation(Main.MODID, "textures/gui/container/computer_task.png");
 
     private Task task;
-    private MailProgram mailProgram;
+    private ComputerProgram parent;
     private DummyPlayer player;
     private TaskWidget taskWidget;
     private ScreenBase.HoverArea close;
     private Button accept;
 
-    public ContractProgram(ComputerScreen screen, MailProgram mailProgram, UUID taskID) {
+    public ContractProgram(ComputerScreen screen, ComputerProgram parent, UUID taskID) {
         super(screen);
-        this.mailProgram = mailProgram;
+        this.parent = parent;
         task = Main.TASK_MANAGER.getTask(taskID);
 
         if (task == null) {
-            screen.setProgram(mailProgram);
+            screen.setProgram(this.parent);
         }
     }
 
@@ -46,7 +46,7 @@ public class ContractProgram extends ComputerProgram {
     protected void init() {
         super.init();
         player = new DummyPlayer(mc.world, task.getSkin(), task.getContractorName());
-        taskWidget = new TaskWidget(guiLeft + xSize - 106 - 6, guiTop + 15, new ActiveTask(task, null), false, false, TASK);
+        taskWidget = new TaskWidget(guiLeft + xSize - 106 - 6, guiTop + 15, new ActiveTask(task, null), false, null, TASK);
         addWidget(taskWidget);
 
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
@@ -54,7 +54,7 @@ public class ContractProgram extends ComputerProgram {
         accept = new Button(guiLeft + 3 + 54 + 10, guiTop + 3 + 67, 68, 20, new TranslationTextComponent("message.delivery.accept"), button -> {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageAcceptTask(task.getId()));
             screen.getContainer().getGroup().addTask(task.getId());
-            screen.setProgram(mailProgram);
+            screen.setProgram(parent);
         });
         accept.active = screen.getContainer().getGroup().canAcceptTask(task.getId());
         addWidget(accept);
@@ -83,9 +83,9 @@ public class ContractProgram extends ComputerProgram {
 
         FontRenderer font = mc.fontRenderer;
 
-        mc.fontRenderer.func_243248_b(matrixStack, new StringTextComponent(task.getName()), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        font.func_243248_b(matrixStack, new StringTextComponent(task.getName()), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
-        mc.fontRenderer.func_243248_b(matrixStack, new StringTextComponent(task.getProfession()), guiLeft + 3 + 3, guiTop + 3 + 90, 0);
+        font.func_243248_b(matrixStack, new StringTextComponent(task.getProfession()), guiLeft + 3 + 3, guiTop + 3 + 90, 0);
 
         screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.rewards"), guiLeft + 3 + 54 + 44, guiTop + 3 + 9 + 3, 0);
         font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", task.getExperience()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 10, screen.FONT_COLOR);
@@ -111,7 +111,7 @@ public class ContractProgram extends ComputerProgram {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(mailProgram);
+            screen.setProgram(parent);
             playClickSound();
             return true;
         }

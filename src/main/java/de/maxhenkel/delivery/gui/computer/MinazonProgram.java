@@ -25,8 +25,12 @@ public class MinazonProgram extends ComputerProgram {
     private ScreenBase.HoverArea[] hoverAreas;
     private ScreenBase.HoverArea close;
 
-    public MinazonProgram(ComputerScreen screen) {
+    private ComputerProgram parent;
+
+    public MinazonProgram(ComputerScreen screen, ComputerProgram parent) {
         super(screen);
+        this.parent = parent;
+
         List<Offer> o = Main.OFFER_MANAGER.getOffers();
 
         if (o == null) {
@@ -165,7 +169,7 @@ public class MinazonProgram extends ComputerProgram {
             return true;
         }
         if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(new DesktopProgram(screen));
+            screen.setProgram(parent);
             playClickSound();
             return true;
         }

@@ -26,8 +26,11 @@ public class MailProgram extends ComputerProgram {
     private ScreenBase.HoverArea[] hoverAreas;
     private ScreenBase.HoverArea close;
 
-    public MailProgram(ComputerScreen screen) {
+    private ComputerProgram parent;
+
+    public MailProgram(ComputerScreen screen, ComputerProgram parent) {
         super(screen);
+        this.parent = parent;
 
         eMails = new ArrayList<>(screen.getContainer().getGroup().getEMails());
         Collections.reverse(eMails);
@@ -137,7 +140,7 @@ public class MailProgram extends ComputerProgram {
             return true;
         }
         if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(new DesktopProgram(screen));
+            screen.setProgram(parent);
             playClickSound();
             return true;
         }

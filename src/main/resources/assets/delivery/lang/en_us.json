@@ -52,6 +52,7 @@
   "message.delivery.now_available": "Now available: %s",
   "message.delivery.now_available_description": "%s is now available for you to buy on Minazon",
   "message.delivery.view": "View",
+  "message.delivery.notes": "Notes",
   "tooltip.delivery.energy": "%sFE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%smb",

@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.net.MessageShowTask;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
@@ -19,7 +20,6 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/bulletin_board.png");
 
-    private PlayerInventory playerInventory;
     @Nullable
     private TaskWidget currentTaskWidget;
     @Nullable
@@ -31,7 +31,6 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
 
     public BulletinBoardScreen(BulletinBoardContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
-        this.playerInventory = playerInventory;
         xSize = 176;
         ySize = 167;
     }
@@ -50,7 +49,9 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
         prev = null;
         next = null;
 
-        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(guiLeft + 35, guiTop + 35, activeTask, true, true)).collect(Collectors.toList());
+        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(guiLeft + 35, guiTop + 35, activeTask, true, t -> {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageShowTask(t.getTaskProgress().getTaskID()));
+        })).collect(Collectors.toList());
 
         if (tasks.isEmpty()) {
             return;

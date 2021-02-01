@@ -3,7 +3,6 @@ package de.maxhenkel.delivery.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.delivery.Main;
-import de.maxhenkel.delivery.net.MessageShowTask;
 import de.maxhenkel.delivery.tasks.ActiveTask;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,8 +15,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TaskWidget extends Widget {
 
@@ -29,10 +30,10 @@ public class TaskWidget extends Widget {
     private ActiveTask task;
     private int page;
     private boolean showProgress;
-    private boolean showInfo;
     private ResourceLocation background;
+    private Consumer<ActiveTask> onInfoClick;
 
-    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo, ResourceLocation background) {
+    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, @Nullable Consumer<ActiveTask> onInfoClick, ResourceLocation background) {
         super(x, y, 106, 104, new StringTextComponent(""));
         if (background != null) {
             this.background = background;
@@ -41,7 +42,7 @@ public class TaskWidget extends Widget {
         }
         this.task = task;
         this.showProgress = showProgress;
-        this.showInfo = showInfo;
+        this.onInfoClick = onInfoClick;
         elements = new ArrayList<>();
 
         for (de.maxhenkel.delivery.tasks.Item item : task.getTask().getItems()) {
@@ -54,8 +55,8 @@ public class TaskWidget extends Widget {
 
     }
 
-    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, boolean showInfo) {
-        this(x, y, task, showProgress, showInfo, null);
+    public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, @Nullable Consumer<ActiveTask> onInfoClick) {
+        this(x, y, task, showProgress, onInfoClick, null);
     }
 
     public void nextPage() {
@@ -90,7 +91,7 @@ public class TaskWidget extends Widget {
         RenderSystem.enableDepthTest();
         blit(matrixStack, x, y, 0, 0, width, height);
 
-        if (showInfo) {
+        if (onInfoClick != null) {
             if (isInfoHovered(mouseX, mouseY)) {
                 blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11);
             } else {
@@ -237,9 +238,9 @@ public class TaskWidget extends Widget {
             nextPage();
             return true;
         }
-        if (isInfoHovered((int) mouseX, (int) mouseY)) {
+        if (onInfoClick != null && isInfoHovered((int) mouseX, (int) mouseY)) {
             playDownSound(Minecraft.getInstance().getSoundHandler());
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageShowTask(task.getTaskProgress().getTaskID()));
+            onInfoClick.accept(task);
             return true;
         }
         return false;

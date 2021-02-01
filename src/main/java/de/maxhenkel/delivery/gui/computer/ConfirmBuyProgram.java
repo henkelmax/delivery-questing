@@ -22,11 +22,11 @@ public class ConfirmBuyProgram extends ComputerProgram {
     private ScreenBase.HoverArea close;
     private ScreenBase.HoverArea closeDialog;
     private Offer offer;
-    private MinazonProgram minazonProgram;
+    private ComputerProgram parent;
 
-    public ConfirmBuyProgram(ComputerScreen screen, MinazonProgram minazonProgram, Offer offer) {
+    public ConfirmBuyProgram(ComputerScreen screen, ComputerProgram parent, Offer offer) {
         super(screen);
-        this.minazonProgram = minazonProgram;
+        this.parent = parent;
         this.offer = offer;
     }
 
@@ -89,11 +89,11 @@ public class ConfirmBuyProgram extends ComputerProgram {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (confirm.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageBuyOffer(offer.getId()));
-            screen.setProgram(minazonProgram);
+            screen.setProgram(parent);
             playSound(ModSounds.CASH_REGISTER);
             return true;
         } else if (cancel.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(minazonProgram);
+            screen.setProgram(parent);
             playClickSound();
             return true;
         } else if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
@@ -101,7 +101,7 @@ public class ConfirmBuyProgram extends ComputerProgram {
             playClickSound();
             return true;
         } else if (closeDialog.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
-            screen.setProgram(minazonProgram);
+            screen.setProgram(parent);
             playClickSound();
             return true;
         }
