@@ -6,6 +6,7 @@ import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.net.MessageMarkEMailRead;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
+import de.maxhenkel.delivery.tasks.email.OfferEMail;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
@@ -58,16 +59,22 @@ public class MailProgram extends ComputerProgram {
             int startY = guiTop + 12 + pos * 33;
             EMail eMail = eMails.get(i);
             if (hoverAreas[pos].isHovered(guiLeft, guiTop, mouseX, mouseY)) {
-                AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 221, 239, 33, 512, 512);
-            } else if (eMail.isRead()) {
-                AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 254, 239, 33, 512, 512);
+                if (eMail.isRead()) {
+                    AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 287, 239, 33, 512, 512);
+                } else {
+                    AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 221, 239, 33, 512, 512);
+                }
             } else {
-                AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 188, 239, 33, 512, 512);
+                if (eMail.isRead()) {
+                    AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 254, 239, 33, 512, 512);
+                } else {
+                    AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 188, 239, 33, 512, 512);
+                }
             }
 
             matrixStack.push();
             matrixStack.translate(guiLeft + 11, startY + 8, 0F);
-            eMail.renderIcon(matrixStack);//TODO
+            eMail.renderIcon(matrixStack, getContainer().getGroup());
             matrixStack.pop();
 
             mc.fontRenderer.func_243248_b(matrixStack, eMail.getTitle(), guiLeft + 35, startY + 2, 0xFFFFFF);
@@ -90,7 +97,7 @@ public class MailProgram extends ComputerProgram {
         }
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
-            AbstractGui.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 287, close.getWidth(), close.getHeight(), 512, 512);
+            AbstractGui.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 320, close.getWidth(), close.getHeight(), 512, 512);
         }
     }
 
@@ -123,6 +130,8 @@ public class MailProgram extends ComputerProgram {
             }
             if (eMail instanceof ContractEMail) {
                 screen.setProgram(new ContractProgram(screen, this, ((ContractEMail) eMail).getTaskID()));
+            } else if (eMail instanceof OfferEMail) {
+                screen.setProgram(new OfferMailProgram(screen, this, (OfferEMail) eMail));
             }
             playClickSound();
             return true;

@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.tasks.email;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,7 +29,7 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     public abstract IFormattableTextComponent getSender();
 
     @OnlyIn(Dist.CLIENT)
-    public abstract void renderIcon(MatrixStack matrixStack);
+    public abstract void renderIcon(MatrixStack matrixStack, Group group);
 
     public boolean isRead() {
         return read;
@@ -78,6 +79,7 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     static {
         mailTypes = new HashMap<>();
         mailTypes.put((byte) 0, ContractEMail.class);
+        mailTypes.put((byte) 1, OfferEMail.class);
     }
 
     private byte id() {

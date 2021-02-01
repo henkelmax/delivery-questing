@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.delivery.entity.DummyPlayer;
 import de.maxhenkel.delivery.tasks.Task;
 import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.toasts.IToast;
 import net.minecraft.client.gui.toasts.ToastGui;
 import net.minecraft.util.IReorderingProcessor;
@@ -58,7 +59,8 @@ public class TaskCompletedToast implements IToast {
             matrixStack.push();
             matrixStack.scale(2F, 2F, 1F);
             toastGui.getMinecraft().getTextureManager().bindTexture(skin);
-            toastGui.blit(matrixStack, 8 / 2, 8 / 2, 8, 8, 8, 8, 64, 64);
+            AbstractGui.blit(matrixStack, 8 / 2, 8 / 2, 8, 8, 8, 8, 64, 64);
+            AbstractGui.blit(matrixStack, 8 / 2, 8 / 2, 40, 8, 8, 8, 64, 64);
             matrixStack.pop();
         }
         return time >= showTime ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;

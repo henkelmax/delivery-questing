@@ -63,6 +63,13 @@ public class TestCommand {
             return 1;
         }))));
 
+        literalBuilder.then(Commands.literal("test").then(Commands.literal("generate_task").executes(context -> {
+            ServerPlayerEntity player = context.getSource().asPlayer();
+            Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+            playerGroup.generateEMailTask();
+            return 1;
+        })));
+
         dispatcher.register(literalBuilder);
     }
 

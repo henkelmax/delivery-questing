@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class OfferManager implements INBTSerializable<CompoundNBT> {
 
@@ -35,6 +36,10 @@ public class OfferManager implements INBTSerializable<CompoundNBT> {
     @Nullable
     public Offer getOffer(UUID id) {
         return offers.stream().filter(offer -> offer.getId().equals(id)).findAny().orElse(null);
+    }
+
+    public List<Offer> getNewOffers(int levelFrom, int levelTo) {
+        return offers.stream().filter(offer -> offer.getLevelRequirement() >= levelFrom && offer.getLevelRequirement() <= levelTo).collect(Collectors.toList());
     }
 
     public static OfferManager load() throws IOException {

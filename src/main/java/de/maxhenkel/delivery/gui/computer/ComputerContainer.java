@@ -49,7 +49,7 @@ public class ComputerContainer extends ContainerBase {
 
             @Override
             public int size() {
-                return 1;
+                return 2;
             }
         });
     }

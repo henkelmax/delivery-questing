@@ -11,6 +11,7 @@ import de.maxhenkel.delivery.items.SealedEnvelopeItem;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
+import de.maxhenkel.delivery.tasks.email.OfferEMail;
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -118,11 +119,20 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void addExperience(int experience) {
-        this.experience += experience;
+        setExperience(this.experience + experience);
     }
 
     public void setExperience(long experience) {
+        int levelBefore = (int) getLevel();
         this.experience = experience;
+        int levelAfter = (int) getLevel();
+
+        //TODO forced tasks
+
+        if (levelAfter > levelBefore) {
+            List<Offer> newOffers = Main.OFFER_MANAGER.getNewOffers(levelBefore + 1, levelAfter);
+            newOffers.forEach(offer -> addEMail(new OfferEMail(offer)));
+        }
     }
 
     public NonNullList<ItemStack> getMailboxInbox() {
@@ -139,6 +149,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public List<EMail> getEMails() {
         return eMails;
+    }
+
+    public int getUnreadEMailCount() {
+        return (int) eMails.stream().filter(eMail -> !eMail.isRead()).count();
     }
 
     public void addEMail(EMail eMail) {
@@ -271,7 +285,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
                 .filter(task -> task.getMaxLevel() >= getLevel())
                 .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for completed tasks
                 .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))) // Filter for accepted tasks
-                .filter(task -> getUnacceptedEmailTasks().anyMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
+                .filter(task -> getUnacceptedEmailTasks().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
                 .collect(Collectors.toList());
 
         if (possibleTasks.isEmpty()) {

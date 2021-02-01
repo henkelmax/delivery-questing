@@ -5,6 +5,7 @@ import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -41,6 +42,13 @@ public class DesktopProgram extends ComputerProgram {
 
         drawIcon(matrixStack, minternet, mouseX, mouseY, 0, 0, MINTERNET);
         drawIcon(matrixStack, mail, mouseX, mouseY, 0, 32, MAIL);
+
+        int unreadEMailCount = getContainer().getGroup().getUnreadEMailCount();
+        if (unreadEMailCount > 0) {
+            IFormattableTextComponent num = new StringTextComponent(String.valueOf(unreadEMailCount)).mergeStyle(TextFormatting.DARK_RED);
+            int w = mc.fontRenderer.getStringPropertyWidth(num);
+            mc.fontRenderer.func_243248_b(matrixStack, num, mail.getPosX() + mail.getWidth() - 1 - w, mail.getPosY() + 4, 0);
+        }
 
         screen.drawHoverAreas(matrixStack, mouseX, mouseY);
     }
