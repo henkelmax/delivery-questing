@@ -5,14 +5,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
-import de.maxhenkel.delivery.gui.computer.ComputerContainer;
-import de.maxhenkel.delivery.gui.containerprovider.GroupContainerProvider;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.StringTextComponent;
 
 public class TestCommand {
 
@@ -40,12 +37,6 @@ public class TestCommand {
             playerGroup.addExperience(xp);
             return 1;
         }))));
-
-        literalBuilder.then(Commands.literal("test").then(Commands.literal("computer").executes(context -> {
-            ServerPlayerEntity player = context.getSource().asPlayer();
-            GroupContainerProvider.openGui(player, Main.getProgression(player).getPlayerGroup(player.getUniqueID()), new StringTextComponent("Computer"), ComputerContainer::new);
-            return 1;
-        })));
 
         literalBuilder.then(Commands.literal("test").then(Commands.literal("set_balance").then(Commands.argument("balance", IntegerArgumentType.integer(0)).executes(context -> {
             ServerPlayerEntity player = context.getSource().asPlayer();

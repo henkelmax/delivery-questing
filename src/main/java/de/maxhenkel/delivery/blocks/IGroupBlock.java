@@ -3,10 +3,11 @@ package de.maxhenkel.delivery.blocks;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.tileentity.GroupTileEntity;
 import de.maxhenkel.delivery.tasks.Group;
+import de.maxhenkel.delivery.tasks.Progression;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
@@ -17,19 +18,20 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 
-import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import java.util.Optional;
 
 public interface IGroupBlock {
 
-    default ActionResultType checkGroup(World worldIn, BlockPos pos, PlayerEntity p, Consumer<Group> openGui) {
+    default Optional<Group> getGroup(World worldIn, BlockPos pos, PlayerEntity p) {
         TileEntity te = worldIn.getTileEntity(pos);
 
         if (!(te instanceof GroupTileEntity)) {
-            return ActionResultType.SUCCESS;
+            return Optional.empty();
         }
 
         if (!(p instanceof ServerPlayerEntity)) {
-            return ActionResultType.SUCCESS;
+            return Optional.empty();
         }
         ServerPlayerEntity player = (ServerPlayerEntity) p;
 
@@ -63,20 +65,39 @@ public interface IGroupBlock {
                                         .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("/group join <group_name> <group_password>")))
                                 ))
                         , Util.DUMMY_UUID);
-                return ActionResultType.SUCCESS;
+                return Optional.empty();
             } else {
                 groupTileEntity.setGroup(playerGroup.getId());
             }
         } else if (playerGroup != null && !groupTileEntity.getGroupID().equals(playerGroup.getId())) {
             player.sendMessage(new TranslationTextComponent("message.delivery.no_member"), Util.DUMMY_UUID);
-            return ActionResultType.SUCCESS;
+            return Optional.empty();
         } else if (playerGroup == null) {
             player.sendMessage(new TranslationTextComponent("message.delivery.no_group"), Util.DUMMY_UUID);
-            return ActionResultType.SUCCESS;
+            return Optional.empty();
         }
 
-        openGui.accept(playerGroup);
-        return ActionResultType.SUCCESS;
+        return Optional.of(playerGroup);
+    }
+
+    default void setGroup(World worldIn, BlockPos pos, @Nullable LivingEntity placer) {
+        if (!(placer instanceof ServerPlayerEntity)) {
+            return;
+        }
+        ServerPlayerEntity player = (ServerPlayerEntity) placer;
+        Progression progression = Main.getProgression(player);
+        Group group;
+        try {
+            group = progression.getPlayerGroup(player.getUniqueID());
+        } catch (Exception e) {
+            return;
+        }
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (!(te instanceof GroupTileEntity)) {
+            return;
+        }
+        GroupTileEntity groupTileEntity = (GroupTileEntity) te;
+        groupTileEntity.setGroup(group.getId());
     }
 
 }

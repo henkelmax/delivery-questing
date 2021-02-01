@@ -1,0 +1,6 @@
+{
+	"parent": "delivery:block/computer",
+	"textures": {
+		"0": "delivery:block/computer_on"
+	}
+}

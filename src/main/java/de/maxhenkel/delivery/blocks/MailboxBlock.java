@@ -6,8 +6,6 @@ import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.MailboxTileEntity;
-import de.maxhenkel.delivery.tasks.Group;
-import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.gui.MailboxContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,7 +14,6 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -24,7 +21,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -75,41 +75,18 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
         if (!(te instanceof MailboxTileEntity)) {
             return super.onBlockActivated(state, worldIn, pos, p, handIn, hit);
         }
-
-        if (!(p instanceof ServerPlayerEntity)) {
-            return ActionResultType.SUCCESS;
-        }
-        ServerPlayerEntity player = (ServerPlayerEntity) p;
-
         MailboxTileEntity mailbox = (MailboxTileEntity) te;
 
-        return checkGroup(worldIn, pos, p, (group) -> TileEntityContainerProvider.openGui(player, mailbox, (i, playerInventory, playerEntity) -> new MailboxContainer(i, playerInventory, mailbox)));
+        getGroup(worldIn, pos, p).ifPresent(group1 -> {
+            TileEntityContainerProvider.openGui(p, mailbox, (i, playerInventory, playerEntity) -> new MailboxContainer(i, playerInventory, mailbox));
+        });
+        return ActionResultType.SUCCESS;
     }
 
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-
-        if (!(placer instanceof ServerPlayerEntity)) {
-            return;
-        }
-        ServerPlayerEntity player = (ServerPlayerEntity) placer;
-        Progression progression = Main.getProgression(player);
-        Group group = null;
-        try {
-            group = progression.getPlayerGroup(player.getUniqueID());
-        } catch (Exception e) {
-        }
-
-        if (group == null) {
-            return;
-        }
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (!(te instanceof MailboxTileEntity)) {
-            return;
-        }
-        MailboxTileEntity mailbox = (MailboxTileEntity) te;
-        mailbox.setGroup(group.getId());
+        setGroup(worldIn, pos, placer);
     }
 
     @Override

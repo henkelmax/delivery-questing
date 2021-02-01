@@ -7,6 +7,7 @@ import de.maxhenkel.delivery.gui.TaskWidget;
 import de.maxhenkel.delivery.tasks.ActiveTask;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -46,7 +47,7 @@ public class NotesProgram extends ComputerProgram {
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
 
         tasks = activeTasks.stream().map(activeTask -> {
-            return new TaskWidget(guiLeft + xSize / 2 - 106 / 2, guiTop + 3 + 9 + 3 + 10, activeTask, true, t -> {
+            return new TaskWidget(guiLeft + xSize / 2 - 106 / 2, guiTop + 3 + 9 + 30, activeTask, true, t -> {
                 screen.setProgram(new ContractProgram(screen, this, t.getTask().getId()));
             }, TASK);
         }).collect(Collectors.toList());
@@ -77,6 +78,13 @@ public class NotesProgram extends ComputerProgram {
     }
 
     @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
+        super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
+
+        drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(getContainer().getGroup().getLevel()))));
+    }
+
+    @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
         mc.getTextureManager().bindTexture(BACKGROUND);
@@ -86,16 +94,29 @@ public class NotesProgram extends ComputerProgram {
             screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
         }
 
+        screen.blit(matrixStack, guiLeft + 3 + 44, guiTop + 3 + 9 + 10, 0, 197, 162, 5);
+        screen.blit(matrixStack, guiLeft + 3 + 44, guiTop + 3 + 9 + 10, 0, 202, (int) (((float) 162) * (getContainer().getGroup().getLevel() - Math.floor(getContainer().getGroup().getLevel()))), 5);
+
         mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.notes"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
         if (tasks.isEmpty()) {
-            screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), guiLeft + xSize / 2, guiTop + xSize / 2 - mc.fontRenderer.FONT_HEIGHT, ScreenBase.FONT_COLOR);
+            screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), guiLeft + xSize / 2, guiTop + ySize / 2 - mc.fontRenderer.FONT_HEIGHT, ScreenBase.FONT_COLOR);
             return;
         }
 
-        screen.drawCentered(matrixStack, new StringTextComponent(activeTasks.get(currentTask).getTask().getName()), guiLeft + xSize / 2, guiTop + 3 + 9 + 3, 0);
+        screen.drawCentered(matrixStack, new StringTextComponent(activeTasks.get(currentTask).getTask().getName()), guiLeft + xSize / 2, guiTop + 3 + 9 + 20, 0);
 
         screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), guiLeft + xSize / 2, guiTop + ySize - 3 - 6 - 10, ScreenBase.FONT_COLOR);
+    }
+
+    private void drawLevel(MatrixStack matrixStack, IFormattableTextComponent text) {
+        int w = mc.fontRenderer.getStringPropertyWidth(text);
+        int xPos = xSize / 2 - w / 2;
+        mc.fontRenderer.func_243248_b(matrixStack, text, xPos + 1, 17, 0);
+        mc.fontRenderer.func_243248_b(matrixStack, text, xPos - 1, 17, 0);
+        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 18, 0);
+        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 16, 0);
+        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 17, 0xFFFFFF);
     }
 
     @Override

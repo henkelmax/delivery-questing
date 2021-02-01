@@ -9,11 +9,13 @@ import de.maxhenkel.delivery.blocks.tileentity.BulletinBoardTileEntity;
 import de.maxhenkel.delivery.gui.BulletinBoardContainer;
 import de.maxhenkel.delivery.gui.containerprovider.GroupContainerProvider;
 import de.maxhenkel.delivery.items.ModItems;
+import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -29,6 +31,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.UUID;
 
 public class BulletinBoardBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IGroupBlock {
@@ -76,30 +80,39 @@ public class BulletinBoardBlock extends HorizontalRotatableBlock implements IIte
         if (!(te instanceof BulletinBoardTileEntity)) {
             return super.onBlockActivated(state, worldIn, pos, p, handIn, hit);
         }
+        BulletinBoardTileEntity tileEntity = (BulletinBoardTileEntity) te;
 
         if (!(p instanceof ServerPlayerEntity)) {
             return ActionResultType.SUCCESS;
         }
         ServerPlayerEntity player = (ServerPlayerEntity) p;
 
-        return checkGroup(worldIn, pos, p, (group) -> {
+        Optional<Group> group = getGroup(worldIn, pos, p);
+        if (group.isPresent()) {
             ItemStack heldItem = player.getHeldItem(handIn);
             if (heldItem.getItem() == ModItems.CONTRACT) {
                 UUID task = ModItems.CONTRACT.getTask(heldItem);
                 if (task != null) {
                     heldItem.setCount(heldItem.getCount() - 1);
-                    if (group.canAcceptTask(task)) {
-                        group.addTask(task);
+                    if (group.get().canAcceptTask(task)) {
+                        group.get().addTask(task);
                         player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
                     } else {
                         player.sendStatusMessage(new TranslationTextComponent("message.delivery.contract_already_accepted"), true);
                     }
-                    return;
+                    return ActionResultType.SUCCESS;
                 }
             }
 
-            GroupContainerProvider.openGui(player, group, new TranslationTextComponent(getBlock().getTranslationKey()), BulletinBoardContainer::new);
-        });
+            GroupContainerProvider.openGui(player, tileEntity, group.get(), new TranslationTextComponent(getBlock().getTranslationKey()), BulletinBoardContainer::new);
+        }
+        return ActionResultType.SUCCESS;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+        setGroup(worldIn, pos, placer);
     }
 
     @Override

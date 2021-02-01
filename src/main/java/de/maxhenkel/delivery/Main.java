@@ -8,6 +8,7 @@ import de.maxhenkel.delivery.capability.CapabilityEvents;
 import de.maxhenkel.delivery.capability.ProgressionStorage;
 import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.commands.TestCommand;
+import de.maxhenkel.delivery.events.ContainerEvents;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
@@ -86,6 +87,7 @@ public class Main {
     public void commonSetup(FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
+        MinecraftForge.EVENT_BUS.register(new ContainerEvents());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);

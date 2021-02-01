@@ -2,22 +2,31 @@ package de.maxhenkel.delivery.gui.computer;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.blocks.tileentity.ComputerTileEntity;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.tasks.Group;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIntArray;
+
+import javax.annotation.Nullable;
 
 public class ComputerContainer extends ContainerBase {
 
     private Group group;
     private int balance;
     private int level;
+    @Nullable
+    private ComputerTileEntity tileEntity;
 
-    public ComputerContainer(int id, PlayerInventory playerInventory, Group group) {
+    public ComputerContainer(int id, PlayerInventory playerInventory, TileEntity tileEntity, Group group) {
         super(Containers.COMPUTER_CONTAINER, id, playerInventory, null);
+        if (tileEntity instanceof ComputerTileEntity) {
+            this.tileEntity = (ComputerTileEntity) tileEntity;
+        }
         this.group = group;
-
 
         trackIntArray(new IIntArray() {
             @Override
@@ -52,6 +61,20 @@ public class ComputerContainer extends ContainerBase {
                 return 2;
             }
         });
+    }
+
+    public void tick() {
+        if (tileEntity != null) {
+            tileEntity.containerTick();
+        }
+    }
+
+    @Override
+    public boolean canInteractWith(PlayerEntity player) {
+        if (tileEntity != null) {
+            return tileEntity.getEnergy().getEnergyStored() > 0;
+        }
+        return true;
     }
 
     public Group getGroup() {
