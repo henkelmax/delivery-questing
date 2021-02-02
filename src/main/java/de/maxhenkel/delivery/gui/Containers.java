@@ -28,6 +28,7 @@ public class Containers {
     public static ContainerType<BulletinBoardContainer> BULLETIN_BOARD_CONTAINER;
     public static ContainerType<ContractContainer> CONTRACT_CONTAINER;
     public static ContainerType<ComputerContainer> COMPUTER_CONTAINER;
+    public static ContainerType<DronePadContainer> DRONE_PAD_CONTAINER;
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
@@ -44,6 +45,7 @@ public class Containers {
         ClientRegistry.registerScreen(BULLETIN_BOARD_CONTAINER, BulletinBoardScreen::new);
         ClientRegistry.registerScreen(CONTRACT_CONTAINER, ContractScreen::new);
         ClientRegistry.registerScreen(COMPUTER_CONTAINER, ComputerScreen::new);
+        ClientRegistry.registerScreen(DRONE_PAD_CONTAINER, DronePadScreen::new);
     }
 
     public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
@@ -98,6 +100,10 @@ public class Containers {
         COMPUTER_CONTAINER = new ContainerType<>(new ContainerFactoryGroup<>(ComputerContainer::new));
         COMPUTER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "computer"));
         event.getRegistry().register(COMPUTER_CONTAINER);
+
+        DRONE_PAD_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(DronePadContainer::new));
+        DRONE_PAD_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "drone_pad"));
+        event.getRegistry().register(DRONE_PAD_CONTAINER);
     }
 
 }

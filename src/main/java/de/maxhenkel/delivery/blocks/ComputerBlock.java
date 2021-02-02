@@ -109,7 +109,7 @@ public class ComputerBlock extends HorizontalRotatableBlock implements IItemBloc
             if (state.get(ON)) {
                 GroupContainerProvider.openGui(p, computer, value, new TranslationTextComponent(getTranslationKey()), ComputerContainer::new);
             } else {
-                p.sendStatusMessage(new TranslationTextComponent("message.delivery_computer_no_power"), true);
+                p.sendStatusMessage(new TranslationTextComponent("message.delivery.computer_no_power"), true);
             }
 
         });

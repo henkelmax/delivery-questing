@@ -21,6 +21,11 @@
           ],
           "name": "delivery:cardboard_box_tier_1"
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
       ]
     }
   ]

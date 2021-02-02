@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "delivery:bulletin_board"
+          "name": "delivery:computer"
         }
       ],
       "conditions": [

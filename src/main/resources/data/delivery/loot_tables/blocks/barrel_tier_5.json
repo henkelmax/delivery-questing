@@ -21,6 +21,11 @@
           ],
           "name": "delivery:barrel_tier_5"
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
       ]
     }
   ]

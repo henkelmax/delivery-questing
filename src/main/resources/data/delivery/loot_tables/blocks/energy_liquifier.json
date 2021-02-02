@@ -8,6 +8,11 @@
           "type": "minecraft:item",
           "name": "delivery:energy_liquifier"
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
       ]
     }
   ]

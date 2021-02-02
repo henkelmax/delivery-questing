@@ -22,5 +22,14 @@
         "name": "delivery:cash_register"
       }
     ]
+  },
+  "drone": {
+    "category": "master",
+    "subtitle": "sound.delivery.drone",
+    "sounds": [
+      {
+        "name": "delivery:drone"
+      }
+    ]
   }
 }

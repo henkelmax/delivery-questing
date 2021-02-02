@@ -334,19 +334,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
         NonNullList<FluidStack> taskFluids = NonNullList.create();
 
         for (ItemStack stack : items) {
-            if (stack.getItem() instanceof ITaskContainer) {
-                ITaskContainer container = (ITaskContainer) stack.getItem();
-                taskItems.addAll(container.getItems(stack));
-                taskFluids.addAll(container.getFluids(stack));
-            } else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ITaskContainer) {
-                ITaskContainer container = (ITaskContainer) ((BlockItem) stack.getItem()).getBlock();
-                taskItems.addAll(container.getItems(stack));
-                taskFluids.addAll(container.getFluids(stack));
+            ITaskContainer taskContainer = getTaskContainer(stack);
+            if (taskContainer != null) {
+                taskItems.addAll(taskContainer.getItems(stack));
+                taskFluids.addAll(taskContainer.getFluids(stack));
             } else {
                 taskItems.add(stack);
             }
         }
-
 
         for (ItemStack stack : taskItems) {
             for (int i = 0; i < tasks.size(); i++) {
@@ -371,6 +366,17 @@ public class Group implements INBTSerializable<CompoundNBT> {
             }
             return false;
         });
+    }
+
+    @Nullable
+    public static ITaskContainer getTaskContainer(ItemStack stack) {
+        if (stack.getItem() instanceof ITaskContainer) {
+            return (ITaskContainer) stack.getItem();
+        } else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ITaskContainer) {
+            return (ITaskContainer) ((BlockItem) stack.getItem()).getBlock();
+        } else {
+            return null;
+        }
     }
 
     public void onTaskCompleted(TaskProgress taskProgress) {

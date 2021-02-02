@@ -8,6 +8,7 @@ import de.maxhenkel.delivery.capability.CapabilityEvents;
 import de.maxhenkel.delivery.capability.ProgressionStorage;
 import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.commands.TestCommand;
+import de.maxhenkel.delivery.entity.ModEntities;
 import de.maxhenkel.delivery.events.ContainerEvents;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
@@ -18,6 +19,7 @@ import de.maxhenkel.delivery.tasks.OfferManager;
 import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.tasks.TaskManager;
 import net.minecraft.block.Block;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.container.ContainerType;
@@ -74,6 +76,7 @@ public class Main {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Fluid.class, ModFluids::registerFluids);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(TileEntityType.class, ModTileEntities::registerTileEntities);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(ContainerType.class, Containers::registerContainers);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(EntityType.class, ModEntities::registerEntities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(IMC::enqueueIMC);
 
@@ -120,6 +123,7 @@ public class Main {
     public void clientSetup(FMLClientSetupEvent event) {
         ModTileEntities.clientSetup();
         Containers.clientSetup();
+        ModEntities.clientSetup();
     }
 
     @SubscribeEvent

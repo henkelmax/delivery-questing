@@ -16,6 +16,7 @@
   "block.delivery.energy_liquifier": "Energy Liquifier",
   "block.delivery.bulletin_board": "Bulletin Board",
   "block.delivery.computer": "Computer",
+  "block.delivery.drone_pad": "Drone Pad",
   "item.delivery.liquid_energy_bucket": "Liquid Energy Bucket",
   "item.delivery.envelope": "Envelope",
   "item.delivery.parcel": "Parcel",
@@ -54,7 +55,8 @@
   "message.delivery.now_available_description": "%s is now available for you to buy on Minazon",
   "message.delivery.view": "View",
   "message.delivery.notes": "Notes",
-  "message.delivery_computer_no_power": "This computer has no power",
+  "message.delivery.computer_no_power": "This computer has no power",
+  "message.delivery.drone_pad_no_sky_access": "The drone pad has no access to the sky",
   "tooltip.delivery.energy": "%sFE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%smb",
@@ -72,6 +74,7 @@
   "tooltip.delivery.by": "By %s",
   "tooltip.delivery.minternet": "Minternet",
   "tooltip.delivery.minazon": "Minazon",
+  "tooltip.delivery.drone_not_on_pad": "Drone is not on the pad",
   "message.delivery.email": "E-Mail",
   "message.delivery.insufficient_balance": "Insufficient Balance",
   "message.delivery.insufficient_level": "Insufficient Level",
@@ -99,5 +102,6 @@
   "button.delivery.next": ">",
   "toast.delivery.contract_completed": "Contract completed",
   "sound.delivery.mouse_click": "Mouse Clicked",
-  "sound.delivery.cash_register": "Cash Register"
+  "sound.delivery.cash_register": "Cash Register",
+  "entity.delivery.drone": "Drone"
 }

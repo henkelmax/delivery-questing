@@ -25,6 +25,7 @@ public class ModBlocks {
     public static final EnergyLiquifierBlock ENERGY_LIQUIFIER = new EnergyLiquifierBlock();
     public static final BulletinBoardBlock BULLETIN_BOARD = new BulletinBoardBlock();
     public static final ComputerBlock COMPUTER = new ComputerBlock();
+    public static final DronePadBlock DRONE_PAD = new DronePadBlock();
 
     public static final FlowingFluidBlock LIQUID_ENERGY = new LiquidEnergyBlock();
 
@@ -47,7 +48,8 @@ public class ModBlocks {
                 ENERGY_LIQUIFIER,
                 LIQUID_ENERGY,
                 BULLETIN_BOARD,
-                COMPUTER
+                COMPUTER,
+                DRONE_PAD
         );
     }
 
@@ -69,7 +71,8 @@ public class ModBlocks {
                 MAILBOX.toItem(),
                 ENERGY_LIQUIFIER.toItem(),
                 BULLETIN_BOARD.toItem(),
-                COMPUTER.toItem()
+                COMPUTER.toItem(),
+                DRONE_PAD.toItem()
         );
     }
 

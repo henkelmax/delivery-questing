@@ -8,6 +8,11 @@
           "type": "minecraft:item",
           "name": "delivery:mailbox"
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
       ]
     }
   ]
