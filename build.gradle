@@ -42,6 +42,7 @@ minecraft {
         client {
             workingDirectory project.file('run').canonicalPath
             property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
             args = ['--username', 'henkelmax']
             source sourceSets.main
             mods {
@@ -54,6 +55,7 @@ minecraft {
         server {
             workingDirectory project.file('run/server').canonicalPath
             property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
             source sourceSets.main
             mods {
                 mod_id {
@@ -64,6 +66,7 @@ minecraft {
         data {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+            properties 'mixin.env.disableRefMap': 'true'
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/')
             mods {
                 mod_id {
@@ -83,10 +86,13 @@ dependencies {
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${theoneprobe_mc_version}:${theoneprobe_mc_version}-${theoneprobe_version}:api")
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-${theoneprobe_mc_version}:${theoneprobe_mc_version}-${theoneprobe_version}")
 
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")// core
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:additions")// Mekanism: Additions
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")// Mekanism: Generators
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")// Mekanism: Tools
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:additions")
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")
+
+    implementation fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}:api")
+    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}")
 
     shadow fg.deobf("de.maxhenkel.corelib:corelib:${mod_minecraft_version}-${corelib_version}:api")
     runtimeOnly fg.deobf("de.maxhenkel.corelib:corelib:${mod_minecraft_version}-${corelib_version}")
@@ -187,6 +193,7 @@ repositories {
         url "https://maven.tterrag.com/"
     }
     maven { url 'https://modmaven.dev/' }
+    maven { url 'https://maven.blamejared.com' }
     mavenLocal()
 }
 
