@@ -207,10 +207,10 @@ public class DroneEntity extends DroneEntitySoundBase {
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        dataManager.set(PAYLOAD, ItemStack.read(compound.getCompound("Payload")));
+        setPayload(ItemStack.read(compound.getCompound("Payload")));
         CompoundNBT padLocation = compound.getCompound("PadLocation");
-        dataManager.set(PAD_LOCATION, new BlockPos(padLocation.getInt("X"), padLocation.getInt("Y"), padLocation.getInt("Z")));
-        dataManager.set(ENERGY, compound.getInt("Energy"));
+        setPadLocation(new BlockPos(padLocation.getInt("X"), padLocation.getInt("Y"), padLocation.getInt("Z")));
+        setEnergy(compound.getInt("Energy"));
     }
 
     @Override

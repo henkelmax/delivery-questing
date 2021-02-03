@@ -19,13 +19,14 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private String profession;
     private int minLevel;
     private int maxLevel;
+    private boolean forced;
     private int experience;
     private int money;
     private List<Item> items;
     private List<Fluid> fluids;
     private List<ItemStack> rewards;
 
-    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, int experience, int money, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, boolean forced, int experience, int money, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,6 +35,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         this.profession = profession;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
+        this.forced = forced;
         this.experience = experience;
         this.money = money;
         this.items = items;
@@ -99,6 +101,10 @@ public class Task implements INBTSerializable<CompoundNBT> {
         return money;
     }
 
+    public boolean isForced() {
+        return forced;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -108,6 +114,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         compound.putString("ContractorName", contractorName);
         compound.putString("Skin", skin);
         compound.putString("Profession", profession);
+        compound.putBoolean("Forced", forced);
         compound.putInt("MinLevel", minLevel);
         compound.putInt("MaxLevel", maxLevel);
         compound.putInt("Experience", experience);
@@ -142,6 +149,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         contractorName = compound.getString("ContractorName");
         skin = compound.getString("Skin");
         profession = compound.getString("Profession");
+        forced = compound.getBoolean("Forced");
         minLevel = compound.getInt("MinLevel");
         maxLevel = compound.getInt("MaxLevel");
         experience = compound.getInt("Experience");

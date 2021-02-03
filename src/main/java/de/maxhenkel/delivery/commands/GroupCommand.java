@@ -4,11 +4,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.maxhenkel.corelib.CommonUtils;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.gui.ContractContainer;
+import de.maxhenkel.delivery.gui.containerprovider.TaskContainerProvider;
+import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Progression;
+import de.maxhenkel.delivery.tasks.Task;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.UUIDArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -147,6 +152,20 @@ public class GroupCommand {
             context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.backup_load_success"), false);
             return 1;
         }))));
+
+        literalBuilder.then(Commands.literal("showtask").then(Commands.argument("taskid", UUIDArgument.func_239194_a_()).executes(context -> {
+            ServerPlayerEntity player = context.getSource().asPlayer();
+            UUID taskID = UUIDArgument.func_239195_a_(context, "taskid");
+            Task task = Main.TASK_MANAGER.getTask(taskID);
+
+            if (task == null) {
+                throw new CommandException(new TranslationTextComponent("command.delivery.task_not_found"));
+            }
+
+            TaskContainerProvider.openGui(player, task, new TranslationTextComponent(ModItems.CONTRACT.getTranslationKey()), ContractContainer::new);
+
+            return 1;
+        })));
 
         dispatcher.register(literalBuilder);
     }

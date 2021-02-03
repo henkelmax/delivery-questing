@@ -101,6 +101,7 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 5, MessageBuyOffer.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageAcceptTask.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 7, MessageMarkEMailRead.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 8, MessageChallengeToast.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }

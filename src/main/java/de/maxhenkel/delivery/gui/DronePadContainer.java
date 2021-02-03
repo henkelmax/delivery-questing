@@ -19,7 +19,7 @@ public class DronePadContainer extends ContainerBase {
         addSlot(new Slot(inventory, 0, 53, 36) {
             @Override
             public boolean isItemValid(ItemStack stack) {
-                return Group.getTaskContainer(stack) != null;
+                return Group.getTaskContainer(stack) != null; //TODO prevent parcels and envelopes or render them
             }
         });
         if (dronePadTileEntity.getWorld().isRemote) {

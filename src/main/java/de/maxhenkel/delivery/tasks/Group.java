@@ -3,11 +3,13 @@ package de.maxhenkel.delivery.tasks;
 import de.maxhenkel.corelib.helpers.Triple;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.corelib.item.NonNullListCollector;
+import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.items.ContractItem;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.items.SealedEnvelopeItem;
+import de.maxhenkel.delivery.net.MessageChallengeToast;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
@@ -21,8 +23,10 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
@@ -30,6 +34,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,7 +132,35 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.experience = experience;
         int levelAfter = (int) getLevel();
 
-        //TODO forced tasks
+        List<Task> forcedTasks = Main.TASK_MANAGER.getTasks().stream()
+                .filter(Task::isForced)
+                .filter(task -> task.getMinLevel() > levelBefore && task.getMinLevel() <= levelAfter)
+                .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for completed tasks
+                .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))) // Filter for accepted tasks
+                .filter(task -> getUnacceptedEmailTasks().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
+                .collect(Collectors.toList());
+
+        for (Task task : forcedTasks) {
+            MessageChallengeToast msg = new MessageChallengeToast(task);
+
+            IFormattableTextComponent txt = new TranslationTextComponent("message.delivery.challenge_contract")
+                    .appendString(" ")
+                    .append(TextComponentUtils.wrapWithSquareBrackets(
+                            new TranslationTextComponent("message.delivery.view_contract").modifyStyle(style -> {
+                                return style
+                                        .applyFormatting(TextFormatting.GREEN)
+                                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/group showtask " + task.getId().toString()))
+                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("message.delivery.click_to_view_contract")));
+                            })
+                    ).mergeStyle(TextFormatting.GREEN));
+
+            forEachOnlineMember(player -> {
+                NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, msg);
+                player.sendMessage(txt, Util.DUMMY_UUID);
+            });
+
+            addTask(task.getId());
+        }
 
         if (levelAfter > levelBefore) {
             List<Offer> newOffers = Main.OFFER_MANAGER.getNewOffers(levelBefore + 1, levelAfter);
@@ -213,11 +246,11 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick(MinecraftServer server) {
-        if (server.getTickCounter() % 1200 == 0 && getLevel() < 10) {
+        if (server.getTickCounter() % 1200 == 0 && getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
             generateMailboxTask();
         }
 
-        if (server.getTickCounter() % 3600 == 0 && getLevel() >= 10) {
+        if (server.getTickCounter() % 3600 == 0 && getLevel() >= Main.SERVER_CONFIG.minComputerLevel.get()) {
             generateEMailTask();
         }
 
@@ -359,13 +392,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
             }
         }
 
-        tasks.removeIf(taskProgress -> {
+        List<UUID> toRemove = new ArrayList<>();
+        for (TaskProgress taskProgress : new ArrayList<>(tasks)) {
             if (isFinished(taskProgress)) {
                 onTaskCompleted(taskProgress);
-                return true;
+                toRemove.add(taskProgress.getTaskID());
             }
-            return false;
-        });
+        }
+        tasks.removeIf(taskProgress -> toRemove.contains(taskProgress.getTaskID()));
     }
 
     @Nullable
@@ -398,12 +432,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
             addItemToInbox(stack);
         }
 
+        broadcastPacket(new MessageTaskCompletedToast(task));
+    }
+
+    public void broadcastPacket(Message<?> message) {
+        forEachOnlineMember(player -> NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, message));
+    }
+
+    public void forEachOnlineMember(Consumer<ServerPlayerEntity> playerEntityConsumer) {
         PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
-        MessageTaskCompletedToast msg = new MessageTaskCompletedToast(task);
         for (UUID member : members) {
             ServerPlayerEntity player = playerList.getPlayerByUUID(member);
             if (player != null) {
-                NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, msg);
+                playerEntityConsumer.accept(player);
             }
         }
     }
