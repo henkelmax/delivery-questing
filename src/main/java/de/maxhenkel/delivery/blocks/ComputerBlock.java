@@ -98,7 +98,12 @@ public class ComputerBlock extends HorizontalRotatableBlock implements IItemBloc
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
-        getGroup(worldIn, pos, p).ifPresent(value -> {
+        getGroup(worldIn, pos, p).ifPresent(group -> {
+            if (group.getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
+                p.sendStatusMessage(new TranslationTextComponent("message.delivery.computer_level_required", Main.SERVER_CONFIG.minComputerLevel.get()), true);
+                return;
+            }
+
             TileEntity te = worldIn.getTileEntity(pos);
             if (!(te instanceof ComputerTileEntity)) {
                 return;
@@ -107,7 +112,7 @@ public class ComputerBlock extends HorizontalRotatableBlock implements IItemBloc
             ComputerTileEntity computer = (ComputerTileEntity) te;
 
             if (state.get(ON)) {
-                GroupContainerProvider.openGui(p, computer, value, new TranslationTextComponent(getTranslationKey()), ComputerContainer::new);
+                GroupContainerProvider.openGui(p, computer, group, new TranslationTextComponent(getTranslationKey()), ComputerContainer::new);
             } else {
                 p.sendStatusMessage(new TranslationTextComponent("message.delivery.computer_no_power"), true);
             }

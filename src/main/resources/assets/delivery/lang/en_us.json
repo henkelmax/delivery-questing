@@ -64,6 +64,7 @@
   "message.delivery.challenge_contract": "New Challenge Contract added",
   "message.delivery.view_contract": "View Contract",
   "message.delivery.click_to_view_contract": "Click to view Contract",
+  "message.delivery.computer_level_required": "You need to be level %s to use the computer",
   "tooltip.delivery.energy": "%sFE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%smb",
