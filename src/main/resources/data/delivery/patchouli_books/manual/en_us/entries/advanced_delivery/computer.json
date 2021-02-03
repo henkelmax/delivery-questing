@@ -3,6 +3,7 @@
   "category": "delivery:advanced_delivery",
   "icon": "delivery:computer",
   "sortnum": 1,
+  "advancement": "delivery:computer",
   "pages": [
     {
       "type": "delivery:variable_text",

@@ -1,0 +1,12 @@
+{
+  "criteria": {
+    "reach_computer_age": {
+      "trigger": "delivery:reach_computer_age"
+    }
+  },
+  "requirements": [
+    [
+      "reach_computer_age"
+    ]
+  ]
+}

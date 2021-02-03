@@ -6,6 +6,7 @@ import de.maxhenkel.corelib.item.NonNullListCollector;
 import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.advancements.ModTriggers;
 import de.maxhenkel.delivery.items.ContractItem;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.items.SealedEnvelopeItem;
@@ -131,6 +132,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         int levelBefore = (int) getLevel();
         this.experience = experience;
         int levelAfter = (int) getLevel();
+
+        forEachOnlineMember(playerEntity -> {
+            ModTriggers.LEVEL_TRIGGER.trigger(playerEntity, (int) getLevel());
+        });
 
         List<Task> forcedTasks = Main.TASK_MANAGER.getTasks().stream()
                 .filter(Task::isForced)

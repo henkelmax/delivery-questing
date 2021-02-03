@@ -1,0 +1,12 @@
+{
+  "criteria": {
+    "accept_contract_computer": {
+      "trigger": "delivery:accept_contract_computer"
+    }
+  },
+  "requirements": [
+    [
+      "accept_contract_computer"
+    ]
+  ]
+}

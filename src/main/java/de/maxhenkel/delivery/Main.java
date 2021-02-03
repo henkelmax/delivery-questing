@@ -2,6 +2,7 @@ package de.maxhenkel.delivery;
 
 import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.corelib.net.NetUtils;
+import de.maxhenkel.delivery.advancements.ModTriggers;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
@@ -91,6 +92,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
         MinecraftForge.EVENT_BUS.register(new ContainerEvents());
+        MinecraftForge.EVENT_BUS.register(new ModTriggers());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
@@ -128,7 +130,7 @@ public class Main {
     }
 
     @SubscribeEvent
-    public void onPlayerLogIn(RegisterCommandsEvent event) {
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         GroupCommand.register(event.getDispatcher());
         TestCommand.register(event.getDispatcher());
     }

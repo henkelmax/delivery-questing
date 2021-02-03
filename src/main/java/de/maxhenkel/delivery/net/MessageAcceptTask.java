@@ -2,6 +2,7 @@ package de.maxhenkel.delivery.net;
 
 import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.advancements.ModTriggers;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Task;
 import net.minecraft.network.PacketBuffer;
@@ -38,6 +39,7 @@ public class MessageAcceptTask implements Message<MessageAcceptTask> {
         try {
             Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUniqueID());
             playerGroup.addTask(task.getId());
+            playerGroup.forEachOnlineMember(ModTriggers.ACCEPT_COMPUTER_CONTRACT_TRIGGER::trigger);
         } catch (Exception e) {
         }
     }
