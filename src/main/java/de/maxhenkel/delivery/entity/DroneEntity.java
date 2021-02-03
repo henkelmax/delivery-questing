@@ -1,10 +1,13 @@
 package de.maxhenkel.delivery.entity;
 
+import de.maxhenkel.delivery.ITiered;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
 import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
@@ -27,6 +30,7 @@ public class DroneEntity extends DroneEntitySoundBase {
     private static final DataParameter<ItemStack> PAYLOAD = EntityDataManager.createKey(DroneEntity.class, DataSerializers.ITEMSTACK);
     private static final DataParameter<BlockPos> PAD_LOCATION = EntityDataManager.createKey(DroneEntity.class, DataSerializers.BLOCK_POS);
     private static final DataParameter<Integer> ENERGY = EntityDataManager.createKey(DroneEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> TIER = EntityDataManager.createKey(DroneEntity.class, DataSerializers.VARINT);
 
     public DroneEntity(World worldIn) {
         super(ModEntities.DRONE, worldIn);
@@ -120,7 +124,7 @@ public class DroneEntity extends DroneEntitySoundBase {
                 decreasePropellerSpeed();
             }
         } else {
-            newMotion = moveHorizontal().add(new Vector3d(0D, speedPerc * 0.1D, 0D));
+            newMotion = moveHorizontal().add(new Vector3d(0D, speedPerc * getRiseSpeed(), 0D));
             setEnergy(getEnergy() - 5);
             increasePropellerSpeed(1F);
         }
@@ -129,6 +133,26 @@ public class DroneEntity extends DroneEntitySoundBase {
         if (newMotion.length() > 0D) {
             move(MoverType.SELF, newMotion);
         }
+    }
+
+    public double getRiseSpeed() {
+        double tier = getTier();
+        return 0.1D * (tier + 1D) / (double) getPayloadTier();
+    }
+
+    public int getPayloadTier() {
+        Item payload = getPayload().getItem();
+
+        if (payload instanceof ITiered) {
+            return ((ITiered) payload).getTier().getTier();
+        }
+        if (payload instanceof BlockItem) {
+            BlockItem blockItem = (BlockItem) payload;
+            if (blockItem.getBlock() instanceof ITiered) {
+                return ((ITiered) blockItem.getBlock()).getTier().getTier();
+            }
+        }
+        return 1;
     }
 
     public boolean isOnPad() {
@@ -193,6 +217,14 @@ public class DroneEntity extends DroneEntitySoundBase {
         dataManager.set(ENERGY, Math.max(0, energy));
     }
 
+    public int getTier() {
+        return dataManager.get(TIER);
+    }
+
+    public void setTier(int tier) {
+        dataManager.set(TIER, Math.min(Math.max(0, tier), 6));
+    }
+
     @Override
     public boolean canRenderOnFire() {
         return false;
@@ -203,6 +235,7 @@ public class DroneEntity extends DroneEntitySoundBase {
         dataManager.register(PAYLOAD, ItemStack.EMPTY);
         dataManager.register(PAD_LOCATION, new BlockPos(0, -1, 0));
         dataManager.register(ENERGY, 0);
+        dataManager.register(TIER, 0);
     }
 
     @Override
@@ -211,6 +244,7 @@ public class DroneEntity extends DroneEntitySoundBase {
         CompoundNBT padLocation = compound.getCompound("PadLocation");
         setPadLocation(new BlockPos(padLocation.getInt("X"), padLocation.getInt("Y"), padLocation.getInt("Z")));
         setEnergy(compound.getInt("Energy"));
+        setTier(compound.getInt("Tier"));
     }
 
     @Override
@@ -223,6 +257,7 @@ public class DroneEntity extends DroneEntitySoundBase {
         padLocation.putInt("Z", loc.getZ());
         compound.put("PadLocation", padLocation);
         compound.putInt("Energy", dataManager.get(ENERGY));
+        compound.putInt("Tier", dataManager.get(TIER));
     }
 
     @Override

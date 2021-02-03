@@ -50,7 +50,7 @@ public class EnergyLiquifierScreen extends ScreenBase<EnergyLiquifierContainer> 
 
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-        drawCentered(matrixStack, title, 8, FONT_COLOR);
+        drawCentered(matrixStack, title, 6, FONT_COLOR);
         font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
 
         drawHoverAreas(matrixStack, x, y);

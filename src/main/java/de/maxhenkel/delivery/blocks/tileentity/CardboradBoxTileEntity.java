@@ -2,6 +2,7 @@ package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.corelib.item.ItemUtils;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.CardboardBoxBlock;
 import de.maxhenkel.delivery.gui.NonRecursiveSlot;
 import net.minecraft.block.BlockState;
@@ -21,13 +22,13 @@ import javax.annotation.Nonnull;
 public class CardboradBoxTileEntity extends TileEntity {
 
     private NonNullList<ItemStack> inventory;
-    private CardboardBoxBlock.Tier tier;
+    private Tier tier;
 
-    public CardboradBoxTileEntity(CardboardBoxBlock.Tier tier) {
+    public CardboradBoxTileEntity(Tier tier) {
         super(ModTileEntities.CARDBOARD_BOX);
         this.tier = tier;
         if (tier != null) {
-            inventory = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
+            inventory = NonNullList.withSize(CardboardBoxBlock.getSlots(tier), ItemStack.EMPTY);
         }
     }
 
@@ -39,7 +40,7 @@ public class CardboradBoxTileEntity extends TileEntity {
     public void read(BlockState state, CompoundNBT compound) {
         super.read(state, compound);
         tier = ((CardboardBoxBlock) state.getBlock()).getTier();
-        inventory = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
+        inventory = NonNullList.withSize(CardboardBoxBlock.getSlots(tier), ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "Items", inventory);
     }
 

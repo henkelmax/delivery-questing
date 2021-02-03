@@ -2,8 +2,10 @@ package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.entity.DroneEntity;
+import de.maxhenkel.delivery.items.UpgradeItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -51,6 +53,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     };
 
     private NonNullList<ItemStack> inventory;
+    private NonNullList<ItemStack> upgradeInventory;
     private NonNullList<ItemStack> temporaryDroneInventory;
     private UsableEnergyStorage energy;
     @Nullable
@@ -59,6 +62,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public DronePadTileEntity() {
         super(ModTileEntities.DRONE_PAD);
         inventory = NonNullList.withSize(1, ItemStack.EMPTY);
+        upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
         temporaryDroneInventory = NonNullList.withSize(1, ItemStack.EMPTY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0);
     }
@@ -94,6 +98,15 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public void dronePadTick(DroneEntity drone) {
         drone.setEnergy(drone.getEnergy() + energy.useEnergy(Math.min(2, ENERGY_CAPACITY - drone.getEnergy()), false));
         markDirty();
+
+        Tier tier = getTier();
+        int t = 0;
+        if (tier != null) {
+            t = tier.getTier();
+        }
+        if (drone.getTier() != t) {
+            drone.setTier(t);
+        }
 
         if (!inventory.get(0).isEmpty() && drone.getPayload().isEmpty()) {
             drone.setPayload(inventory.get(0).copy());
@@ -182,6 +195,20 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         return new ItemListInventory(inventory, this::markDirty);
     }
 
+    public IInventory getUpgradeInventory() {
+        return new ItemListInventory(upgradeInventory, this::markDirty);
+    }
+
+    @Nullable
+    public Tier getTier() {
+        ItemStack stack = upgradeInventory.get(0);
+        if (stack.getItem() instanceof UpgradeItem) {
+            UpgradeItem upgradeItem = (UpgradeItem) stack.getItem();
+            return upgradeItem.getTier();
+        }
+        return null;
+    }
+
     public IInventory getTemporaryDroneInventory() {
         return new ItemListInventory(temporaryDroneInventory, () -> {
         });
@@ -200,6 +227,8 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         super.read(state, compound);
         inventory = NonNullList.withSize(1, ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
+        upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
+        ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, compound.getInt("Energy"));
         if (compound.contains("DroneID")) {
             droneID = compound.getUniqueId("DroneID");
@@ -211,6 +240,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     @Override
     public CompoundNBT write(CompoundNBT compound) {
         compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
+        compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
         compound.putInt("Energy", energy.getEnergyStored());
         if (droneID != null) {
             compound.putUniqueId("DroneID", droneID);

@@ -1,5 +1,6 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.BarrelBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,13 +16,13 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 public class BarrelTileEntity extends TileEntity implements IFluidHandler {
 
     private FluidTank tank;
-    private BarrelBlock.Tier tier;
+    private Tier tier;
 
-    public BarrelTileEntity(BarrelBlock.Tier tier) {
+    public BarrelTileEntity(Tier tier) {
         super(ModTileEntities.BARREL);
         this.tier = tier;
         if (tier != null) {
-            tank = new FluidTank(tier.getMillibuckets());
+            tank = new FluidTank(BarrelBlock.getMillibuckets(tier));
         }
     }
 
@@ -37,7 +38,7 @@ public class BarrelTileEntity extends TileEntity implements IFluidHandler {
     public void read(BlockState state, CompoundNBT compound) {
         super.read(state, compound);
         tier = ((BarrelBlock) state.getBlock()).getTier();
-        tank = new FluidTank(tier.getMillibuckets());
+        tank = new FluidTank(BarrelBlock.getMillibuckets(tier));
         tank.readFromNBT(compound.getCompound("Fluid"));
     }
 

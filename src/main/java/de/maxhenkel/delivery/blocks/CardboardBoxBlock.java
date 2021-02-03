@@ -2,8 +2,10 @@ package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.item.ItemUtils;
+import de.maxhenkel.delivery.ITiered;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.tileentity.CardboradBoxTileEntity;
 import de.maxhenkel.delivery.gui.*;
 import de.maxhenkel.delivery.tasks.ITaskContainer;
@@ -36,7 +38,7 @@ import net.minecraftforge.fluids.FluidStack;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer {
+public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer, ITiered {
 
     protected Tier tier;
 
@@ -56,12 +58,13 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
         super.addInformation(stack, worldIn, tooltip, flagIn);
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
         if (blockEntityTag != null) {
-            NonNullList<ItemStack> itemStacks = NonNullList.withSize(tier.getSlotCount(), ItemStack.EMPTY);
+            NonNullList<ItemStack> itemStacks = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
             ItemUtils.readInventory(blockEntityTag, "Items", itemStacks);
             tooltip.add(new TranslationTextComponent("tooltip.delivery.stack_count", itemStacks.stream().filter(stack1 -> !stack1.isEmpty()).count()).mergeStyle(TextFormatting.GRAY));
         }
     }
 
+    @Override
     public Tier getTier() {
         return tier;
     }
@@ -148,24 +151,21 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
         return NonNullList.create();
     }
 
-    public static enum Tier {
-
-        TIER_1(1, 1), TIER_2(2, 4), TIER_3(3, 9), TIER_4(4, 18), TIER_5(5, 27), TIER_6(6, 64);
-
-        private final int tier;
-        private final int slotCount;
-
-        Tier(int tier, int slotCount) {
-            this.tier = tier;
-            this.slotCount = slotCount;
-        }
-
-        public int getTier() {
-            return tier;
-        }
-
-        public int getSlotCount() {
-            return slotCount;
+    public static int getSlots(de.maxhenkel.delivery.Tier tier) {
+        switch (tier.getTier()) {
+            case 1:
+                return 1;
+            case 2:
+                return 4;
+            case 3:
+                return 9;
+            case 4:
+                return 18;
+            case 5:
+                return 27;
+            case 6:
+            default:
+                return 54;
         }
     }
 

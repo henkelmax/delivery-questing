@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.items;
 
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -13,6 +14,13 @@ public class ModItems {
     public static final ParcelItem PARCEL = new ParcelItem();
     public static final SealedParcelItem SEALED_PARCEL = new SealedParcelItem();
     public static final ContractItem CONTRACT = new ContractItem();
+    public static final UpgradeItem UPGRADE_TIER_1 = new UpgradeItem(Tier.TIER_1);
+    public static final UpgradeItem UPGRADE_TIER_2 = new UpgradeItem(Tier.TIER_2);
+    public static final UpgradeItem UPGRADE_TIER_3 = new UpgradeItem(Tier.TIER_3);
+    public static final UpgradeItem UPGRADE_TIER_4 = new UpgradeItem(Tier.TIER_4);
+    public static final UpgradeItem UPGRADE_TIER_5 = new UpgradeItem(Tier.TIER_5);
+    public static final UpgradeItem UPGRADE_TIER_6 = new UpgradeItem(Tier.TIER_6);
+
     public static final ModBucketItem LIQUID_ENERGY_BUCKET = new ModBucketItem(ModFluids.LIQUID_ENERGY, new ResourceLocation(Main.MODID, "liquid_energy_bucket"));
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -22,7 +30,13 @@ public class ModItems {
                 PARCEL,
                 SEALED_PARCEL,
                 CONTRACT,
-                LIQUID_ENERGY_BUCKET
+                LIQUID_ENERGY_BUCKET,
+                UPGRADE_TIER_1,
+                UPGRADE_TIER_2,
+                UPGRADE_TIER_3,
+                UPGRADE_TIER_4,
+                UPGRADE_TIER_5,
+                UPGRADE_TIER_6
         );
     }
 

@@ -13,6 +13,12 @@
     {
       "type": "text",
       "text": "Drones wil automatically land on the drone pad after you placed it. But note that the drone needs full sky access in order to let drones land on it. So make sure that there is no block above the drone pad."
+    },
+    {
+      "type": "spotlight",
+      "item": "delivery:upgrade_tier_6",
+      "title": "Upgrading",
+      "text": "The drone pad has a slot for upgrades. The higher the tiers of the upgrade, the faster are drones. It is recommended to use at least the same tier of upgrade that the payload has, since the drone is slower when carrying higher tiers of payloads."
     }
   ]
 }

@@ -5,8 +5,10 @@ import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.fluid.FluidUtils;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.corelib.inventory.RestrictedItemStackHandler;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.fluid.ModFluids;
+import de.maxhenkel.delivery.items.UpgradeItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -28,11 +30,12 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nullable;
+
 public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTileEntity, RestrictedItemStackHandler.ItemValidator {
 
     private static final int TANK_CAPACITY = 16_000;
     private static final int ENERGY_CAPACITY = 16_000;
-    private static final int RATE = 1;
 
     private final IIntArray fields = new IIntArray() {
         public int get(int index) {
@@ -69,6 +72,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     private FluidTank tank;
     private UsableEnergyStorage energy;
     private NonNullList<ItemStack> inventory;
+    private NonNullList<ItemStack> upgradeInventory;
     private boolean reversed;
 
     public EnergyLiquifierTileEntity() {
@@ -76,6 +80,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         tank = new FluidTank(TANK_CAPACITY, fluidStack -> fluidStack.getFluid() == ModFluids.LIQUID_ENERGY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY);
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
+        upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
     }
 
     @Override
@@ -93,14 +98,15 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
             markDirty();
         });
 
+        int rate = getRate();
         if (reversed) {
-            if (energy.getEnergyStored() + RATE <= ENERGY_CAPACITY) {
-                energy.receiveEnergy(tank.drain(new FluidStack(ModFluids.LIQUID_ENERGY, RATE), IFluidHandler.FluidAction.EXECUTE).getAmount(), false);
+            if (energy.getEnergyStored() <= ENERGY_CAPACITY) {
+                energy.receiveEnergy(tank.drain(new FluidStack(ModFluids.LIQUID_ENERGY, rate), IFluidHandler.FluidAction.EXECUTE).getAmount(), false);
                 markDirty();
             }
         } else {
-            if (tank.getFluidAmount() + RATE <= TANK_CAPACITY) {
-                tank.fill(new FluidStack(ModFluids.LIQUID_ENERGY, energy.useEnergy(RATE, false)), IFluidHandler.FluidAction.EXECUTE);
+            if (tank.getFluidAmount() <= TANK_CAPACITY) {
+                tank.fill(new FluidStack(ModFluids.LIQUID_ENERGY, energy.useEnergy(rate, false)), IFluidHandler.FluidAction.EXECUTE);
                 markDirty();
             }
         }
@@ -129,6 +135,29 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         return new ItemListInventory(inventory, this::markDirty);
     }
 
+    public IInventory getUpgradeInventory() {
+        return new ItemListInventory(upgradeInventory, this::markDirty);
+    }
+
+    @Nullable
+    public Tier getTier() {
+        ItemStack stack = upgradeInventory.get(0);
+        if (stack.getItem() instanceof UpgradeItem) {
+            UpgradeItem upgradeItem = (UpgradeItem) stack.getItem();
+            return upgradeItem.getTier();
+        }
+        return null;
+    }
+
+    public int getRate() {
+        Tier tier = getTier();
+        int multiplier = 1;
+        if (tier != null) {
+            multiplier = 2 * tier.getTier();
+        }
+        return multiplier;
+    }
+
     public void setReversed(boolean reversed) {
         this.reversed = reversed;
         markDirty();
@@ -150,6 +179,8 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY, compound.getInt("Energy"));
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
+        upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
+        ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
         reversed = compound.getBoolean("Reversed");
     }
 
@@ -158,6 +189,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
         compound.putInt("Energy", energy.getEnergyStored());
         compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
+        compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
         compound.putBoolean("Reversed", reversed);
         return super.write(compound);
     }

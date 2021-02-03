@@ -3,8 +3,10 @@ package de.maxhenkel.delivery.blocks;
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.block.VoxelUtils;
 import de.maxhenkel.corelib.fluid.FluidUtils;
+import de.maxhenkel.delivery.ITiered;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
+import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.tileentity.BarrelTileEntity;
 import de.maxhenkel.delivery.tasks.ITaskContainer;
 import net.minecraft.block.Block;
@@ -38,7 +40,7 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer {
+public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer, ITiered {
 
     private static final VoxelShape SHAPE = VoxelUtils.combine(
             Block.makeCuboidShape(5D, 0D, 0D, 11D, 16D, 1D),
@@ -77,6 +79,7 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
         }
     }
 
+    @Override
     public Tier getTier() {
         return tier;
     }
@@ -115,24 +118,21 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
         return fluids;
     }
 
-    public static enum Tier {
-
-        TIER_1(1, 1_000), TIER_2(2, 4_000), TIER_3(3, 16_000), TIER_4(4, 64_000), TIER_5(5, 256_000), TIER_6(6, 1_024_000);
-
-        private final int tier;
-        private final int millibuckets;
-
-        Tier(int tier, int millibuckets) {
-            this.tier = tier;
-            this.millibuckets = millibuckets;
-        }
-
-        public int getTier() {
-            return tier;
-        }
-
-        public int getMillibuckets() {
-            return millibuckets;
+    public static int getMillibuckets(Tier tier) {
+        switch (tier.getTier()) {
+            case 1:
+            default:
+                return 1_000;
+            case 2:
+                return 4_000;
+            case 3:
+                return 16_000;
+            case 4:
+                return 64_000;
+            case 5:
+                return 256_000;
+            case 6:
+                return 1_024_000;
         }
     }
 

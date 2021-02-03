@@ -11,6 +11,7 @@ import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.commands.TestCommand;
 import de.maxhenkel.delivery.entity.ModEntities;
 import de.maxhenkel.delivery.events.ContainerEvents;
+import de.maxhenkel.delivery.events.StitchEvents;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
@@ -84,7 +85,10 @@ public class Main {
         SERVER_CONFIG = CommonRegistry.registerConfig(ModConfig.Type.SERVER, ServerConfig.class);
         CLIENT_CONFIG = CommonRegistry.registerConfig(ModConfig.Type.CLIENT, ClientConfig.class);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(StitchEvents::onStitch);
+        });
     }
 
     @SubscribeEvent

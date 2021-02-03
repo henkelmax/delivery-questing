@@ -100,6 +100,7 @@ public class DronePadBlock extends HorizontalRotatableBlock implements IItemBloc
         if (te instanceof DronePadTileEntity) {
             DronePadTileEntity dronePad = (DronePadTileEntity) te;
             InventoryHelper.dropInventoryItems(worldIn, pos, dronePad.getInventory());
+            InventoryHelper.dropInventoryItems(worldIn, pos, dronePad.getUpgradeInventory());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
     }

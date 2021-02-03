@@ -196,6 +196,7 @@ public class EnergyLiquifierBlock extends HorizontalRotatableBlock implements II
         if (te instanceof EnergyLiquifierTileEntity) {
             EnergyLiquifierTileEntity energyLiquifier = (EnergyLiquifierTileEntity) te;
             InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getInventory());
+            InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
     }

@@ -38,6 +38,8 @@ public class EnergyLiquifierContainer extends ContainerBase {
             }
         });
 
+        addSlot(new UpgradeSlot(energyLiquifier.getUpgradeInventory(), 0, 80, 17));
+
         addPlayerInventorySlots();
         trackIntArray(energyLiquifier.getFields());
     }

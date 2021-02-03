@@ -28,6 +28,8 @@ public class DronePadContainer extends ContainerBase {
             addSlot(new LockedSlot(dronePadTileEntity.getTemporaryDroneInventory(), 0, 107, 36, true, true));
         }
 
+        addSlot(new UpgradeSlot(dronePadTileEntity.getUpgradeInventory(), 0, 80, 59));
+
         addPlayerInventorySlots();
         trackIntArray(dronePadTileEntity.getFields());
     }
@@ -43,7 +45,7 @@ public class DronePadContainer extends ContainerBase {
 
     @Override
     public int getInventorySize() {
-        return 2;
+        return 3;
     }
 
 }
