@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ECE",
+    "C C",
+    "ECE"
+  ],
+  "key": {
+    "E": {
+      "tag": "forge:gems/emerald"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "delivery:cardboard_box_tier_4"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NCN",
+    "C C",
+    "NCN"
+  ],
+  "key": {
+    "N": {
+      "tag": "forge:ingots/netherite"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "delivery:cardboard_box_tier_6"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "UUU",
+    "GRG"
+  ],
+  "key": {
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "U": {
+      "item": "delivery:upgrade_tier_2"
+    }
+  },
+  "result": {
+    "item": "delivery:upgrade_tier_3"
+  }
+}

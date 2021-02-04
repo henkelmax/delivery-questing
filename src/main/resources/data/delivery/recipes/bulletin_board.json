@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WW",
+    "WC",
+    "WW"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:planks"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "delivery:bulletin_board"
+  }
+}

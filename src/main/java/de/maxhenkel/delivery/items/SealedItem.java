@@ -64,7 +64,7 @@ public abstract class SealedItem extends Item {
         stack = ItemUtils.decrItemStack(stack, player);
 
         for (ItemStack s : contents) {
-            if (player.getHeldItem(handIn).isEmpty()) {
+            if (stack.isEmpty()) {
                 stack = s;
             } else {
                 if (!player.inventory.addItemStackToInventory(s)) {

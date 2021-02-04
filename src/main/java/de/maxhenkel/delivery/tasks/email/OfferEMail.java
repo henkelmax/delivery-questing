@@ -35,12 +35,12 @@ public class OfferEMail extends EMail {
 
     @Override
     public IFormattableTextComponent getTitle() {
-        return new TranslationTextComponent("message.delivery.now_available", getOffer().getItem().getDisplayName());
+        return new TranslationTextComponent("message.delivery.now_available", getOffer().getStack().getDisplayName());
     }
 
     @Override
     public IFormattableTextComponent getText() {
-        return new TranslationTextComponent("message.delivery.now_available_description", getOffer().getItem().getDisplayName());
+        return new TranslationTextComponent("message.delivery.now_available_description", getOffer().getStack().getDisplayName());
     }
 
     @Override

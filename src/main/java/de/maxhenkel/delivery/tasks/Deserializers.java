@@ -17,10 +17,15 @@ public class Deserializers {
         return new ItemStack(value, amount);
     };
 
+    public static final JsonDeserializer<net.minecraft.item.Item> ITEM_DESERIALIZER = (json, typeOfT, context) -> {
+        return ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.getAsString()));
+    };
+
     public static Gson getGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Item.class, Item.DESERIALIZER);
         gsonBuilder.registerTypeAdapter(Fluid.class, Fluid.DESERIALIZER);
+        gsonBuilder.registerTypeAdapter(net.minecraft.item.Item.class, ITEM_DESERIALIZER);
         gsonBuilder.registerTypeAdapter(ItemStack.class, ITEM_STACK_DESERIALIZER);
 
         return gsonBuilder.create();

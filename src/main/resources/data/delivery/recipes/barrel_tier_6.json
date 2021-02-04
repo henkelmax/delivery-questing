@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NIN",
+    "NBN",
+    "NIN"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "N": {
+      "tag": "forge:ingots/netherite"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_5"
+    }
+  },
+  "result": {
+    "item": "delivery:barrel_tier_6"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "UUU",
+    "NRN"
+  ],
+  "key": {
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "N": {
+      "tag": "forge:storage_blocks/netherite"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "U": {
+      "item": "delivery:upgrade_tier_5"
+    }
+  },
+  "result": {
+    "item": "delivery:upgrade_tier_6"
+  }
+}

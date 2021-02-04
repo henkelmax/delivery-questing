@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DID",
+    "DBD",
+    "DID"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_4"
+    }
+  },
+  "result": {
+    "item": "delivery:barrel_tier_5"
+  }
+}

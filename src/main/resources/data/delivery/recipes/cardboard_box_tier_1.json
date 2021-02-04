@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PCP",
+    "C C",
+    "PCP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "delivery:cardboard_box_tier_1"
+  }
+}

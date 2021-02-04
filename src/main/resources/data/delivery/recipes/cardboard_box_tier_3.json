@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GCG",
+    "C C",
+    "GCG"
+  ],
+  "key": {
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "delivery:cardboard_box_tier_3"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IRI",
+    "DGI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "G": {
+      "tag": "forge:glass_panes"
+    }
+  },
+  "result": {
+    "item": "delivery:computer"
+  }
+}

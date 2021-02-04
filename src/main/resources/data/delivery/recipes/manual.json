@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    "PPP",
+    "CCC"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "C": {
+      "item": "delivery:cardboard"
+    }
+  },
+  "result": {
+    "item": "patchouli:guide_book",
+    "nbt": {
+      "patchouli:book": "delivery:manual"
+    }
+  }
+}

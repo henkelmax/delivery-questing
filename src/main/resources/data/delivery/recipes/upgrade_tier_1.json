@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "WBW",
+    "WRW"
+  ],
+  "key": {
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "W": {
+      "tag": "minecraft:planks"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "B": {
+      "item": "delivery:upgrade_base"
+    }
+  },
+  "result": {
+    "item": "delivery:upgrade_tier_1"
+  }
+}

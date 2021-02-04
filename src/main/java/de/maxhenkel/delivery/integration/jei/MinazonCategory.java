@@ -52,7 +52,7 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
 
     @Override
     public void setIngredients(Offer offer, IIngredients ingredients) {
-        ingredients.setOutput(VanillaTypes.ITEM, offer.getItem());
+        ingredients.setOutput(VanillaTypes.ITEM, offer.getStack());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
     public void setRecipe(IRecipeLayout layout, Offer offer, IIngredients ingredients) {
         IGuiItemStackGroup group = layout.getItemStacks();
         group.init(0, false, 7, 13);
-        group.set(0, offer.getItem());
+        group.set(0, offer.getStack());
     }
 
     @Override

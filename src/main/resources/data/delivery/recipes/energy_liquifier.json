@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CI ",
+    "CRB",
+    "CI "
+  ],
+  "key": {
+    "C": {
+      "tag": "minecraft:stone_crafting_materials"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_3"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "result": {
+    "item": "delivery:energy_liquifier"
+  }
+}

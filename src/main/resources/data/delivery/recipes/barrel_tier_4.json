@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EIE",
+    "EBE",
+    "EIE"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "E": {
+      "tag": "forge:gems/emerald"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_3"
+    }
+  },
+  "result": {
+    "item": "delivery:barrel_tier_4"
+  }
+}

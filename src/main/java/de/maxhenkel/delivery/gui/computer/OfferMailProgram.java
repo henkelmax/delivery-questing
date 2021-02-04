@@ -49,7 +49,7 @@ public class OfferMailProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
-        ItemStack i = offerEMail.getOffer().getItem();
+        ItemStack i = offerEMail.getOffer().getStack();
         mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, i, this.item.getPosX(), this.item.getPosY());
 
         if (this.item.isHovered(guiLeft, guiTop, mouseX, mouseY)) {

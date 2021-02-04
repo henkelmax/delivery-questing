@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GIG",
+    "GBG",
+    "GIG"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_2"
+    }
+  },
+  "result": {
+    "item": "delivery:barrel_tier_3"
+  }
+}

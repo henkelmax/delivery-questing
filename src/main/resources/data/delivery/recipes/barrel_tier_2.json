@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "IBI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "B": {
+      "item": "delivery:barrel_tier_1"
+    }
+  },
+  "result": {
+    "item": "delivery:barrel_tier_2"
+  }
+}

@@ -65,8 +65,8 @@ public class MinazonProgram extends ComputerProgram {
                 continue;
             }
             Offer offer = offers.get(offset + i);
-            List<ITextComponent> tooltipFromItem = mc.currentScreen.getTooltipFromItem(offer.getItem());
-            tooltipFromItem.set(0, new TranslationTextComponent("message.delivery.item_amount", tooltipFromItem.get(0), offer.getItem().getCount()));
+            List<ITextComponent> tooltipFromItem = mc.currentScreen.getTooltipFromItem(offer.getStack());
+            tooltipFromItem.set(0, new TranslationTextComponent("message.delivery.item_amount", tooltipFromItem.get(0), offer.getStack().getCount()));
             tooltipFromItem.add(1, new TranslationTextComponent("message.delivery.price", offer.getPrice()).mergeStyle(TextFormatting.GRAY));
             if (offer.getPrice() > getContainer().getBalance()) {
                 tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_balance").mergeStyle(TextFormatting.DARK_RED));
@@ -105,8 +105,8 @@ public class MinazonProgram extends ComputerProgram {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 188, 239, 33, 512, 512);
             }
 
-            mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, offer.getItem(), guiLeft + 10, startY + 8);
-            mc.getItemRenderer().renderItemOverlayIntoGUI(mc.fontRenderer, offer.getItem(), guiLeft + 10, startY + 8, null);
+            mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, offer.getStack(), guiLeft + 10, startY + 8);
+            mc.getItemRenderer().renderItemOverlayIntoGUI(mc.fontRenderer, offer.getStack(), guiLeft + 10, startY + 8, null);
 
             IFormattableTextComponent price = new TranslationTextComponent("message.delivery.price", offer.getPrice());
 
