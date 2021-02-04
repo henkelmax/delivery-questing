@@ -11,7 +11,7 @@
     {
       "type": "spotlight",
       "item": "delivery:bulletin_board",
-      "text": "You can accept contracts by clicking the contract item on the bulletin board."
+      "text": "You will receive a bulletin board once you created a $(l:getting_started/groups)group$(/l).$(br2)You can accept contracts by clicking the contract item on the bulletin board."
     }
   ]
 }

@@ -21,7 +21,8 @@
           ["0"],
           [" "]
         ]
-      }
+      },
+      "text": "You will receive a mailbox once you created a $(l:getting_started/groups)group$(/l)."
     },
     {
       "type": "text",
