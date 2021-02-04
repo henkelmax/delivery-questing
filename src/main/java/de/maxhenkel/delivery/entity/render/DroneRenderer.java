@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.entity.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import de.maxhenkel.corelib.CachedMap;
 import de.maxhenkel.corelib.client.RenderUtils;
 import de.maxhenkel.corelib.client.obj.OBJEntityRenderer;
 import de.maxhenkel.corelib.client.obj.OBJModel;
@@ -111,11 +112,12 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
     );
 
     private Minecraft mc;
-    private BlockState cachedPayload;
+    private CachedMap<DroneEntity, BlockState> cachedPayload;
 
     public DroneRenderer(EntityRendererManager renderManager) {
         super(renderManager);
         this.mc = Minecraft.getInstance();
+        cachedPayload = new CachedMap<>(10_000);
     }
 
     @Override
@@ -123,26 +125,31 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
         super.render(entity, yaw, partialTicks, matrixStack, buffer, packedLight);
 
         if (!entity.isLoaded()) {
-            cachedPayload = null;
+            cachedPayload.remove(entity);
             return;
         }
 
-        if (cachedPayload == null) {
+        BlockState payload = cachedPayload.get(entity, () -> {
             Item item = entity.getPayload().getItem();
 
             if (!(item instanceof BlockItem)) {
-                return;
+                return null;
             }
             BlockItem blockItem = (BlockItem) item;
-            cachedPayload = blockItem.getBlock().getDefaultState();
+            return blockItem.getBlock().getDefaultState();
+        });
+
+        if (payload == null) {
+            return;
         }
+
         matrixStack.push();
         matrixStack.translate(-0.5D, -1.5D, -0.5D);
         matrixStack.translate(0.5D / 16D, 0.5D / 16D, 0.5D / 16D);
         matrixStack.scale(15F / 16F, 15F / 16F, 15F / 16F);
         BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
-        int color = mc.getBlockColors().getColor(cachedPayload, null, null, 0);
-        dispatcher.getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderTypeLookup.func_239221_b_(cachedPayload)), cachedPayload, dispatcher.getModelForState(cachedPayload), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+        int color = mc.getBlockColors().getColor(payload, null, null, 0);
+        dispatcher.getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderTypeLookup.func_239221_b_(payload)), payload, dispatcher.getModelForState(payload), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
         matrixStack.pop();
     }
 
