@@ -25,7 +25,7 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
         if (!world.isRemote) {
             return;
         }
-        if (Math.abs(getMotion().y) > 0.001F && ((DroneEntity) this).getEnergy() > 0) {
+        if (Math.abs(getMotion().y) > 0D && ((DroneEntity) this).getEnergy() > 0) {
             checkHighLoop();
         }
     }

@@ -17,6 +17,8 @@ public class ModSounds {
     public static SoundEvent CASH_REGISTER = registerSound("cash_register");
     // https://freesound.org/people/euromir/sounds/365428/
     public static SoundEvent DRONE = registerSound("drone");
+    // https://freesound.org/people/qubodup/sounds/182856/
+    public static SoundEvent DRONE_CRASH = registerSound("drone_crash");
 
     public static SoundEvent registerSound(String soundName) {
         SoundEvent event = new SoundEvent(new ResourceLocation(Main.MODID, soundName));

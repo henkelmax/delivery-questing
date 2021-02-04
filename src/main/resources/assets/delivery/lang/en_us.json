@@ -119,6 +119,7 @@
   "sound.delivery.mouse_click": "Mouse Clicked",
   "sound.delivery.cash_register": "Cash Register",
   "entity.delivery.drone": "Drone",
+  "sound.delivery.drone_crash": "Drone Crashes",
   "jei.delivery.minazon": "Minazon",
   "jei.delivery.minazon_level": "Requires level %s",
   "jei.delivery.minazon_price": "for %s $",

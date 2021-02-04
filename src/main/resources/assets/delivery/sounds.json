@@ -31,5 +31,14 @@
         "name": "delivery:drone"
       }
     ]
+  },
+  "drone_crash": {
+    "category": "master",
+    "subtitle": "sound.delivery.drone_crash",
+    "sounds": [
+      {
+        "name": "delivery:drone_crash"
+      }
+    ]
   }
 }

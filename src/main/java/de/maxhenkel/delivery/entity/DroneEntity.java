@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.entity;
 import de.maxhenkel.delivery.ITiered;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
+import de.maxhenkel.delivery.sounds.ModSounds;
 import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.InventoryHelper;
@@ -62,7 +63,7 @@ public class DroneEntity extends DroneEntitySoundBase {
             }
         }
 
-        if (isInWaterOrBubbleColumn()) {
+        if (isInWaterOrBubbleColumn() || isInLava()) {
             explode();
         }
     }
@@ -112,7 +113,7 @@ public class DroneEntity extends DroneEntitySoundBase {
         if (getEnergy() < DronePadTileEntity.ENERGY_CAPACITY && isOnPad()) {
             // Wait for full charge
             decreasePropellerSpeed();
-        } else if (getEnergy() <= 0 && !isOnPad()) {
+        } else if (getEnergy() <= 0 && !isOnPad() && !collidedVertically) {
             newMotion = new Vector3d(0D, Math.min(oldYMotion - 0.01D, -0.2D), 0D);
             decreasePropellerSpeed();
         } else if (getPayload().isEmpty()) {
@@ -133,6 +134,12 @@ public class DroneEntity extends DroneEntitySoundBase {
         if (newMotion.length() > 0D) {
             move(MoverType.SELF, newMotion);
         }
+    }
+
+    @Override
+    public boolean onLivingFall(float distance, float damageMultiplier) {
+        playSound(ModSounds.DRONE_CRASH, 1F, 1F);
+        return super.onLivingFall(distance, damageMultiplier);
     }
 
     public double getRiseSpeed() {
