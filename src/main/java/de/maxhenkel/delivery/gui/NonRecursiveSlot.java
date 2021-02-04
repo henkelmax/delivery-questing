@@ -1,9 +1,6 @@
 package de.maxhenkel.delivery.gui;
 
-import de.maxhenkel.delivery.blocks.BarrelBlock;
-import de.maxhenkel.delivery.blocks.CardboardBoxBlock;
-import de.maxhenkel.delivery.items.EnvelopeItem;
-import de.maxhenkel.delivery.items.ParcelItem;
+import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Slot;
@@ -26,22 +23,14 @@ public class NonRecursiveSlot extends Slot {
     }
 
     public static boolean isNonRecursive(ItemStack stack) {
+        if (Group.getTaskContainer(stack) != null) {
+            return false;
+        }
         if (stack.getItem() instanceof BlockItem) {
             BlockItem block = (BlockItem) stack.getItem();
             if (block.getBlock() instanceof ShulkerBoxBlock) {
                 return false;
             }
-            if (block.getBlock() instanceof CardboardBoxBlock) {
-                return false;
-            }
-            if (block.getBlock() instanceof BarrelBlock) {
-                return false;
-            }
-        }
-        if (stack.getItem() instanceof EnvelopeItem) {
-            return false;
-        } else if (stack.getItem() instanceof ParcelItem) {
-            return false;
         }
 
         return true;

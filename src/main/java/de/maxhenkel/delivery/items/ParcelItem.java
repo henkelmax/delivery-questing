@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 public class ParcelItem extends SingleSlotInventoryItem {
 
     public ParcelItem() {
-        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY), 16);
         setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
     }
 

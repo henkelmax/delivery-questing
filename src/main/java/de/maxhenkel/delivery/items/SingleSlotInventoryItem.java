@@ -11,15 +11,17 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class SingleSlotInventoryItem extends Item implements ITaskContainer {
 
-    public SingleSlotInventoryItem(Properties properties) {
+    protected final int stackLimit;
+
+    public SingleSlotInventoryItem(Properties properties, int stackLimit) {
         super(properties);
+        this.stackLimit = stackLimit;
     }
 
     @Override
@@ -54,8 +56,32 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
     }
 
     @Override
-    public NonNullList<FluidStack> getFluids(ItemStack stack) {
-        return NonNullList.create();
+    public boolean canAcceptItems(ItemStack stack) {
+        return true;
     }
 
+    @Override
+    public ItemStack add(ItemStack stack, ItemStack stackToAdd, int amount) {
+        if (stackToAdd.isEmpty()) {
+            return stackToAdd;
+        }
+        ItemStack content = getContent(stack);
+        if (!content.isEmpty() && !ItemUtils.isStackable(content, stackToAdd)) {
+            return stackToAdd;
+        }
+        int amountToAdd = Math.min(amount, stackLimit - content.getCount());
+        content = new ItemStack(stackToAdd.getItem(), (content.isEmpty() ? 0 : content.getCount()) + amountToAdd);
+        stackToAdd.shrink(amountToAdd);
+
+        CompoundNBT compound = stack.getOrCreateTag();
+        NonNullList<ItemStack> items = NonNullList.from(ItemStack.EMPTY, content);
+        ItemUtils.saveInventory(compound, "Items", items);
+
+        return stackToAdd;
+    }
+
+    @Override
+    public boolean isFull(ItemStack stack) {
+        return getContent(stack).getCount() >= stackLimit;
+    }
 }

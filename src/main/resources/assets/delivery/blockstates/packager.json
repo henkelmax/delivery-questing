@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "delivery:block/packager" },
+        "facing=south": { "model": "delivery:block/packager", "y": 180 },
+        "facing=west": { "model": "delivery:block/packager", "y": 270 },
+        "facing=east": { "model": "delivery:block/packager", "y": 90 }
+    }
+}

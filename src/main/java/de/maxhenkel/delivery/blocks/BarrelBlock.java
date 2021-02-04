@@ -35,8 +35,10 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -103,11 +105,6 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     }
 
     @Override
-    public NonNullList<ItemStack> getItems(ItemStack stack) {
-        return NonNullList.create();
-    }
-
-    @Override
     public NonNullList<FluidStack> getFluids(ItemStack stack) {
         NonNullList<FluidStack> fluids = NonNullList.create();
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
@@ -116,6 +113,35 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
             fluids.add(tank.getFluid());
         }
         return fluids;
+    }
+
+    @Override
+    public int add(ItemStack stack, IFluidHandler handler, int amount) {
+        CompoundNBT blockEntityTag = stack.getOrCreateChildTag("BlockEntityTag");
+        CompoundNBT fluidCompound = blockEntityTag.getCompound("Fluid");
+        FluidStack fluid = FluidStack.loadFluidStackFromNBT(fluidCompound);
+        if (fluid.isEmpty()) {
+            FluidStack drain = handler.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+            drain.writeToNBT(fluidCompound);
+            blockEntityTag.put("Fluid", fluidCompound);
+            return drain.getAmount();
+        } else {
+            FluidStack drain = handler.drain(new FluidStack(fluid, amount), IFluidHandler.FluidAction.EXECUTE);
+            fluid.grow(drain.getAmount());
+            fluid.writeToNBT(fluidCompound);
+            blockEntityTag.put("Fluid", fluidCompound);
+            return drain.getAmount();
+        }
+    }
+
+    @Override
+    public boolean canAcceptFluids(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean isFull(ItemStack stack) {
+        return getFluids(stack).stream().map(FluidStack::getAmount).reduce(0, Integer::sum) >= getMillibuckets(tier);
     }
 
     public static int getMillibuckets(Tier tier) {

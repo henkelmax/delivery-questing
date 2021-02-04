@@ -33,7 +33,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -141,14 +142,35 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
     public NonNullList<ItemStack> getItems(ItemStack stack) {
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
         if (blockEntityTag != null) {
-            return ItemUtils.readItemList(blockEntityTag, "Items", false); //TODO
+            NonNullList<ItemStack> inv = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
+            ItemUtils.readInventory(blockEntityTag, "Items", inv);
+            return inv;
         }
         return NonNullList.create();
     }
 
     @Override
-    public NonNullList<FluidStack> getFluids(ItemStack stack) {
-        return NonNullList.create();
+    public ItemStack add(ItemStack stack, ItemStack stackToAdd, int amount) {
+        CompoundNBT blockEntityTag = stack.getOrCreateChildTag("BlockEntityTag");
+        NonNullList<ItemStack> items = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
+        ItemUtils.readInventory(blockEntityTag, "Items", items);
+        ItemStackHandler stackHandler = new ItemStackHandler(items);
+        ItemStack result = ItemHandlerHelper.insertItem(stackHandler, stackToAdd.split(amount), false);
+        ItemUtils.saveInventory(blockEntityTag, "Items", items);
+        if (!result.isEmpty()) {
+            stackToAdd.setCount(stackToAdd.getCount() + result.getCount());
+        }
+        return stackToAdd;
+    }
+
+    @Override
+    public boolean canAcceptItems(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean isFull(ItemStack stack) {
+        return getItems(stack).stream().allMatch(stack1 -> !stack1.isEmpty() && stack1.getCount() >= stack1.getMaxStackSize());
     }
 
     public static int getSlots(de.maxhenkel.delivery.Tier tier) {

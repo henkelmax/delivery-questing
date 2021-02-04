@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 public class EnvelopeItem extends SingleSlotInventoryItem {
 
     public EnvelopeItem() {
-        super(new Item.Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(new Item.Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY), 1);
         setRegistryName(new ResourceLocation(Main.MODID, "envelope"));
     }
 

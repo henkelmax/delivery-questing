@@ -17,6 +17,7 @@ public class ModTileEntities {
     public static TileEntityType<BulletinBoardTileEntity> BULLETIN_BOARD;
     public static TileEntityType<ComputerTileEntity> COMPUTER;
     public static TileEntityType<DronePadTileEntity> DRONE_PAD;
+    public static TileEntityType<PackagerTileEntity> PACKAGER;
 
     public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?>> event) {
         CARDBOARD_BOX = TileEntityType.Builder.create(CardboradBoxTileEntity::new,
@@ -60,6 +61,10 @@ public class ModTileEntities {
         DRONE_PAD = TileEntityType.Builder.create(DronePadTileEntity::new, ModBlocks.DRONE_PAD).build(null);
         DRONE_PAD.setRegistryName(new ResourceLocation(Main.MODID, "drone_pad"));
         event.getRegistry().register(DRONE_PAD);
+
+        PACKAGER = TileEntityType.Builder.create(PackagerTileEntity::new, ModBlocks.PACKAGER).build(null);
+        PACKAGER.setRegistryName(new ResourceLocation(Main.MODID, "packager"));
+        event.getRegistry().register(PACKAGER);
 
     }
 

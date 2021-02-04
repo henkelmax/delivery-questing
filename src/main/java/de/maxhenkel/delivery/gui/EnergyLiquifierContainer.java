@@ -55,7 +55,7 @@ public class EnergyLiquifierContainer extends ContainerBase {
 
     @Override
     public int getInventorySize() {
-        return 2;
+        return 3;
     }
 
 }
