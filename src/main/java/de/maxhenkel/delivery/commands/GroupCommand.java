@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.maxhenkel.corelib.CommonUtils;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.gui.ContractContainer;
 import de.maxhenkel.delivery.gui.containerprovider.TaskContainerProvider;
 import de.maxhenkel.delivery.items.ModItems;
@@ -15,6 +16,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.UUIDArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.text.StringTextComponent;
@@ -41,6 +43,9 @@ public class GroupCommand {
             Progression tasks = Main.getProgression(context.getSource().getServer());
             String name = StringArgument.string(context, "name");
             tasks.addGroup(player.getUniqueID(), name, StringArgument.string(context, "password"));
+            giveItem(player, new ItemStack(ModBlocks.MAILBOX));
+            giveItem(player, new ItemStack(ModBlocks.MAILBOX_POST));
+            giveItem(player, new ItemStack(ModBlocks.BULLETIN_BOARD));
             context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_created", name), false);
             return 1;
         }))));
@@ -168,6 +173,12 @@ public class GroupCommand {
         })));
 
         dispatcher.register(literalBuilder);
+    }
+
+    public static void giveItem(ServerPlayerEntity player, ItemStack stack) {
+        if (!player.inventory.addItemStackToInventory(stack)) {
+            player.dropItem(stack, false);
+        }
     }
 
 }
