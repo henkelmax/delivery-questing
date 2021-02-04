@@ -18,7 +18,7 @@
       "type": "spotlight",
       "item": "delivery:upgrade_tier_6",
       "title": "Upgrading",
-      "text": "The drone pad has a slot for upgrades. The higher the tiers of the upgrade, the faster are drones. It is recommended to use at least the same tier of upgrade that the payload has, since the drone is slower when carrying higher tiers of payloads."
+      "text": "The drone pad has a slot for upgrades. The higher the tiers of the upgrade, the faster are drones. It is recommended to use at least the same tier of upgrade that the payload has, since the drone is slower when carrying higher tiers of payloads. If the drone is too slow, it may crash down because it ran out of energy."
     }
   ]
 }

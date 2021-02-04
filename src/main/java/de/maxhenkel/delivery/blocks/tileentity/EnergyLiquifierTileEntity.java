@@ -151,11 +151,24 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
 
     public int getRate() {
         Tier tier = getTier();
-        int multiplier = 1;
-        if (tier != null) {
-            multiplier = 2 * tier.getTier();
+        if (tier == null) {
+            return 1;
         }
-        return multiplier;
+        switch (tier) {
+            case TIER_1:
+                return 2;
+            case TIER_2:
+                return 3;
+            case TIER_3:
+                return 5;
+            case TIER_4:
+                return 8;
+            case TIER_5:
+                return 16;
+            case TIER_6:
+            default:
+                return 64;
+        }
     }
 
     public void setReversed(boolean reversed) {
