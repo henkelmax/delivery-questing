@@ -5,6 +5,7 @@ import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
 import de.maxhenkel.delivery.sounds.ModSounds;
 import de.maxhenkel.delivery.tasks.Group;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItem;
@@ -18,10 +19,13 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -138,8 +142,15 @@ public class DroneEntity extends DroneEntitySoundBase {
 
     @Override
     public boolean onLivingFall(float distance, float damageMultiplier) {
-        playSound(ModSounds.DRONE_CRASH, 1F, 1F);
+        if (world.isRemote) {
+            playCrashSound();
+        }
         return super.onLivingFall(distance, damageMultiplier);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void playCrashSound() {
+        world.playSound(Minecraft.getInstance().player, getPosX(), getPosY(), getPosZ(), ModSounds.DRONE_CRASH, SoundCategory.NEUTRAL, 1F, 1F);
     }
 
     public double getRiseSpeed() {
