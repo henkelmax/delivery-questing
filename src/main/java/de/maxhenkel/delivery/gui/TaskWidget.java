@@ -7,7 +7,9 @@ import de.maxhenkel.delivery.tasks.ActiveTask;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ITag;
@@ -135,8 +137,11 @@ public class TaskWidget extends Widget {
                     str = new StringTextComponent(getNumberItems(element.max));
                 }
             } else if (o instanceof Fluid) {
-                fluidStack = new FluidStack((Fluid) o, 1000);
-                mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, new ItemStack(fluidStack.getFluid().getFilledBucket()), x + xPos, y + yPos);//TODO
+                Fluid fluid = (Fluid) o;
+                fluidStack = new FluidStack(fluid, 1000);
+                TextureAtlasSprite texture = Minecraft.getInstance().getModelManager().getAtlasTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE).getSprite(fluid.getAttributes().getStillTexture());
+                mc.getTextureManager().bindTexture(texture.getAtlasTexture().getTextureLocation());
+                PackagerScreen.fluidBlit(matrixStack, x + xPos, y + yPos, 16, 16, texture, fluid.getAttributes().getColor());
                 if (showProgress) {
                     str = new TranslationTextComponent("tooltip.delivery.progress", getNumberBuckets(element.current), getNumberBuckets(element.max));
                 } else {
@@ -262,28 +267,29 @@ public class TaskWidget extends Widget {
         font.func_243248_b(matrixStack, text, x + width / 2F - w / 2F, y, 0);
     }
 
+    // TODO localize
     private static String getNumberItems(long num) {
         if (num < 1000) {
             return "" + num;
         }
         float n = ((float) num) / 1000F;
         if (n < 1000) {
-            return String.format("%.1f", n) + "k";
+            return String.format("%.1f", n) + " k";
         }
         n = n / 1000;
         if (n < 1000) {
-            return String.format("%.1f", n) + "M";
+            return String.format("%.1f", n) + " M";
         }
         n = n / 1000;
-        return String.format("%.1f", n) + "T";
+        return String.format("%.1f", n) + " T";
     }
 
     private static String getNumberBuckets(long num) {
         if (num < 1000) {
-            return "" + num + "mB";
+            return "" + num + " mB";
         }
         float n = ((float) num) / 1000F;
-        return String.format("%.1f", n) + "B";
+        return String.format("%.1f", n) + " B";
     }
 
     private static class Element<T> {
