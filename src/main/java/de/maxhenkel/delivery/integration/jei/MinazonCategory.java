@@ -73,7 +73,7 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
     @Override
     public void setRecipe(IRecipeLayout layout, Offer offer, IIngredients ingredients) {
         IGuiItemStackGroup group = layout.getItemStacks();
-        group.init(0, true, 7, 13);
+        group.init(0, false, 7, 13);
         group.set(0, offer.getItem());
     }
 
