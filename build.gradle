@@ -123,7 +123,8 @@ processResources {
                 'mod_name': mod_name,
                 'mod_forge_version': mod_forge_version,
                 'mod_loader_version': mod_loader_version,
-                'mod_minecraft_version': mod_minecraft_version
+                'mod_minecraft_version': mod_minecraft_version,
+                'patchouli_version_range': patchouli_version_range
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude '**/*.toml'

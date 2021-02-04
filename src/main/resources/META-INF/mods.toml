@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="${mod_loader_version}"
 license="All rights reserved"
-issueTrackerURL="https://github.com/henkelmax/xxx/issues"
+issueTrackerURL="https://github.com/henkelmax/delivery/issues"
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 updateJSONURL="https://maxhenkel.de/update/delivery.json"
-displayURL="https://www.curseforge.com/minecraft/mc-mods/xxx"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/delivery-questing"
 # logoFile="delivery.png"
 # credits=""
 authors="${mod_vendor}"
@@ -23,4 +23,10 @@ description='''Delivery'''
     mandatory=true
     versionRange="[${mod_minecraft_version}]"
     ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="patchouli"
+    mandatory=true
+    versionRange="${patchouli_version_range}"
+    ordering="AFTER"
     side="BOTH"
