@@ -116,5 +116,8 @@
   "toast.delivery.challenge_contract": "New Challenge Contract",
   "sound.delivery.mouse_click": "Mouse Clicked",
   "sound.delivery.cash_register": "Cash Register",
-  "entity.delivery.drone": "Drone"
+  "entity.delivery.drone": "Drone",
+  "jei.delivery.minazon": "Minazon",
+  "jei.delivery.minazon_level": "Requires level %s",
+  "jei.delivery.minazon_price": "for %s$"
 }
