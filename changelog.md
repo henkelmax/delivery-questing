@@ -1,0 +1,1 @@
+- Fixed error when breaking the energy liquifier

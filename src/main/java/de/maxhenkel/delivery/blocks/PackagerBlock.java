@@ -56,7 +56,7 @@ public class PackagerBlock extends HorizontalRotatableBlock implements IItemBloc
     public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof PackagerTileEntity) {
-            EnergyLiquifierTileEntity energyLiquifier = (EnergyLiquifierTileEntity) te;
+            PackagerTileEntity energyLiquifier = (PackagerTileEntity) te;
             InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getInventory());
             InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
