@@ -12,7 +12,7 @@ public class UpgradeItem extends Item implements ITiered {
     private final Tier tier;
 
     public UpgradeItem(Tier tier) {
-        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(new Properties().group(ModItemGroups.TAB_DELIVERY));
         this.tier = tier;
         setRegistryName(new ResourceLocation(Main.MODID, "upgrade_tier_" + tier.getTier()));
     }

@@ -24,6 +24,11 @@ public class UpgradeSlot extends Slot {
         return stack.getItem() instanceof UpgradeItem;
     }
 
+    @Override
+    public int getSlotStackLimit() {
+        return 1;
+    }
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public Pair<ResourceLocation, ResourceLocation> getBackground() {

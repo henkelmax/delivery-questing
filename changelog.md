@@ -1,2 +1,3 @@
 - Added NBT task items
 - Fixed progress bug
+- Upgrades are now stackable
