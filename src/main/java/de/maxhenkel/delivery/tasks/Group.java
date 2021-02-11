@@ -21,6 +21,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.NonNullList;
@@ -478,7 +479,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     private boolean putItemStack(ItemStack stack) {
-        Triple<Task, TaskProgress, Item> triple = findTask(stack);
+        Triple<Task, TaskProgress, ItemElement> triple = findTask(stack);
         if (triple == null) {
             return false;
         }
@@ -494,7 +495,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     private boolean putFluidStack(FluidStack stack) {
-        Triple<Task, TaskProgress, Fluid> triple = findTask(stack);
+        Triple<Task, TaskProgress, FluidElement> triple = findTask(stack);
         if (triple == null) {
             return false;
         }
@@ -511,22 +512,22 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return !stack.isEmpty();
     }
 
-    private long getCurrentAmount(TaskProgress progress, Item element) {
-        return progress.getTaskItems().stream().map(stack -> stack.getItem().isIn(element.item) ? (long) stack.getCount() : 0L).reduce(0L, Long::sum);
+    public static long getCurrentAmount(TaskProgress progress, ItemElement element) {
+        return progress.getTaskItems().stream().filter(stack -> stack.getItem().isIn(element.item)).filter(stack -> NBTUtil.areNBTEquals(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getCount()).reduce(0L, Long::sum);
     }
 
-    private long getCurrentAmount(TaskProgress progress, Fluid element) {
-        return progress.getTaskFluids().stream().map(stack -> stack.getFluid().isIn(element.item) ? (long) stack.getAmount() : 0L).reduce(0L, Long::sum);
+    public static long getCurrentAmount(TaskProgress progress, FluidElement element) {
+        return progress.getTaskFluids().stream().filter(stack -> stack.getFluid().isIn(element.item)).filter(stack -> NBTUtil.areNBTEquals(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getAmount()).reduce(0L, Long::sum);
     }
 
     @Nullable
-    private Triple<Task, TaskProgress, Item> findTask(ItemStack stack) {
+    private Triple<Task, TaskProgress, ItemElement> findTask(ItemStack stack) {
         for (TaskProgress taskProgress : tasks) {
             Task task = taskProgress.findTask();
             if (task == null) {
                 continue;
             }
-            Optional<Item> item = task.getItems().stream().filter(i -> stack.getItem().isIn(i.getItem())).findAny();
+            Optional<ItemElement> item = task.getItems().stream().filter(i -> stack.getItem().isIn(i.getItem())).filter(e -> NBTUtil.areNBTEquals(e.getNbt(), stack.getTag(), true)).findAny();
             if (item.isPresent()) {
                 return new Triple<>(task, taskProgress, item.get());
             }
@@ -536,13 +537,13 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    private Triple<Task, TaskProgress, Fluid> findTask(FluidStack stack) {
+    private Triple<Task, TaskProgress, FluidElement> findTask(FluidStack stack) {
         for (TaskProgress taskProgress : tasks) {
             Task task = taskProgress.findTask();
             if (task == null) {
                 continue;
             }
-            Optional<Fluid> item = task.getFluids().stream().filter(i -> stack.getFluid().isIn(i.getItem())).findAny();
+            Optional<FluidElement> item = task.getFluids().stream().filter(i -> stack.getFluid().isIn(i.getItem())).filter(e -> NBTUtil.areNBTEquals(e.getNbt(), stack.getTag(), true)).findAny();
             if (item.isPresent()) {
                 return new Triple<>(task, taskProgress, item.get());
             }

@@ -22,11 +22,11 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private boolean forced;
     private int experience;
     private int money;
-    private List<Item> items;
-    private List<Fluid> fluids;
+    private List<ItemElement> items;
+    private List<FluidElement> fluids;
     private List<ItemStack> rewards;
 
-    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, boolean forced, int experience, int money, List<Item> items, List<Fluid> fluids, List<ItemStack> rewards) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, boolean forced, int experience, int money, List<ItemElement> items, List<FluidElement> fluids, List<ItemStack> rewards) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -65,11 +65,11 @@ public class Task implements INBTSerializable<CompoundNBT> {
         return experience;
     }
 
-    public List<Fluid> getFluids() {
+    public List<FluidElement> getFluids() {
         return fluids;
     }
 
-    public List<Item> getItems() {
+    public List<ItemElement> getItems() {
         return items;
     }
 
@@ -121,13 +121,13 @@ public class Task implements INBTSerializable<CompoundNBT> {
         compound.putInt("Money", money);
 
         ListNBT itemList = new ListNBT();
-        for (Item item : items) {
+        for (ItemElement item : items) {
             itemList.add(item.serializeNBT());
         }
         compound.put("Items", itemList);
 
         ListNBT fluidList = new ListNBT();
-        for (Fluid fluid : fluids) {
+        for (FluidElement fluid : fluids) {
             fluidList.add(fluid.serializeNBT());
         }
         compound.put("Fluids", fluidList);
@@ -159,7 +159,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         ListNBT itemList = compound.getList("Items", 10);
         for (int i = 0; i < itemList.size(); i++) {
             CompoundNBT e = itemList.getCompound(i);
-            Item item = new Item();
+            ItemElement item = new ItemElement();
             item.deserializeNBT(e);
             items.add(item);
         }
@@ -168,7 +168,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         ListNBT fluidList = compound.getList("Fluids", 10);
         for (int i = 0; i < fluidList.size(); i++) {
             CompoundNBT e = fluidList.getCompound(i);
-            Fluid fluid = new Fluid();
+            FluidElement fluid = new FluidElement();
             fluid.deserializeNBT(e);
             fluids.add(fluid);
         }

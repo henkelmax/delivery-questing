@@ -1,1 +1,2 @@
-- Update to 1.16.5
+- Added NBT task items
+- Fixed progress bug

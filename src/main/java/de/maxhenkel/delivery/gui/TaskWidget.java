@@ -2,20 +2,17 @@ package de.maxhenkel.delivery.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import de.maxhenkel.corelib.helpers.AbstractStack;
+import de.maxhenkel.corelib.helpers.WrappedFluidStack;
+import de.maxhenkel.corelib.helpers.WrappedItemStack;
+import de.maxhenkel.corelib.tag.SingleElementTag;
 import de.maxhenkel.delivery.Main;
-import de.maxhenkel.delivery.tasks.ActiveTask;
+import de.maxhenkel.delivery.tasks.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -47,12 +44,12 @@ public class TaskWidget extends Widget {
         this.onInfoClick = onInfoClick;
         elements = new ArrayList<>();
 
-        for (de.maxhenkel.delivery.tasks.Item item : task.getTask().getItems()) {
-            elements.add(new Element<>(item.getItem(), 0, item.getAmount()));
+        for (ItemElement item : task.getTask().getItems()) {
+            elements.add(new Element<>(item, Group.getCurrentAmount(task.getTaskProgress(), item), item.getAmount()));
         }
 
-        for (de.maxhenkel.delivery.tasks.Fluid fluid : task.getTask().getFluids()) {
-            elements.add(new Element<>(fluid.getItem(), 0, fluid.getAmount()));
+        for (FluidElement fluid : task.getTask().getFluids()) {
+            elements.add(new Element<>(fluid, Group.getCurrentAmount(task.getTaskProgress(), fluid), fluid.getAmount()));
         }
 
     }
@@ -124,28 +121,21 @@ public class TaskWidget extends Widget {
         int h = 16;
         for (int i = page * COUNT; i < Math.min(page * COUNT + COUNT, elements.size()); i++) {
             Element<?> element = elements.get(i);
-            Object o = get(element.item);
-            ItemStack itemStack = null;
-            FluidStack fluidStack = null;
-            IFormattableTextComponent str = null;
-            if (o instanceof Item) {
-                itemStack = new ItemStack((Item) o);
-                mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, itemStack, x + xPos, y + yPos);
-                if (showProgress) {
-                    str = new TranslationTextComponent("tooltip.delivery.progress", getNumberItems(element.current), getNumberItems(element.max));
-                } else {
-                    str = new StringTextComponent(getNumberItems(element.max));
-                }
-            } else if (o instanceof Fluid) {
-                Fluid fluid = (Fluid) o;
-                fluidStack = new FluidStack(fluid, 1000);
-                TextureAtlasSprite texture = Minecraft.getInstance().getModelManager().getAtlasTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE).getSprite(fluid.getAttributes().getStillTexture());
-                mc.getTextureManager().bindTexture(texture.getAtlasTexture().getTextureLocation());
-                PackagerScreen.fluidBlit(matrixStack, x + xPos, y + yPos, 16, 16, texture, fluid.getAttributes().getColor());
+            AbstractStack abstractStack = element.item.getAbstractStack();
+            abstractStack.render(matrixStack, x + xPos, y + yPos);
+
+            IFormattableTextComponent str;
+            if (abstractStack instanceof WrappedFluidStack) {
                 if (showProgress) {
                     str = new TranslationTextComponent("tooltip.delivery.progress", getNumberBuckets(element.current), getNumberBuckets(element.max));
                 } else {
                     str = new StringTextComponent(getNumberBuckets(element.max));
+                }
+            } else {
+                if (showProgress) {
+                    str = new TranslationTextComponent("tooltip.delivery.progress", getNumberItems(element.current), getNumberItems(element.max));
+                } else {
+                    str = new StringTextComponent(getNumberItems(element.max));
                 }
             }
 
@@ -162,19 +152,10 @@ public class TaskWidget extends Widget {
 
             if (mouseX >= xPos + x && mouseX < xPos + x + 16) {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
-                    List<ITextComponent> tooltip = null;
-                    if (itemStack != null) {
-                        tooltip = mc.currentScreen.getTooltipFromItem(itemStack);
-                    } else if (fluidStack != null) {
-                        tooltip = new ArrayList<>();
-                        tooltip.add(new StringTextComponent("").append(fluidStack.getDisplayName()).mergeStyle(TextFormatting.WHITE));
-                        if (mc.gameSettings.advancedItemTooltips) {
-                            tooltip.add((new StringTextComponent(fluidStack.getFluid().getRegistryName().toString())).mergeStyle(TextFormatting.DARK_GRAY));
-                        }
-                    }
+                    List<ITextComponent> tooltip = abstractStack.getTooltip(mc.currentScreen);
 
-                    if (element.item.getAllElements().size() > 1) {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.tag", element.item.getName().toString()));
+                    if (!(element.item.getItem() instanceof SingleElementTag)) {
+                        tooltip.add(new TranslationTextComponent("tooltip.delivery.tag", element.item.getItem().getName().toString()));
                     }
                     mc.currentScreen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
                 }
@@ -182,13 +163,13 @@ public class TaskWidget extends Widget {
             if (mouseX >= xPos + x + 16 && mouseX < xPos + x + w - 16) {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
                     List<ITextComponent> tooltip = new ArrayList<>();
-                    if (itemStack != null) {
+                    if (abstractStack instanceof WrappedItemStack) {
                         if (showProgress) {
                             tooltip.add(new TranslationTextComponent("tooltip.delivery.item_progress", element.current, element.max));
                         } else {
                             tooltip.add(new TranslationTextComponent("tooltip.delivery.item_amount", element.max));
                         }
-                    } else if (fluidStack != null) {
+                    } else if (abstractStack instanceof WrappedFluidStack) {
                         if (showProgress) {
                             tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_progress", element.current, element.max));
                         } else {
@@ -256,12 +237,6 @@ public class TaskWidget extends Widget {
         return false;
     }
 
-    private static <T> T get(ITag.INamedTag<T> tag) {
-        long time = Minecraft.getInstance().world.getGameTime();
-        List<T> allElements = tag.getAllElements();
-        return allElements.get((int) (time / 20L % allElements.size()));
-    }
-
     protected void drawCentered(MatrixStack matrixStack, FontRenderer font, IFormattableTextComponent text, int y) {
         int w = font.getStringPropertyWidth(text);
         font.func_243248_b(matrixStack, text, x + width / 2F - w / 2F, y, 0);
@@ -293,10 +268,10 @@ public class TaskWidget extends Widget {
     }
 
     private static class Element<T> {
-        private ITag.INamedTag<T> item;
+        private TaskElement item;
         private long current, max;
 
-        public Element(ITag.INamedTag<T> item, long current, long max) {
+        public Element(TaskElement item, long current, long max) {
             this.item = item;
             this.current = current;
             this.max = max;

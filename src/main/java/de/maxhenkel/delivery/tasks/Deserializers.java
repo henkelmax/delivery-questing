@@ -23,8 +23,8 @@ public class Deserializers {
 
     public static Gson getGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Item.class, Item.DESERIALIZER);
-        gsonBuilder.registerTypeAdapter(Fluid.class, Fluid.DESERIALIZER);
+        gsonBuilder.registerTypeAdapter(ItemElement.class, ItemElement.DESERIALIZER);
+        gsonBuilder.registerTypeAdapter(FluidElement.class, FluidElement.DESERIALIZER);
         gsonBuilder.registerTypeAdapter(net.minecraft.item.Item.class, ITEM_DESERIALIZER);
         gsonBuilder.registerTypeAdapter(ItemStack.class, ITEM_STACK_DESERIALIZER);
 
