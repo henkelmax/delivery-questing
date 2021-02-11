@@ -43,9 +43,9 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         public int get(int index) {
             switch (index) {
                 case 0:
-                    return energy.getEnergyStored();
+                    return energy.getEnergyStored() + 1;
                 case 1:
-                    return tank.getFluidAmount();
+                    return tank.getFluidAmount() + 1;
             }
             return 0;
         }
@@ -53,10 +53,10 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         public void set(int index, int value) {
             switch (index) {
                 case 0:
-                    energy.setEnergy(value);
+                    energy.setEnergy(value - 1);
                     break;
                 case 1:
-                    tank.setFluid(new FluidStack(tank.getFluid().getFluid(), value));
+                    tank.setFluid(new FluidStack(tank.getFluid().getFluid(), value - 1));
                     break;
             }
         }

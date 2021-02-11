@@ -36,14 +36,14 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     private final IIntArray fields = new IIntArray() {
         public int get(int index) {
             if (index == 0) {
-                return energy.getEnergyStored();
+                return energy.getEnergyStored() + 1;
             }
             return 0;
         }
 
         public void set(int index, int value) {
             if (index == 0) {
-                energy.setEnergy(value);
+                energy.setEnergy(value - 1);
             }
         }
 

@@ -41,11 +41,11 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         public int get(int index) {
             switch (index) {
                 case 0:
-                    return energy.getEnergyStored();
+                    return energy.getEnergyStored() + 1;
                 case 1:
-                    return tank.getFluidAmount();
+                    return tank.getFluidAmount() + 1;
                 case 2:
-                    return reversed ? 1 : 0;
+                    return reversed ? 2 : 1;
             }
             return 0;
         }
@@ -53,13 +53,13 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         public void set(int index, int value) {
             switch (index) {
                 case 0:
-                    energy.setEnergy(value);
+                    energy.setEnergy(value - 1);
                     break;
                 case 1:
-                    tank.setFluid(new FluidStack(ModFluids.LIQUID_ENERGY, value));
+                    tank.setFluid(new FluidStack(ModFluids.LIQUID_ENERGY, value - 1));
                     break;
                 case 2:
-                    reversed = value != 0;
+                    reversed = value != 1;
                     break;
             }
         }
