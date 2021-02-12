@@ -38,7 +38,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -121,12 +120,12 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
         CompoundNBT fluidCompound = blockEntityTag.getCompound("Fluid");
         FluidStack fluid = FluidStack.loadFluidStackFromNBT(fluidCompound);
         if (fluid.isEmpty()) {
-            FluidStack drain = handler.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drain = handler.drain(Math.min(amount, getMillibuckets(getTier()) - fluid.getAmount()), IFluidHandler.FluidAction.EXECUTE);
             drain.writeToNBT(fluidCompound);
             blockEntityTag.put("Fluid", fluidCompound);
             return drain.getAmount();
         } else {
-            FluidStack drain = handler.drain(new FluidStack(fluid, amount), IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drain = handler.drain(new FluidStack(fluid, Math.min(amount, getMillibuckets(getTier()) - fluid.getAmount())), IFluidHandler.FluidAction.EXECUTE);
             fluid.grow(drain.getAmount());
             fluid.writeToNBT(fluidCompound);
             blockEntityTag.put("Fluid", fluidCompound);

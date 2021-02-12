@@ -3,7 +3,6 @@ package de.maxhenkel.delivery.blocks.tileentity;
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.delivery.Tier;
-import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.items.UpgradeItem;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.ITaskContainer;
@@ -73,7 +72,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
 
     public PackagerTileEntity() {
         super(ModTileEntities.PACKAGER);
-        tank = new FluidTank(TANK_CAPACITY, fluidStack -> fluidStack.getFluid() == ModFluids.LIQUID_ENERGY);
+        tank = new FluidTank(TANK_CAPACITY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0);
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
