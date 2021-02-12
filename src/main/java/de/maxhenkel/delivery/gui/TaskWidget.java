@@ -45,11 +45,11 @@ public class TaskWidget extends Widget {
         elements = new ArrayList<>();
 
         for (ItemElement item : task.getTask().getItems()) {
-            elements.add(new Element<>(item, Group.getCurrentAmount(task.getTaskProgress(), item), item.getAmount()));
+            elements.add(new Element<>(item, showProgress ? Group.getCurrentAmount(task.getTaskProgress(), item) : 0, item.getAmount()));
         }
 
         for (FluidElement fluid : task.getTask().getFluids()) {
-            elements.add(new Element<>(fluid, Group.getCurrentAmount(task.getTaskProgress(), fluid), fluid.getAmount()));
+            elements.add(new Element<>(fluid, showProgress ? Group.getCurrentAmount(task.getTaskProgress(), fluid) : 0, fluid.getAmount()));
         }
 
     }

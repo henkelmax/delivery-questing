@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import de.maxhenkel.delivery.Main;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -13,8 +16,16 @@ public class Deserializers {
     public static final JsonDeserializer<ItemStack> ITEM_STACK_DESERIALIZER = (json, typeOfT, context) -> {
         JsonObject obj = json.getAsJsonObject();
         net.minecraft.item.Item value = ForgeRegistries.ITEMS.getValue(new ResourceLocation(obj.get("item").getAsString()));
-        int amount = obj.get("amount").getAsInt();
-        return new ItemStack(value, amount);
+        int amount = obj.has("amount") ? obj.get("amount").getAsInt() : 1;
+        ItemStack stack = new ItemStack(value, amount);
+        if (obj.has("nbt")) {
+            try {
+                stack.setTag(JsonToNBT.getTagFromJson(obj.get("nbt").getAsString()));
+            } catch (CommandSyntaxException e) {
+                Main.LOGGER.warn("Failed to load NBT from stack");
+            }
+        }
+        return stack;
     };
 
     public static final JsonDeserializer<net.minecraft.item.Item> ITEM_DESERIALIZER = (json, typeOfT, context) -> {

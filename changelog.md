@@ -1,1 +1,1 @@
-- Fixed packager
+- Added reward nbt
