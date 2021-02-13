@@ -1,1 +1,1 @@
-- Fixed drone exploding on high altitudes
+- Switch max level with dependencies

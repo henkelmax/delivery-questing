@@ -331,7 +331,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public Task generateNewTask() {
         List<Task> possibleTasks = Main.TASK_MANAGER.getTasks().stream()
                 .filter(task -> task.getMinLevel() <= getLevel())
-                .filter(task -> task.getMaxLevel() >= getLevel())
+                .filter(task -> task.getDependencies().stream().allMatch(this::hasCompletedTask))
                 .filter(task -> getCompletedTasks().stream().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for completed tasks
                 .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))) // Filter for accepted tasks
                 .filter(task -> getUnacceptedEmailTasks().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
@@ -343,6 +343,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         return possibleTasks.get(Main.TASK_MANAGER.getRandom().nextInt(possibleTasks.size()));
+    }
+
+    public boolean hasCompletedTask(UUID taskID){
+        return completedTasks.stream().anyMatch(uuid -> uuid.equals(taskID));
     }
 
     public boolean hasTaskInMailbox() {

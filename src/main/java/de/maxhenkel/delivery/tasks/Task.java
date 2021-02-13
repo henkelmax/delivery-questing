@@ -2,7 +2,10 @@ package de.maxhenkel.delivery.tasks;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTUtil;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
@@ -18,7 +21,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private String skin;
     private String profession;
     private int minLevel;
-    private int maxLevel;
+    private List<UUID> dependencies;
     private boolean forced;
     private int experience;
     private int money;
@@ -26,7 +29,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
     private List<FluidElement> fluids;
     private List<ItemStack> rewards;
 
-    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, int maxLevel, boolean forced, int experience, int money, List<ItemElement> items, List<FluidElement> fluids, List<ItemStack> rewards) {
+    public Task(UUID id, String name, String description, String contractorName, String skin, String profession, int minLevel, List<UUID> dependencies, boolean forced, int experience, int money, List<ItemElement> items, List<FluidElement> fluids, List<ItemStack> rewards) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,7 +37,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         this.skin = skin;
         this.profession = profession;
         this.minLevel = minLevel;
-        this.maxLevel = maxLevel;
+        this.dependencies = dependencies;
         this.forced = forced;
         this.experience = experience;
         this.money = money;
@@ -57,8 +60,8 @@ public class Task implements INBTSerializable<CompoundNBT> {
         return minLevel;
     }
 
-    public int getMaxLevel() {
-        return maxLevel;
+    public List<UUID> getDependencies() {
+        return dependencies;
     }
 
     public int getExperience() {
@@ -116,7 +119,13 @@ public class Task implements INBTSerializable<CompoundNBT> {
         compound.putString("Profession", profession);
         compound.putBoolean("Forced", forced);
         compound.putInt("MinLevel", minLevel);
-        compound.putInt("MaxLevel", maxLevel);
+
+        ListNBT dependencyList = new ListNBT();
+        for (UUID dependency : dependencies) {
+            dependencyList.add(NBTUtil.func_240626_a_(dependency));
+        }
+        compound.put("Dependencies", dependencyList);
+
         compound.putInt("Experience", experience);
         compound.putInt("Money", money);
 
@@ -151,7 +160,13 @@ public class Task implements INBTSerializable<CompoundNBT> {
         profession = compound.getString("Profession");
         forced = compound.getBoolean("Forced");
         minLevel = compound.getInt("MinLevel");
-        maxLevel = compound.getInt("MaxLevel");
+
+        dependencies = new ArrayList<>();
+        ListNBT dependencyList = compound.getList("Dependencies", Constants.NBT.TAG_INT_ARRAY);
+        for (INBT inbt : dependencyList) {
+            dependencies.add(NBTUtil.readUniqueId(inbt));
+        }
+
         experience = compound.getInt("Experience");
         money = compound.getInt("Money");
 
