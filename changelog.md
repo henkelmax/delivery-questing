@@ -1,1 +1,1 @@
-- Added reward nbt
+- Fixed drone exploding on high altitudes

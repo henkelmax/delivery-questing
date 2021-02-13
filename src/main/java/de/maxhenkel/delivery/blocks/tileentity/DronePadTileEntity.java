@@ -132,7 +132,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public DroneEntity getDrone() {
         List<DroneEntity> drone = world.getEntitiesWithinAABB(
                 DroneEntity.class,
-                new AxisAlignedBB(getPos().getX() - 16, -16, getPos().getZ() - 16, getPos().getX() + 16, world.getHeight() + 16, getPos().getZ() + 16),
+                new AxisAlignedBB(getPos().getX() - 16, -16, getPos().getZ() - 16, getPos().getX() + 16, world.getHeight() + 256, getPos().getZ() + 16),
                 droneEntity -> droneEntity.getPadLocation().equals(getPos()) && (world.isRemote || droneEntity.getUniqueID().equals(droneID))
         );
         return drone.stream().findAny().orElse(null);
