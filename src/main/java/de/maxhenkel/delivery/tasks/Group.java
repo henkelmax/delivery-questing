@@ -11,6 +11,7 @@ import de.maxhenkel.delivery.items.ContractItem;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.items.SealedEnvelopeItem;
 import de.maxhenkel.delivery.net.MessageChallengeToast;
+import de.maxhenkel.delivery.net.MessageEMailToast;
 import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
@@ -196,6 +197,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public void addEMail(EMail eMail) {
         eMails.add(eMail);
+        MessageEMailToast msg = new MessageEMailToast(eMail);
+        forEachOnlineMember(player -> {
+            NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, msg);
+        });
     }
 
     @Nullable
@@ -345,7 +350,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return possibleTasks.get(Main.TASK_MANAGER.getRandom().nextInt(possibleTasks.size()));
     }
 
-    public boolean hasCompletedTask(UUID taskID){
+    public boolean hasCompletedTask(UUID taskID) {
         return completedTasks.stream().anyMatch(uuid -> uuid.equals(taskID));
     }
 

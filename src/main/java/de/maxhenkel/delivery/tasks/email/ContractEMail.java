@@ -58,7 +58,7 @@ public class ContractEMail extends EMail {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderIcon(MatrixStack matrixStack, Group group) {
+    public void renderIcon(MatrixStack matrixStack, @Nullable Group group) {
         if (icon == null && !iconLoading) {
             DummyPlayer.loadSkin(getTask().getSkin(), resourceLocation -> icon = resourceLocation);
             iconLoading = true;
@@ -72,7 +72,7 @@ public class ContractEMail extends EMail {
             AbstractGui.blit(matrixStack, 0, 0, 8, 8, 8, 8, 64, 64);
             AbstractGui.blit(matrixStack, 0, 0, 40, 8, 8, 8, 64, 64);
             matrixStack.pop();
-            if (!group.canAcceptTask(taskID)) {
+            if (group != null && !group.canAcceptTask(taskID)) {
                 Minecraft.getInstance().getTextureManager().bindTexture(ACCEPTED_TASK);
                 AbstractGui.blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
             }
