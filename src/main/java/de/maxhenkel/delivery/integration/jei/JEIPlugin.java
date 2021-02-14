@@ -3,11 +3,13 @@ package de.maxhenkel.delivery.integration.jei;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import mezz.jei.api.IModPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Arrays;
 
@@ -38,6 +40,18 @@ public class JEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(Main.OFFER_MANAGER.getOffers(), CATEGORY_MINAZON);
         registration.addRecipes(Arrays.asList(true, false), CATEGORY_ENERGY_LIQUIFYING);
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_1), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_1.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_2), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_2.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_3), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_3.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_4), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_4.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_5), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_5.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_6), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_6.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_1), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_1.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_2), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_2.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_3), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_3.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_4), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_4.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_5), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_5.description").getString());
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_6), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_6.description").getString());
     }
 
 }

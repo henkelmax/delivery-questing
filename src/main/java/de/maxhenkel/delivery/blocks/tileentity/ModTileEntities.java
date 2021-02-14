@@ -2,11 +2,13 @@ package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.ModBlocks;
+import de.maxhenkel.delivery.blocks.tileentity.render.BulletinBoardRenderer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 public class ModTileEntities {
 
@@ -70,7 +72,7 @@ public class ModTileEntities {
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
-
+        ClientRegistry.bindTileEntityRenderer(ModTileEntities.BULLETIN_BOARD, BulletinBoardRenderer::new);
     }
 
 }

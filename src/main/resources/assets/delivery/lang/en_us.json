@@ -123,5 +123,17 @@
   "jei.delivery.minazon": "Minazon",
   "jei.delivery.minazon_level": "Requires level %s",
   "jei.delivery.minazon_price": "for %s $",
-  "jei.delivery.energy_liquifying": "Energy Liquifying"
+  "jei.delivery.energy_liquifying": "Energy Liquifying",
+  "jei.delivery.barrel_tier_1.description": "This barrel can hold 1000 mB",
+  "jei.delivery.barrel_tier_2.description": "This barrel can hold 4000 mB",
+  "jei.delivery.barrel_tier_3.description": "This barrel can hold 16000 mB",
+  "jei.delivery.barrel_tier_4.description": "This barrel can hold 64000 mB",
+  "jei.delivery.barrel_tier_5.description": "This barrel can hold 256000 mB",
+  "jei.delivery.barrel_tier_6.description": "This barrel can hold 1024000 mB",
+  "jei.delivery.cardboard_box_tier_1.description": "This cardboard box can hold 1 stack",
+  "jei.delivery.cardboard_box_tier_2.description": "This cardboard box can hold 4 stacks",
+  "jei.delivery.cardboard_box_tier_3.description": "This cardboard box can hold 9 stacks",
+  "jei.delivery.cardboard_box_tier_4.description": "This cardboard box can hold 18 stacks",
+  "jei.delivery.cardboard_box_tier_5.description": "This cardboard box can hold 27 stacks",
+  "jei.delivery.cardboard_box_tier_6.description": "This cardboard box can hold 54 stacks"
 }

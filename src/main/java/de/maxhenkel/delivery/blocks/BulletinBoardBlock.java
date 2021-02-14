@@ -21,6 +21,8 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -63,9 +65,12 @@ public class BulletinBoardBlock extends HorizontalRotatableBlock implements IIte
             Block.makeCuboidShape(2D, 0D, 1D, 1D, 1D, 15D)
     ).build();
 
+    public static final IntegerProperty CONTRACTS = IntegerProperty.create("contracts", 0, 3);
+
     public BulletinBoardBlock() {
         super(Properties.create(Material.WOOD).sound(SoundType.WOOD).notSolid().hardnessAndResistance(1.5F));
         setRegistryName(new ResourceLocation(Main.MODID, "bulletin_board"));
+        setDefaultState(getDefaultState().with(CONTRACTS, 0));
     }
 
     @Override
@@ -118,6 +123,19 @@ public class BulletinBoardBlock extends HorizontalRotatableBlock implements IIte
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         return SHAPE.get(state.get(HorizontalRotatableBlock.FACING));
+    }
+
+    @Override
+    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+        super.fillStateContainer(builder);
+        builder.add(CONTRACTS);
+    }
+
+    @Override
+    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.isIn(newState.getBlock())) {
+            super.onReplaced(state, worldIn, pos, newState, isMoving);
+        }
     }
 
     @Override

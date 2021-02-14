@@ -1,1 +1,2 @@
-- Switch max level with dependencies
+- Added contract rendering on bulletin boards
+- Added JEI descriptions
