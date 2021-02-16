@@ -315,7 +315,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void generateMailboxTask() {
-        if (!hasTaskInMailbox() && getActiveTasks().getTasks().isEmpty()) {
+        if (!hasTaskInMailbox() && getActiveTasks().getTasks().size() < 3) {
             Task task = generateNewTask();
             if (task != null) {
                 addItemToInbox(SealedEnvelopeItem.createTask(task));
@@ -324,7 +324,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void generateEMailTask() {
-        if (getUnacceptedTasksInEmails() < 3 && getActiveTasks().getTasks().size() < 3) {
+        if (getUnacceptedTasksInEmails() < 3 && getActiveTasks().getTasks().size() < 5) {
             Task task = generateNewTask();
             if (task != null) {
                 addEMail(new ContractEMail(task));

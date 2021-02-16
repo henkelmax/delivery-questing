@@ -63,7 +63,7 @@ public class OfferEMail extends EMail {
 
     public Offer getOffer() {
         if (offer == null) {
-            offer = Main.OFFER_MANAGER.getOffer(offerID);
+            offer = Main.OFFER_MANAGER.getOffer(offerID); // TODO check if not found
         }
         return offer;
     }
