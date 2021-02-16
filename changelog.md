@@ -1,3 +1,1 @@
-- Added contract rendering on bulletin boards
-- Added JEI descriptions
-- Added E-Mail toasts
+- Increased earlygame contract limit
