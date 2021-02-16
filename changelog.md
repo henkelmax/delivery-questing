@@ -1,1 +1,1 @@
-- Increased earlygame contract limit
+- Added upgrade base recipe
