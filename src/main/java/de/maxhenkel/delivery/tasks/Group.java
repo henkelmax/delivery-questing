@@ -84,7 +84,9 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void addTask(UUID taskID) {
-        tasks.add(new TaskProgress(taskID));
+        if (canAcceptTask(taskID)) {
+            tasks.add(new TaskProgress(taskID));
+        }
     }
 
     public List<UUID> getCompletedTasks() {
