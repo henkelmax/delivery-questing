@@ -38,6 +38,11 @@ public class ContractEMail extends EMail {
     }
 
     @Override
+    public boolean isValid() {
+        return getTask() != null;
+    }
+
+    @Override
     public IFormattableTextComponent getTitle() {
         return new StringTextComponent(getTask().getName());
     }

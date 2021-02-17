@@ -1,1 +1,2 @@
-- Added upgrade base and drone pad recipe
+- Fixed crash when removing tasks or offers
+- Fixed sealed item unpack bug

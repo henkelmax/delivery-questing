@@ -34,6 +34,11 @@ public class OfferEMail extends EMail {
     }
 
     @Override
+    public boolean isValid() {
+        return getOffer() != null;
+    }
+
+    @Override
     public IFormattableTextComponent getTitle() {
         return new TranslationTextComponent("message.delivery.now_available", getOffer().getStack().getDisplayName());
     }
@@ -63,7 +68,7 @@ public class OfferEMail extends EMail {
 
     public Offer getOffer() {
         if (offer == null) {
-            offer = Main.OFFER_MANAGER.getOffer(offerID); // TODO check if not found
+            offer = Main.OFFER_MANAGER.getOffer(offerID);
         }
         return offer;
     }

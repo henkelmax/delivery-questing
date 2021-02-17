@@ -33,7 +33,9 @@ public class MessageEMailToast implements Message<MessageEMailToast> {
 
     @OnlyIn(Dist.CLIENT)
     private void runClient() {
-        Minecraft.getInstance().getToastGui().add(new EMailToast(eMail));
+        if (eMail != null) {
+            Minecraft.getInstance().getToastGui().add(new EMailToast(eMail));
+        }
     }
 
     @Override

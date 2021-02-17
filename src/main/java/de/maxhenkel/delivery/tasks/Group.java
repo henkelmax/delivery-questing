@@ -649,7 +649,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ListNBT emailList = compound.getList("EMails", 10);
         this.eMails = new ArrayList<>();
         for (int i = 0; i < emailList.size(); i++) {
-            this.eMails.add(EMail.deserialize(emailList.getCompound(i)));
+            EMail mail = EMail.deserialize(emailList.getCompound(i));
+            if (mail != null) {
+                this.eMails.add(mail);
+            }
         }
     }
 }
