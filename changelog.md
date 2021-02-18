@@ -1,2 +1,1 @@
-- Fixed crash when removing tasks or offers
-- Fixed sealed item unpack bug
+- Added offers for every member

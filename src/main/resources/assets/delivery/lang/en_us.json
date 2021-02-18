@@ -75,6 +75,7 @@
   "message.delivery.click_to_view_contract": "Click to view Contract",
   "message.delivery.computer_level_required": "You need to be level %s to use the computer",
   "message.delivery.new_mail": "New E-Mail",
+  "message.delivery.for_every_member": "For every member",
   "tooltip.delivery.energy": "%s FE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%s mb",

@@ -304,13 +304,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
         NonNullList<ItemStack> items = NonNullList.create();
 
-        if (stack.getCount() > stack.getMaxStackSize()) {
-            while (!stack.isEmpty()) {
-                items.add(stack.split(stack.getMaxStackSize()));
+        int count = offer.isForEveryMember() ? members.size() : 1;
+
+        for (int i = 0; i < count; i++) {
+            ItemStack s = stack.copy();
+            if (s.getCount() > s.getMaxStackSize()) {
+                while (!s.isEmpty()) {
+                    items.add(s.split(s.getMaxStackSize()));
+                }
+            } else {
+                items.add(s);
             }
-        } else {
-            items.add(stack);
         }
+
         ModItems.SEALED_PARCEL.setContents(parcel, items);
         ModItems.SEALED_PARCEL.setSender(parcel, new TranslationTextComponent("tooltip.delivery.minazon"));
         addPendingDelivery(parcel);

@@ -16,13 +16,15 @@ public class Offer implements INBTSerializable<CompoundNBT> {
     private int amount;
     private int price;
     private int levelRequirement;
+    private boolean forEveryMember;
 
-    public Offer(UUID id, net.minecraft.item.Item item, int amount, int price, int levelRequirement) {
+    public Offer(UUID id, net.minecraft.item.Item item, int amount, int price, int levelRequirement, boolean forEveryMember) {
         this.id = id;
         this.item = item;
         this.amount = amount;
         this.price = price;
         this.levelRequirement = levelRequirement;
+        this.forEveryMember = forEveryMember;
     }
 
     public Offer() {
@@ -53,6 +55,10 @@ public class Offer implements INBTSerializable<CompoundNBT> {
         return id;
     }
 
+    public boolean isForEveryMember() {
+        return forEveryMember;
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
@@ -62,6 +68,7 @@ public class Offer implements INBTSerializable<CompoundNBT> {
         compound.putInt("Amount", amount);
         compound.putInt("Price", price);
         compound.putInt("LevelRequirement", levelRequirement);
+        compound.putBoolean("ForEveryMember", forEveryMember);
         return compound;
     }
 
@@ -72,5 +79,6 @@ public class Offer implements INBTSerializable<CompoundNBT> {
         amount = compound.getInt("Amount");
         price = compound.getInt("Price");
         levelRequirement = compound.getInt("LevelRequirement");
+        forEveryMember = compound.getBoolean("ForEveryMember");
     }
 }
