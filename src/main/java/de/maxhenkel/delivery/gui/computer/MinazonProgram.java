@@ -68,7 +68,9 @@ public class MinazonProgram extends ComputerProgram {
             List<ITextComponent> tooltipFromItem = mc.currentScreen.getTooltipFromItem(offer.getStack());
             tooltipFromItem.set(0, new TranslationTextComponent("message.delivery.item_amount", tooltipFromItem.get(0), offer.getStack().getCount()));
             tooltipFromItem.add(1, new TranslationTextComponent("message.delivery.price", offer.getPrice()).mergeStyle(TextFormatting.GRAY));
-            tooltipFromItem.add(2, new TranslationTextComponent("message.delivery.for_every_member").mergeStyle(TextFormatting.DARK_GREEN));
+            if (offer.isForEveryMember()) {
+                tooltipFromItem.add(2, new TranslationTextComponent("message.delivery.for_every_member").mergeStyle(TextFormatting.DARK_GREEN));
+            }
             if (offer.getPrice() > getContainer().getBalance()) {
                 tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_balance").mergeStyle(TextFormatting.DARK_RED));
             }

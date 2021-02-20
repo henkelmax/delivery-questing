@@ -1,2 +1,1 @@
-- Fixed cardboard box slot order
-- Fixed packager not working correctly
+- Fixed for every member tooltip
