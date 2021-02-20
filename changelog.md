@@ -1,1 +1,2 @@
-- Fixed for every member tooltip
+- Fixed emails disappearing
+- Fixed duplication glitch with cardboard boxes

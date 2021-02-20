@@ -1,14 +1,13 @@
 package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.delivery.Tier;
+import de.maxhenkel.delivery.blocks.tileentity.CardboradBoxTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
 
 public class CardboardBoxContainerTier5 extends CardboardBoxContainer {
 
-    public CardboardBoxContainerTier5(int id, PlayerInventory playerInventory, IInventory inventory) {
-        super(Containers.CARDBOARD_TIER_5_CONTAINER, id, playerInventory, inventory, Tier.TIER_5);
+    public CardboardBoxContainerTier5(int id, PlayerInventory playerInventory, CardboradBoxTileEntity cardboadBox) {
+        super(Containers.CARDBOARD_TIER_5_CONTAINER, id, playerInventory, cardboadBox, Tier.TIER_5);
 
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 9; i++) {
@@ -17,10 +16,6 @@ public class CardboardBoxContainerTier5 extends CardboardBoxContainer {
         }
 
         addPlayerInventorySlots();
-    }
-
-    public CardboardBoxContainerTier5(int id, PlayerInventory playerInventory) {
-        this(id, playerInventory, new Inventory(27));
     }
 
     @Override

@@ -51,27 +51,27 @@ public class Containers {
     }
 
     public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-        CARDBOARD_TIER_1_CONTAINER = new ContainerType<>(CardboardBoxContainerTier1::new);
+        CARDBOARD_TIER_1_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier1::new));
         CARDBOARD_TIER_1_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_1"));
         event.getRegistry().register(CARDBOARD_TIER_1_CONTAINER);
 
-        CARDBOARD_TIER_2_CONTAINER = new ContainerType<>(CardboardBoxContainerTier2::new);
+        CARDBOARD_TIER_2_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier2::new));
         CARDBOARD_TIER_2_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_2"));
         event.getRegistry().register(CARDBOARD_TIER_2_CONTAINER);
 
-        CARDBOARD_TIER_3_CONTAINER = new ContainerType<>(CardboardBoxContainerTier3::new);
+        CARDBOARD_TIER_3_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier3::new));
         CARDBOARD_TIER_3_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_3"));
         event.getRegistry().register(CARDBOARD_TIER_3_CONTAINER);
 
-        CARDBOARD_TIER_4_CONTAINER = new ContainerType<>(CardboardBoxContainerTier4::new);
+        CARDBOARD_TIER_4_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier4::new));
         CARDBOARD_TIER_4_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_4"));
         event.getRegistry().register(CARDBOARD_TIER_4_CONTAINER);
 
-        CARDBOARD_TIER_5_CONTAINER = new ContainerType<>(CardboardBoxContainerTier5::new);
+        CARDBOARD_TIER_5_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier5::new));
         CARDBOARD_TIER_5_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_5"));
         event.getRegistry().register(CARDBOARD_TIER_5_CONTAINER);
 
-        CARDBOARD_TIER_6_CONTAINER = new ContainerType<>(CardboardBoxContainerTier6::new);
+        CARDBOARD_TIER_6_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier6::new));
         CARDBOARD_TIER_6_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_6"));
         event.getRegistry().register(CARDBOARD_TIER_6_CONTAINER);
 

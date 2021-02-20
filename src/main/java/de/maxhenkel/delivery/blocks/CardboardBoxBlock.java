@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
+import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.ITiered;
 import de.maxhenkel.delivery.Main;
@@ -15,8 +16,6 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -82,52 +81,22 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
 
         switch (tier) {
             case TIER_1:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier1(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier1(i, playerInventory, cardboardBox));
                 break;
             case TIER_2:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier2(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier2(i, playerInventory, cardboardBox));
                 break;
             case TIER_3:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier3(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier3(i, playerInventory, cardboardBox));
                 break;
             case TIER_4:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier4(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier4(i, playerInventory, cardboardBox));
                 break;
             case TIER_5:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier5(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier5(i, playerInventory, cardboardBox));
                 break;
             case TIER_6:
-                player.openContainer(new BlockContainerProvider(this) {
-                    @Override
-                    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                        return new CardboardBoxContainerTier6(id, inventory, cardboardBox.getInventory());
-                    }
-                });
+                TileEntityContainerProvider.openGui(player, cardboardBox, (i, playerInventory, playerEntity) -> new CardboardBoxContainerTier6(i, playerInventory, cardboardBox));
                 break;
         }
         return ActionResultType.SUCCESS;
