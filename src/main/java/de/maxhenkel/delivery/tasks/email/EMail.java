@@ -70,9 +70,6 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
         try {
             EMail eMail = mailClass.newInstance();
             eMail.deserializeNBT(compound);
-            if (!eMail.isValid()) {
-                return null;
-            }
             return eMail;
         } catch (Exception e) {
             return null;

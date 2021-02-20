@@ -1,2 +1,1 @@
-- Fixed emails disappearing
-- Fixed duplication glitch with cardboard boxes
+- Fixed crash on servers

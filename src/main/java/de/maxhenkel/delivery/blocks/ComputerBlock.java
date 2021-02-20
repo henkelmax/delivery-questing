@@ -112,6 +112,7 @@ public class ComputerBlock extends HorizontalRotatableBlock implements IItemBloc
             ComputerTileEntity computer = (ComputerTileEntity) te;
 
             if (state.get(ON)) {
+                group.validateEMails();
                 GroupContainerProvider.openGui(p, computer, group, new TranslationTextComponent(getTranslationKey()), ComputerContainer::new);
             } else {
                 p.sendStatusMessage(new TranslationTextComponent("message.delivery.computer_no_power"), true);

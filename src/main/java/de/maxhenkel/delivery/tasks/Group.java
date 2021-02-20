@@ -210,6 +210,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
         return eMails.stream().filter(eMail -> eMail.getId().equals(mailID)).findAny().orElse(null);
     }
 
+    public void validateEMails() {
+        eMails.removeIf(eMail -> !eMail.isValid());
+    }
+
     public void markEMailRead(UUID mailID) {
         EMail mail = getEMail(mailID);
         if (mail != null) {

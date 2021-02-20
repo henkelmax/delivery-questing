@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -88,17 +89,6 @@ public class Main {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup);
             FMLJavaModLoadingContext.get().getModEventBus().addListener(StitchEvents::onStitch);
         });
-
-        try {
-            TASK_MANAGER = TaskManager.load();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load tasks", e);
-        }
-        try {
-            OFFER_MANAGER = OfferManager.load();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load offers", e);
-        }
     }
 
     @SubscribeEvent
@@ -121,6 +111,20 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 9, MessageEMailToast.class);
 
         CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
+    }
+
+    @SubscribeEvent
+    public void serverStarting(FMLServerStartingEvent event) {
+        try {
+            TASK_MANAGER = TaskManager.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load tasks", e);
+        }
+        try {
+            OFFER_MANAGER = OfferManager.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load offers", e);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
