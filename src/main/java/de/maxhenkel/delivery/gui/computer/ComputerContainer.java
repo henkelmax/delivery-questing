@@ -36,8 +36,10 @@ public class ComputerContainer extends ContainerBase {
                     try {
                         Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
                         if (index == 0) {
-                            return (int) playerGroup.getBalance() + 1;
+                            return (int) (playerGroup.getBalance() & 0xFFFF);
                         } else if (index == 1) {
+                            return (int) playerGroup.getBalance() >> 16;
+                        } else if (index == 2) {
                             return (int) playerGroup.getLevel() + 1;
                         }
                     } catch (Exception e) {
@@ -50,15 +52,17 @@ public class ComputerContainer extends ContainerBase {
             @Override
             public void set(int index, int value) {
                 if (index == 0) {
-                    balance = value - 1;
+                    balance = (balance & 0xFFFF0000) | value;
                 } else if (index == 1) {
+                    balance = (balance & 0x0000FFFF) | value << 16;
+                } else if (index == 2) {
                     level = value - 1;
                 }
             }
 
             @Override
             public int size() {
-                return 2;
+                return 3;
             }
         });
     }

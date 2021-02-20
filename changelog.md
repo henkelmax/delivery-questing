@@ -1,1 +1,1 @@
-- Added offers for every member
+- Fixed balance not displaying correctly when over 30k
