@@ -50,7 +50,7 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
     public NonNullList<ItemStack> getItems(ItemStack stack) {
         ItemStack content = getContent(stack);
         if (content.isEmpty()) {
-            return NonNullList.create();
+            return NonNullList.withSize(1, ItemStack.EMPTY);
         }
         return NonNullList.from(ItemStack.EMPTY, content);
     }

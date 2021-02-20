@@ -1,1 +1,2 @@
-- Fixed balance not displaying correctly when over 30k
+- Fixed cardboard box slot order
+- Fixed packager not working correctly

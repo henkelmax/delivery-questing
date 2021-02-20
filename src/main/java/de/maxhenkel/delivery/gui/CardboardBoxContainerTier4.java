@@ -10,8 +10,8 @@ public class CardboardBoxContainerTier4 extends CardboardBoxContainer {
     public CardboardBoxContainerTier4(int id, PlayerInventory playerInventory, IInventory inventory) {
         super(Containers.CARDBOARD_TIER_4_CONTAINER, id, playerInventory, inventory, Tier.TIER_4);
 
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 2; j++) {
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < 9; i++) {
                 addSlot(new NonRecursiveSlot(inventory, i + j * 9, 8 + i * 18, 20 + j * 18));
             }
         }

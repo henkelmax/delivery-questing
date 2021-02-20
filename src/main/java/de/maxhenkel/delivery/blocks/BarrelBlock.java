@@ -105,11 +105,11 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public NonNullList<FluidStack> getFluids(ItemStack stack) {
-        NonNullList<FluidStack> fluids = NonNullList.create();
+        NonNullList<FluidStack> fluids = NonNullList.withSize(1, FluidStack.EMPTY);
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
         if (blockEntityTag != null) {
             FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
-            fluids.add(tank.getFluid());
+            fluids.set(0, tank.getFluid());
         }
         return fluids;
     }

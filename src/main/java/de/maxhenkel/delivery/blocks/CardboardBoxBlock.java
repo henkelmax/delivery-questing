@@ -140,13 +140,12 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
 
     @Override
     public NonNullList<ItemStack> getItems(ItemStack stack) {
+        NonNullList<ItemStack> inv = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
         CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
         if (blockEntityTag != null) {
-            NonNullList<ItemStack> inv = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
             ItemUtils.readInventory(blockEntityTag, "Items", inv);
-            return inv;
         }
-        return NonNullList.create();
+        return inv;
     }
 
     @Override
