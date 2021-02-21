@@ -7,7 +7,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.maxhenkel.corelib.helpers.AbstractStack;
 import de.maxhenkel.corelib.helpers.WrappedItemStack;
 import de.maxhenkel.corelib.tag.TagUtils;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.tags.ITag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +28,11 @@ public class ItemElement extends TaskElement<net.minecraft.item.Item> {
     @Override
     protected ITag.INamedTag<net.minecraft.item.Item> getTag(String tag) {
         return TagUtils.getItem(tag, true);
+    }
+
+    @Override
+    protected Item getDefault() {
+        return Items.AIR;
     }
 
     @OnlyIn(Dist.CLIENT)

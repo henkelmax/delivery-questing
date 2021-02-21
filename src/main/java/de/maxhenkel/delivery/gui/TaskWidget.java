@@ -154,7 +154,7 @@ public class TaskWidget extends Widget {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
                     List<ITextComponent> tooltip = abstractStack.getTooltip(mc.currentScreen);
 
-                    if (!(element.item.getItem() instanceof SingleElementTag)) {
+                    if (element.item.getItem() != null && !(element.item.getItem() instanceof SingleElementTag)) {
                         tooltip.add(new TranslationTextComponent("tooltip.delivery.tag", element.item.getItem().getName().toString()));
                     }
                     mc.currentScreen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);

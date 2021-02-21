@@ -15,6 +15,7 @@ import java.util.List;
 public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
 
     protected String tag;
+    @Nullable
     protected ITag.INamedTag<T> item;
     protected long amount;
     @Nullable
@@ -34,6 +35,7 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
         return tag;
     }
 
+    @Nullable
     public ITag.INamedTag<T> getItem() {
         return item;
     }
@@ -45,12 +47,17 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
     @Nullable
     protected abstract ITag.INamedTag<T> getTag(String tag);
 
+    protected abstract T getDefault();
+
     @OnlyIn(Dist.CLIENT)
     public abstract AbstractStack<?> getAbstractStack();
 
     @OnlyIn(Dist.CLIENT)
     public T getCurrentDisplayedElement() {
         long time = Minecraft.getInstance().world.getGameTime();
+        if (item == null) {
+            return getDefault();
+        }
         List<T> allElements = item.getAllElements();
         return allElements.get((int) (time / 20L % allElements.size()));
     }

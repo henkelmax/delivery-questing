@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import de.maxhenkel.corelib.helpers.AbstractStack;
 import de.maxhenkel.corelib.helpers.WrappedFluidStack;
 import de.maxhenkel.corelib.tag.TagUtils;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.ITag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,6 +28,11 @@ public class FluidElement extends TaskElement<net.minecraft.fluid.Fluid> {
     @Nullable
     protected ITag.INamedTag<net.minecraft.fluid.Fluid> getTag(String tag) {
         return TagUtils.getFluid(tag, true);
+    }
+
+    @Override
+    protected Fluid getDefault() {
+        return Fluids.EMPTY;
     }
 
     @OnlyIn(Dist.CLIENT)

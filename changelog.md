@@ -1,1 +1,1 @@
-- Fixed crash on servers
+- Fixed nullpointer exception when adding non existent items
