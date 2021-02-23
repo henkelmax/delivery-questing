@@ -161,7 +161,7 @@ public class GroupCommand {
         literalBuilder.then(Commands.literal("showtask").then(Commands.argument("taskid", UUIDArgument.func_239194_a_()).executes(context -> {
             ServerPlayerEntity player = context.getSource().asPlayer();
             UUID taskID = UUIDArgument.func_239195_a_(context, "taskid");
-            Task task = Main.TASK_MANAGER.getTask(taskID);
+            Task task = Main.TASK_MANAGER.getTask(taskID, 0);
 
             if (task == null) {
                 throw new CommandException(new TranslationTextComponent("command.delivery.task_not_found"));

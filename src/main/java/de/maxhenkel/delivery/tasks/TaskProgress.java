@@ -15,11 +15,13 @@ import java.util.UUID;
 public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
     private UUID taskID;
+    private long experienceStarted;
     private List<ItemStack> taskItems;
     private List<FluidStack> taskFluids;
 
-    public TaskProgress(UUID taskID) {
+    public TaskProgress(UUID taskID, long experienceStarted) {
         this.taskID = taskID;
+        this.experienceStarted = experienceStarted;
         taskItems = new ArrayList<>();
         taskFluids = new ArrayList<>();
     }
@@ -32,6 +34,10 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         return taskID;
     }
 
+    public long getExperienceStarted() {
+        return experienceStarted;
+    }
+
     public List<ItemStack> getTaskItems() {
         return taskItems;
     }
@@ -42,7 +48,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
     @Nullable
     public Task findTask() {
-        return Main.TASK_MANAGER.getTask(taskID);
+        return Main.TASK_MANAGER.getTask(taskID, (int) Group.getLevel(experienceStarted));
     }
 
     @Override
@@ -50,6 +56,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         CompoundNBT compound = new CompoundNBT();
 
         compound.putUniqueId("ID", taskID);
+        compound.putLong("ExperienceStarted", experienceStarted);
 
         ListNBT taskList = new ListNBT();
         for (ItemStack item : taskItems) {
@@ -69,6 +76,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     @Override
     public void deserializeNBT(CompoundNBT compound) {
         taskID = compound.getUniqueId("ID");
+        experienceStarted = compound.getLong("ExperienceStarted");
 
         ListNBT taskList = compound.getList("TaskItems", 10);
         this.taskItems = new ArrayList<>();

@@ -28,13 +28,14 @@ public class ContractEMail extends EMail {
     private ResourceLocation icon;
     private boolean iconLoading;
 
-    public ContractEMail(Task task) {
+    public ContractEMail(Group group, Task task) {
+        super(group);
         this.taskID = task.getId();
         this.task = task;
     }
 
-    public ContractEMail() {
-
+    public ContractEMail(Group group) {
+        super(group);
     }
 
     @Override
@@ -86,7 +87,7 @@ public class ContractEMail extends EMail {
 
     private Task getTask() {
         if (task == null) {
-            task = Main.TASK_MANAGER.getTask(taskID);
+            task = Main.TASK_MANAGER.getTask(taskID, group);
         }
         return task;
     }

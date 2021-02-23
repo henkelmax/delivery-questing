@@ -21,11 +21,13 @@ import java.util.UUID;
 public class TaskManager implements INBTSerializable<CompoundNBT> {
 
     private List<Task> tasks;
+    private List<EndGameTask> endgameTasks;
     private final Random random;
 
-    public TaskManager(List<Task> tasks) {
+    public TaskManager(List<Task> tasks, List<EndGameTask> endgameTasks) {
         this();
         this.tasks = tasks;
+        this.endgameTasks = endgameTasks;
     }
 
     public TaskManager() {
@@ -36,9 +38,32 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
         return tasks;
     }
 
+    public List<EndGameTask> getEndgameTasks() {
+        return endgameTasks;
+    }
+
+    public boolean isEndgameTask(UUID taskID) {
+        return endgameTasks.stream().anyMatch(endGameTask -> endGameTask.getId().equals(taskID));
+    }
+
     @Nullable
-    public Task getTask(UUID uuid) {
-        return tasks.stream().filter(task -> task.getId().equals(uuid)).findAny().orElse(null);
+    public Task getTask(UUID uuid, Group group) {
+        return getTask(uuid, group.getEndgameTaskLevel(uuid));
+    }
+
+    @Nullable
+    public Task getTask(UUID uuid, int level) {
+        return tasks
+                .stream()
+                .filter(task -> task.getId().equals(uuid))
+                .findAny()
+                .orElse(endgameTasks
+                        .stream()
+                        .filter(task -> task.getId().equals(uuid))
+                        .map(endGameTask -> endGameTask.toTask(level))
+                        .findAny()
+                        .orElse(null)
+                );
     }
 
     public static TaskManager load() throws IOException {
@@ -47,7 +72,7 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
         if (!tasks.toFile().exists()) {
             Main.LOGGER.warn("Could not find tasks.json");
             Main.LOGGER.warn("Continuing with empty tasks");
-            return new TaskManager(new ArrayList<>());
+            return new TaskManager(new ArrayList<>(), new ArrayList<>());
         }
 
         Gson customGson = Deserializers.getGson();
@@ -76,6 +101,12 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
         }
         compound.put("Tasks", taskList);
 
+        ListNBT endgameTaskList = new ListNBT();
+        for (EndGameTask task : endgameTasks) {
+            endgameTaskList.add(task.serializeNBT());
+        }
+        compound.put("EndgameTasks", endgameTaskList);
+
         return compound;
     }
 
@@ -87,6 +118,14 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
             Task task = new Task();
             task.deserializeNBT(taskList.getCompound(i));
             this.tasks.add(task);
+        }
+
+        ListNBT endgameTaskList = compound.getList("EndgameTasks", 10);
+        this.endgameTasks = new ArrayList<>();
+        for (int i = 0; i < endgameTaskList.size(); i++) {
+            EndGameTask task = new EndGameTask();
+            task.deserializeNBT(endgameTaskList.getCompound(i));
+            this.endgameTasks.add(task);
         }
     }
 

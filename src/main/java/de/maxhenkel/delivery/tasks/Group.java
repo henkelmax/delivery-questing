@@ -16,6 +16,7 @@ import de.maxhenkel.delivery.net.MessageTaskCompletedToast;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
 import de.maxhenkel.delivery.tasks.email.OfferEMail;
+import de.maxhenkel.delivery.tasks.email.QuestsFinishedEMail;
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -55,11 +56,16 @@ public class Group implements INBTSerializable<CompoundNBT> {
     private NonNullList<ItemStack> pendingInbox;
     private NonNullList<ItemStack> pendingDeliveries;
     private List<EMail> eMails;
+    private boolean isInEndgame;
 
     public Group(String name, String password) {
-        this.id = UUID.randomUUID();
+        this();
         this.name = name;
         this.password = password;
+    }
+
+    public Group() {
+        this.id = UUID.randomUUID();
         this.members = new ArrayList<>();
         this.tasks = new ArrayList<>();
         this.completedTasks = new ArrayList<>();
@@ -69,10 +75,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         this.pendingInbox = NonNullList.create();
         this.pendingDeliveries = NonNullList.create();
         this.eMails = new ArrayList<>();
-    }
-
-    public Group() {
-
+        this.isInEndgame = false;
     }
 
     public UUID getId() {
@@ -85,7 +88,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public void addTask(UUID taskID) {
         if (canAcceptTask(taskID)) {
-            tasks.add(new TaskProgress(taskID));
+            tasks.add(new TaskProgress(taskID, experience));
         }
     }
 
@@ -173,7 +176,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         if (levelAfter > levelBefore) {
             List<Offer> newOffers = Main.OFFER_MANAGER.getNewOffers(levelBefore + 1, levelAfter);
-            newOffers.forEach(offer -> addEMail(new OfferEMail(offer)));
+            newOffers.forEach(offer -> addEMail(new OfferEMail(this, offer)));
         }
     }
 
@@ -254,7 +257,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public ActiveTasks getActiveTasks() {
         List<ActiveTask> t = new ArrayList<>();
         for (TaskProgress taskProgress : tasks) {
-            Task task = Main.TASK_MANAGER.getTask(taskProgress.getTaskID());
+            Task task = Main.TASK_MANAGER.getTask(taskProgress.getTaskID(), (int) getLevel(taskProgress.getExperienceStarted()));
             if (task != null) {
                 t.add(new ActiveTask(task, taskProgress));
             }
@@ -263,13 +266,17 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick(MinecraftServer server) {
-        if (server.getTickCounter() % 1200 == 0 && getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
-            generateMailboxTask();
+        if (!isInEndgame) {
+            if (server.getTickCounter() % 1200 == 0 && getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
+                generateMailboxTask();
+            }
+            if (server.getTickCounter() % 3600 == 0 && getLevel() >= Main.SERVER_CONFIG.minComputerLevel.get()) {
+                generateEMailTask();
+            }
+        } else {
+            generateEndGameTask();
         }
 
-        if (server.getTickCounter() % 3600 == 0 && getLevel() >= Main.SERVER_CONFIG.minComputerLevel.get()) {
-            generateEMailTask();
-        }
 
         if (server.getWorld(World.OVERWORLD).getDayTime() % 24000 == 20) {
             pendingDeliveries.forEach(this::addItemToInbox);
@@ -339,9 +346,33 @@ public class Group implements INBTSerializable<CompoundNBT> {
         if (getUnacceptedTasksInEmails() < 3 && getActiveTasks().getTasks().size() < 5) {
             Task task = generateNewTask();
             if (task != null) {
-                addEMail(new ContractEMail(task));
+                addEMail(new ContractEMail(this, task));
             }
         }
+    }
+
+    public void generateEndGameTask() {
+        if (getUnacceptedTasksInEmails() < 1 && getActiveTasks().getTasks().size() < 3) {
+            Task task = generateNewEndgameTask();
+            if (task != null) {
+                addEMail(new ContractEMail(this, task));
+            }
+        }
+    }
+
+    @Nullable
+    public Task generateNewEndgameTask() {
+        List<EndGameTask> possibleTasks = Main.TASK_MANAGER.getEndgameTasks().stream()
+                .filter(task -> getActiveTasks().getTasks().stream().noneMatch(activeTask -> activeTask.getTask().getId().equals(task.getId()))) // Filter for accepted tasks
+                .filter(task -> getUnacceptedEmailTasks().noneMatch(uuid -> uuid.equals(task.getId()))) // Filter for unaccepted tasks in emails
+                .collect(Collectors.toList());
+
+        if (possibleTasks.isEmpty()) {
+            Main.LOGGER.warn("Could not find a new end game task for group '{}'", getName());
+            return null;
+        }
+
+        return possibleTasks.get(Main.TASK_MANAGER.getRandom().nextInt(possibleTasks.size())).toTask((int) getLevel());
     }
 
     @Nullable
@@ -451,7 +482,9 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public void onTaskCompleted(TaskProgress taskProgress) {
-        completedTasks.add(taskProgress.getTaskID());
+        if (!Main.TASK_MANAGER.isEndgameTask(taskProgress.getTaskID())) {
+            completedTasks.add(taskProgress.getTaskID());
+        }
 
         Task task = taskProgress.findTask();
 
@@ -470,6 +503,15 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         broadcastPacket(new MessageTaskCompletedToast(task));
+
+        if (!isInEndgame && areAllTasksCompleted()) {
+            addEMail(new QuestsFinishedEMail(this));
+            isInEndgame = true;
+        }
+    }
+
+    public boolean areAllTasksCompleted() {
+        return Main.TASK_MANAGER.getTasks().stream().allMatch(task -> hasCompletedTask(task.getId()));
     }
 
     public void broadcastPacket(Message<?> message) {
@@ -574,7 +616,15 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public float getLevel() {
+        return getLevel(experience);
+    }
+
+    public static float getLevel(long experience) {
         return (float) (Math.sqrt(0.2F * experience + 0.25F) - 0.5F);
+    }
+
+    public int getEndgameTaskLevel(UUID taskID) {
+        return getActiveTasks().getTasks().stream().filter(activeTask -> activeTask.getTask().getId().equals(taskID)).map(activeTask -> (int) Group.getLevel(activeTask.getTaskProgress().getExperienceStarted())).findAny().orElse((int) getLevel());
     }
 
     @Override
@@ -619,6 +669,8 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
         compound.put("EMails", eMailList);
 
+        compound.putBoolean("Endgame", isInEndgame);
+
         return compound;
     }
 
@@ -659,10 +711,12 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ListNBT emailList = compound.getList("EMails", 10);
         this.eMails = new ArrayList<>();
         for (int i = 0; i < emailList.size(); i++) {
-            EMail mail = EMail.deserialize(emailList.getCompound(i));
+            EMail mail = EMail.deserialize(emailList.getCompound(i), this);
             if (mail != null) {
                 this.eMails.add(mail);
             }
         }
+
+        this.isInEndgame = compound.getBoolean("Endgame");
     }
 }

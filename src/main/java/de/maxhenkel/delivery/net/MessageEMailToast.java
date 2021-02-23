@@ -1,6 +1,7 @@
 package de.maxhenkel.delivery.net;
 
 import de.maxhenkel.corelib.net.Message;
+import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.email.EMail;
 import de.maxhenkel.delivery.toast.EMailToast;
 import net.minecraft.client.Minecraft;
@@ -40,7 +41,7 @@ public class MessageEMailToast implements Message<MessageEMailToast> {
 
     @Override
     public MessageEMailToast fromBytes(PacketBuffer packetBuffer) {
-        eMail = EMail.deserialize(packetBuffer.readCompoundTag());
+        eMail = EMail.deserialize(packetBuffer.readCompoundTag(), new Group());
         return this;
     }
 

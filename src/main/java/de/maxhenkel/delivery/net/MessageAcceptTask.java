@@ -30,14 +30,12 @@ public class MessageAcceptTask implements Message<MessageAcceptTask> {
 
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
-        Task task = Main.TASK_MANAGER.getTask(this.task);
-
-        if (task == null) {
-            return;
-        }
-
         try {
             Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUniqueID());
+            Task task = Main.TASK_MANAGER.getTask(this.task, playerGroup);
+            if (task == null) {
+                return;
+            }
             playerGroup.addTask(task.getId());
             playerGroup.forEachOnlineMember(ModTriggers.ACCEPT_COMPUTER_CONTRACT_TRIGGER::trigger);
         } catch (Exception e) {

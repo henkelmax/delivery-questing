@@ -1,1 +1,1 @@
-- Fixed nullpointer exception when adding non existent items
+- Added endgame contracts

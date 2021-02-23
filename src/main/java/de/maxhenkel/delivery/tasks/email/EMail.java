@@ -15,10 +15,12 @@ import java.util.UUID;
 
 public abstract class EMail implements INBTSerializable<CompoundNBT> {
 
-    private UUID id;
-    private boolean read;
+    protected Group group;
+    protected UUID id;
+    protected boolean read;
 
-    public EMail() {
+    public EMail(Group group) {
+        this.group = group;
         id = UUID.randomUUID();
     }
 
@@ -61,14 +63,14 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    public static EMail deserialize(CompoundNBT compound) {
+    public static EMail deserialize(CompoundNBT compound, Group group) {
         byte id = compound.getByte("ID");
         Class<? extends EMail> mailClass = mailTypes.get(id);
         if (mailClass == null) {
             return null;
         }
         try {
-            EMail eMail = mailClass.newInstance();
+            EMail eMail = mailClass.getDeclaredConstructor(Group.class).newInstance(group);
             eMail.deserializeNBT(compound);
             return eMail;
         } catch (Exception e) {
@@ -82,6 +84,7 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
         mailTypes = new HashMap<>();
         mailTypes.put((byte) 0, ContractEMail.class);
         mailTypes.put((byte) 1, OfferEMail.class);
+        mailTypes.put((byte) 2, QuestsFinishedEMail.class);
     }
 
     private byte id() {

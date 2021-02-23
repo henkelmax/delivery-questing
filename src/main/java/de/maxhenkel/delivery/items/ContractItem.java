@@ -40,10 +40,7 @@ public class ContractItem extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity p, Hand handIn) {
         ItemStack stack = p.getHeldItem(handIn);
 
-        // TODO remove
         if (!stack.hasTag()) {
-            // setTask(stack, UUID.fromString("edb577e0-608e-11eb-ae93-0242ac130002"));
-            setTask(stack, UUID.fromString("2eed90ac-6090-11eb-ae93-0242ac130002"));
             return ActionResult.resultSuccess(stack);
         }
 
@@ -58,7 +55,14 @@ public class ContractItem extends Item {
             return ActionResult.resultSuccess(stack);
         }
 
-        Task task = Main.TASK_MANAGER.getTask(taskID);
+        int level;
+        try {
+            level = (int) Main.getProgression(player).getPlayerGroup(player.getUniqueID()).getLevel();
+        } catch (Exception e) {
+            level = 0;
+        }
+
+        Task task = Main.TASK_MANAGER.getTask(taskID, level);
 
         if (task == null) {
             return ActionResult.resultSuccess(stack);

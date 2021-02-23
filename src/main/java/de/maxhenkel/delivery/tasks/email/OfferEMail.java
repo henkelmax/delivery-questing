@@ -24,13 +24,14 @@ public class OfferEMail extends EMail {
     @Nullable
     private Offer offer;
 
-    public OfferEMail(Offer offer) {
+    public OfferEMail(Group group, Offer offer) {
+        super(group);
         this.offerID = offer.getId();
         this.offer = offer;
     }
 
-    public OfferEMail() {
-
+    public OfferEMail(Group group) {
+        super(group);
     }
 
     @Override

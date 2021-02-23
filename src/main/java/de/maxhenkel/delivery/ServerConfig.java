@@ -11,7 +11,7 @@ public class ServerConfig extends ConfigBase {
         super(builder);
         minComputerLevel = builder
                 .comment("The level when computers should be usable")
-                .defineInRange("computer.min_level", 10, 1, Integer.MAX_VALUE);
+                .defineInRange("computer.min_level", 10, 0, Integer.MAX_VALUE);
     }
 
 }

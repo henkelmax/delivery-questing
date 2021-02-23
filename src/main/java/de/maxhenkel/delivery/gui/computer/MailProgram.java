@@ -7,6 +7,7 @@ import de.maxhenkel.delivery.net.MessageMarkEMailRead;
 import de.maxhenkel.delivery.tasks.email.ContractEMail;
 import de.maxhenkel.delivery.tasks.email.EMail;
 import de.maxhenkel.delivery.tasks.email.OfferEMail;
+import de.maxhenkel.delivery.tasks.email.QuestsFinishedEMail;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
@@ -135,6 +136,8 @@ public class MailProgram extends ComputerProgram {
                 screen.setProgram(new ContractProgram(screen, this, ((ContractEMail) eMail).getTaskID()));
             } else if (eMail instanceof OfferEMail) {
                 screen.setProgram(new OfferMailProgram(screen, this, (OfferEMail) eMail));
+            } else if (eMail instanceof QuestsFinishedEMail) {
+                screen.setProgram(new QuestsFinishedMailProgram(screen, this, (QuestsFinishedEMail) eMail));
             }
             playClickSound();
             return true;

@@ -35,7 +35,8 @@ public class ContractProgram extends ComputerProgram {
     public ContractProgram(ComputerScreen screen, ComputerProgram parent, UUID taskID) {
         super(screen);
         this.parent = parent;
-        task = Main.TASK_MANAGER.getTask(taskID);
+
+        task = Main.TASK_MANAGER.getTask(taskID, getContainer().getGroup());
 
         if (task == null) {
             screen.setProgram(this.parent);
