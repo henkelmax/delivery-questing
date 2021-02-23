@@ -1,1 +1,1 @@
-- Added endgame contracts
+- Fixed endgame contract amounts

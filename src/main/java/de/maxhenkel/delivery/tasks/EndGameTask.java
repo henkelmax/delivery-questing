@@ -132,7 +132,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
     private long calculateAmount(long amount, int level) {
         int offsetLevel = Math.max(level - base, 0);
         int mul = offsetLevel / Math.max(offset, 1);
-        return Math.max((long) ((double) amount * ((double) mul * multiplier)), amount);
+        return Math.max((long) Math.pow(multiplier, mul) * amount, amount);
     }
 
     @Override
