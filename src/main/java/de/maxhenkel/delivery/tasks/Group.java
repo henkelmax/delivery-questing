@@ -89,6 +89,15 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public void addTask(UUID taskID) {
         if (canAcceptTask(taskID)) {
             tasks.add(new TaskProgress(taskID, experience));
+            if (Main.TASK_MANAGER.isEndgameTask(taskID)) {
+                eMails.removeIf(eMail -> {
+                    if (!(eMail instanceof ContractEMail)) {
+                        return false;
+                    }
+                    ContractEMail contractEMail = (ContractEMail) eMail;
+                    return contractEMail.getTaskID().equals(taskID);
+                });
+            }
         }
     }
 
@@ -274,9 +283,10 @@ public class Group implements INBTSerializable<CompoundNBT> {
                 generateEMailTask();
             }
         } else {
-            generateEndGameTask();
+            if (server.getTickCounter() % 3600 == 0) {
+                generateEndGameTask();
+            }
         }
-
 
         if (server.getWorld(World.OVERWORLD).getDayTime() % 24000 == 20) {
             pendingDeliveries.forEach(this::addItemToInbox);

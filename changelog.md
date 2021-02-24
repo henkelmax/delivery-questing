@@ -1,1 +1,1 @@
-- Fixed endgame contract amounts
+- Fixed endgame contract emails
