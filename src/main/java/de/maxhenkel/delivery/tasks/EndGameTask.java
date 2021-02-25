@@ -5,14 +5,13 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EndGameTask implements INBTSerializable<CompoundNBT> {
 
@@ -99,16 +98,14 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
                 SingleElementTag<Item> tag = (SingleElementTag<Item>) items.get(0).item;
                 name = new TranslationTextComponent(tag.getElement().getTranslationKey()).getString();
             } else {
-                String[] split = items.get(0).item.getName().getPath().split("/");
-                name = capitalize(split[split.length - 1]);
+                name = localize(items.get(0).item.getName());
             }
         } else if (!fluids.isEmpty()) {
             if (fluids.get(0).item instanceof SingleElementTag) {
                 SingleElementTag<Fluid> tag = (SingleElementTag<Fluid>) fluids.get(0).item;
                 name = new TranslationTextComponent(new FluidStack(tag.getElement(), 1000).getTranslationKey()).getString();
             } else {
-                String[] split = fluids.get(0).item.getName().getPath().split("/");
-                name = capitalize(split[split.length - 1]);
+                name = localize(fluids.get(0).item.getName());
             }
         }
 
@@ -125,6 +122,12 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
         return new Task(id, name, "", contractorName, skin, profession, 0, new ArrayList<>(), false, experience, money, weightedItems, weightedFluids, new ArrayList<>());
     }
 
+    private String localize(ResourceLocation location) {
+        String[] split = location.getPath().split("/");
+        String str = split[split.length - 1];
+        return Arrays.stream(str.split("_")).map(this::capitalize).collect(Collectors.joining(" "));
+    }
+
     private String capitalize(String str) {
         return String.valueOf(str.charAt(0)).toUpperCase(Locale.ROOT) + str.substring(1);
     }
@@ -132,7 +135,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
     private long calculateAmount(long amount, int level) {
         int offsetLevel = Math.max(level - base, 0);
         int mul = offsetLevel / Math.max(offset, 1);
-        return Math.max((long) Math.pow(multiplier, mul) * amount, amount);
+        return Math.max((long) (Math.pow(multiplier, mul) * (double) amount), amount);
     }
 
     @Override

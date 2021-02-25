@@ -17,7 +17,7 @@ public class ModEntities {
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         DRONE = CommonRegistry.registerEntity(Main.MODID, "drone", EntityClassification.MISC, DroneEntity.class, builder -> {
             builder
-                    .setTrackingRange(128)
+                    .setTrackingRange(256)
                     .setUpdateInterval(1)
                     .setShouldReceiveVelocityUpdates(true)
                     .size(12F / 16F, 0.25F)
