@@ -1,5 +1,6 @@
 package de.maxhenkel.delivery.tasks;
 
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -46,6 +47,31 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         return taskFluids;
     }
 
+    public void add(ItemStack stack) {
+        for (int i = 0; i < taskItems.size(); i++) {
+            ItemStack s = taskItems.get(i);
+            if (ItemUtils.isStackable(stack, s)) {
+                s.setCount(s.getCount() + stack.getCount());
+                taskItems.set(i, s);
+                return;
+            }
+        }
+
+        taskItems.add(stack);
+    }
+
+    public void add(FluidStack stack) {
+        for (int i = 0; i < taskFluids.size(); i++) {
+            FluidStack s = taskFluids.get(i);
+            if (s.isFluidEqual(stack)) {
+                s.setAmount(s.getAmount() + stack.getAmount());
+                taskFluids.set(i, s);
+                return;
+            }
+        }
+        taskFluids.add(stack);
+    }
+
     @Nullable
     public Task findTask() {
         return Main.TASK_MANAGER.getTask(taskID, (int) Group.getLevel(experienceStarted));
@@ -60,7 +86,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
         ListNBT taskList = new ListNBT();
         for (ItemStack item : taskItems) {
-            taskList.add(item.write(new CompoundNBT()));
+            taskList.add(ItemUtils.writeOverstackedItem(new CompoundNBT(), item));
         }
         compound.put("TaskItems", taskList);
 
@@ -81,7 +107,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         ListNBT taskList = compound.getList("TaskItems", 10);
         this.taskItems = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
-            ItemStack stack = ItemStack.read(taskList.getCompound(i));
+            ItemStack stack = ItemUtils.readOverstackedItem(taskList.getCompound(i));
             this.taskItems.add(stack);
         }
 

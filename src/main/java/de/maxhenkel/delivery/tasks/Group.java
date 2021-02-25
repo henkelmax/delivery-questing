@@ -562,7 +562,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
         ItemStack insertStack = stack.split(insertAmount);
 
-        triple.getValue2().getTaskItems().add(insertStack);
+        triple.getValue2().add(insertStack);
 
         return !stack.isEmpty();
     }
@@ -580,7 +580,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         insertStack.setAmount(insertAmount);
         stack.setAmount(stack.getAmount() - insertAmount);
 
-        triple.getValue2().getTaskFluids().add(insertStack);
+        triple.getValue2().add(insertStack);
 
         return !stack.isEmpty();
     }

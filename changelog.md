@@ -1,1 +1,1 @@
-- Fixed endgame contract amounts and names
+- Optimized task items
