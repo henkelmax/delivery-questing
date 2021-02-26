@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.blocks;
 import de.maxhenkel.corelib.block.DirectionalVoxelShape;
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.EnergyLiquifierTileEntity;
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -28,7 +30,9 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class EnergyLiquifierBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
+import javax.annotation.Nullable;
+
+public class EnergyLiquifierBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IUpgradable {
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder().direction(Direction.NORTH,
             Block.makeCuboidShape(0D, 0D, 8D, 16D, 16D, 16D),
@@ -199,6 +203,20 @@ public class EnergyLiquifierBlock extends HorizontalRotatableBlock implements II
             InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof EnergyLiquifierTileEntity) {
+            EnergyLiquifierTileEntity liquifier = (EnergyLiquifierTileEntity) te;
+            if (liquifier.getUpgradeInventory().getStackInSlot(0).isEmpty()) {
+                liquifier.getUpgradeInventory().setInventorySlotContents(0, stack.copy().split(1));
+                ItemUtils.decrItemStack(stack, player);
+                return ActionResultType.func_233537_a_(world.isRemote);
+            }
+        }
+        return ActionResultType.PASS;
     }
 
     @Override

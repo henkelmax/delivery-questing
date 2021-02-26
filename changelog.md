@@ -1,1 +1,1 @@
-- Optimized task items
+- Added upgrade shift clicking

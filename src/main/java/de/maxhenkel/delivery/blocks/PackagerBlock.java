@@ -2,9 +2,9 @@ package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
-import de.maxhenkel.delivery.blocks.tileentity.EnergyLiquifierTileEntity;
 import de.maxhenkel.delivery.blocks.tileentity.PackagerTileEntity;
 import de.maxhenkel.delivery.gui.PackagerContainer;
 import net.minecraft.block.BlockState;
@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -24,7 +25,9 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-public class PackagerBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider {
+import javax.annotation.Nullable;
+
+public class PackagerBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IUpgradable {
 
     public PackagerBlock() {
         super(Properties.create(Material.IRON).sound(SoundType.METAL).notSolid().hardnessAndResistance(3F));
@@ -61,6 +64,20 @@ public class PackagerBlock extends HorizontalRotatableBlock implements IItemBloc
             InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof PackagerTileEntity) {
+            PackagerTileEntity packager = (PackagerTileEntity) te;
+            if (packager.getUpgradeInventory().getStackInSlot(0).isEmpty()) {
+                packager.getUpgradeInventory().setInventorySlotContents(0, stack.copy().split(1));
+                ItemUtils.decrItemStack(stack, player);
+                return ActionResultType.func_233537_a_(world.isRemote);
+            }
+        }
+        return ActionResultType.PASS;
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.blocks;
 import de.maxhenkel.corelib.block.DirectionalVoxelShape;
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
+import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
@@ -33,7 +34,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class DronePadBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IGroupBlock {
+public class DronePadBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IGroupBlock, IUpgradable {
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder().direction(Direction.NORTH,
             Block.makeCuboidShape(0D, 0D, 0D, 16D, 1D, 16D),
@@ -111,7 +112,22 @@ public class DronePadBlock extends HorizontalRotatableBlock implements IItemBloc
     }
 
     @Override
+    public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof DronePadTileEntity) {
+            DronePadTileEntity dronePad = (DronePadTileEntity) te;
+            if (dronePad.getUpgradeInventory().getStackInSlot(0).isEmpty()) {
+                dronePad.getUpgradeInventory().setInventorySlotContents(0, stack.copy().split(1));
+                ItemUtils.decrItemStack(stack, player);
+                return ActionResultType.func_233537_a_(world.isRemote);
+            }
+        }
+        return ActionResultType.PASS;
+    }
+
+    @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
         return new DronePadTileEntity();
     }
+
 }
