@@ -1,1 +1,1 @@
-- Added JEI recipes to task widget
+- Send a computer when reaching the computer level

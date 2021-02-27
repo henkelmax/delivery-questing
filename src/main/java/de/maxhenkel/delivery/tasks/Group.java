@@ -7,6 +7,7 @@ import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.corelib.net.NetUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.advancements.ModTriggers;
+import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.items.ContractItem;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.items.SealedEnvelopeItem;
@@ -184,9 +185,20 @@ public class Group implements INBTSerializable<CompoundNBT> {
         }
 
         if (levelAfter > levelBefore) {
+            if (levelBefore + 1 >= Main.SERVER_CONFIG.minComputerLevel.get() && levelAfter <= Main.SERVER_CONFIG.minComputerLevel.get()) {
+                onReachComputerAge();
+            }
+
             List<Offer> newOffers = Main.OFFER_MANAGER.getNewOffers(levelBefore + 1, levelAfter);
             newOffers.forEach(offer -> addEMail(new OfferEMail(this, offer)));
         }
+    }
+
+    public void onReachComputerAge() {
+        ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
+        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY, new ItemStack(ModBlocks.COMPUTER)));
+        ModItems.SEALED_PARCEL.setSender(parcel, new TranslationTextComponent("message.delivery.unknown"));
+        addItemToInbox(parcel);
     }
 
     public NonNullList<ItemStack> getMailboxInbox() {
