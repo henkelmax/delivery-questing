@@ -15,9 +15,10 @@ import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
@@ -112,7 +113,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
     );
 
     private Minecraft mc;
-    private CachedMap<DroneEntity, BlockState> cachedPayload;
+    private CachedMap<DroneEntity, IDroneRenderable> cachedPayload;
 
     public DroneRenderer(EntityRendererManager renderManager) {
         super(renderManager);
@@ -129,33 +130,45 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
             return;
         }
 
-        BlockState payload = cachedPayload.get(entity, () -> {
-            Item item = entity.getPayload().getItem();
+        IDroneRenderable renderable = cachedPayload.get(entity, () -> {
+            ItemStack payload = entity.getPayload();
 
-            if (!(item instanceof BlockItem)) {
-                return null;
+            if (payload.getItem() instanceof BlockItem) {
+                BlockItem blockItem = (BlockItem) payload.getItem();
+                BlockState defaultState = blockItem.getBlock().getDefaultState();
+                return (entity1, yaw1, partialTicks1, matrixStack1, buffer1, packedLight1) -> {
+                    matrixStack1.push();
+                    matrixStack1.translate(-0.5D, -1.5D, -0.5D);
+                    matrixStack1.translate(0.5D / 16D, 0.5D / 16D, 0.5D / 16D);
+                    matrixStack1.scale(15F / 16F, 15F / 16F, 15F / 16F);
+                    BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
+                    int color = mc.getBlockColors().getColor(defaultState, null, null, 0);
+                    dispatcher.getBlockModelRenderer().renderModel(matrixStack1.getLast(), buffer1.getBuffer(RenderTypeLookup.func_239221_b_(defaultState)), defaultState, dispatcher.getModelForState(defaultState), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight1, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    matrixStack1.pop();
+                };
+            } else {
+                return (entity1, yaw1, partialTicks1, matrixStack1, buffer1, packedLight1) -> {
+                    matrixStack1.push();
+                    matrixStack1.translate(0D, -0.5D, 0D);
+                    matrixStack1.scale(0.5F, 0.5F, 0.5F);
+                    mc.getItemRenderer().renderItem(payload, ItemCameraTransforms.TransformType.FIXED, packedLight1, OverlayTexture.NO_OVERLAY, matrixStack1, buffer1);
+                    matrixStack1.pop();
+                };
             }
-            BlockItem blockItem = (BlockItem) item;
-            return blockItem.getBlock().getDefaultState();
         });
 
-        if (payload == null) {
-            return;
+        if (renderable != null) {
+            renderable.render(entity, yaw, partialTicks, matrixStack, buffer, packedLight);
         }
-
-        matrixStack.push();
-        matrixStack.translate(-0.5D, -1.5D, -0.5D);
-        matrixStack.translate(0.5D / 16D, 0.5D / 16D, 0.5D / 16D);
-        matrixStack.scale(15F / 16F, 15F / 16F, 15F / 16F);
-        BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
-        int color = mc.getBlockColors().getColor(payload, null, null, 0);
-        dispatcher.getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderTypeLookup.func_239221_b_(payload)), payload, dispatcher.getModelForState(payload), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
-        matrixStack.pop();
     }
 
     @Override
     public List<OBJModelInstance<DroneEntity>> getModels(DroneEntity droneEntity) {
         return MODELS;
+    }
+
+    private interface IDroneRenderable {
+        void render(DroneEntity entity, float yaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight);
     }
 
 }
