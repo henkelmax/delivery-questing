@@ -1,1 +1,1 @@
-- Added upgrade shift clicking
+- Added JEI recipes to task widget

@@ -47,7 +47,7 @@ public class NotesProgram extends ComputerProgram {
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
 
         tasks = activeTasks.stream().map(activeTask -> {
-            return new TaskWidget(guiLeft + xSize / 2 - 106 / 2, guiTop + 3 + 9 + 30, activeTask, true, t -> {
+            return new TaskWidget(xSize / 2 - 106 / 2, 3 + 9 + 30, activeTask, true, t -> {
                 screen.setProgram(new ContractProgram(screen, this, t.getTask().getId()));
             }, TASK);
         }).collect(Collectors.toList());
@@ -72,7 +72,6 @@ public class NotesProgram extends ComputerProgram {
             next.visible = false;
         }
 
-        addWidget(currentTaskWidget);
         addWidget(prev);
         addWidget(next);
     }
@@ -82,6 +81,10 @@ public class NotesProgram extends ComputerProgram {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
 
         drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(getContainer().getGroup().getLevel()))));
+
+        if (currentTaskWidget != null) {
+            currentTaskWidget.render(matrixStack, mouseX - guiLeft, mouseY - guiTop);
+        }
     }
 
     @Override
@@ -126,6 +129,29 @@ public class NotesProgram extends ComputerProgram {
             playClickSound();
             return true;
         }
+
+        if (currentTaskWidget != null) {
+            if (currentTaskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+                return true;
+            }
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (currentTaskWidget != null) {
+            if (currentTaskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+                return true;
+            }
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Nullable
+    public TaskWidget getTaskWidget() {
+        return currentTaskWidget;
     }
 }

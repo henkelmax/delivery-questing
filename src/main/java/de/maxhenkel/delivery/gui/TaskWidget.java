@@ -3,27 +3,39 @@ package de.maxhenkel.delivery.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.corelib.helpers.AbstractStack;
+import de.maxhenkel.corelib.helpers.Pair;
 import de.maxhenkel.corelib.helpers.WrappedFluidStack;
 import de.maxhenkel.corelib.helpers.WrappedItemStack;
 import de.maxhenkel.corelib.tag.SingleElementTag;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.renderer.Rectangle2d;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.*;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TaskWidget extends Widget {
+public class TaskWidget {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/task.png");
 
     private static final int COUNT = 4;
+
+    private int x, y, width, height;
+    private Minecraft mc;
+    private FontRenderer font;
 
     private List<Element<?>> elements;
     private ActiveTask task;
@@ -33,7 +45,12 @@ public class TaskWidget extends Widget {
     private Consumer<ActiveTask> onInfoClick;
 
     public TaskWidget(int x, int y, ActiveTask task, boolean showProgress, @Nullable Consumer<ActiveTask> onInfoClick, ResourceLocation background) {
-        super(x, y, 106, 104, new StringTextComponent(""));
+        this.x = x;
+        this.y = y;
+        this.width = 106;
+        this.height = 104;
+        mc = Minecraft.getInstance();
+        font = mc.fontRenderer;
         if (background != null) {
             this.background = background;
         } else {
@@ -79,37 +96,34 @@ public class TaskWidget extends Widget {
         return page > 0;
     }
 
-    @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        Minecraft mc = Minecraft.getInstance();
-        FontRenderer font = mc.fontRenderer;
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY) {
         mc.getTextureManager().bindTexture(background);
-        RenderSystem.color4f(1F, 1F, 1F, alpha);
+        RenderSystem.color4f(1F, 1F, 1F, 1F);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, 0, 0, width, height);
+        AbstractGui.blit(matrixStack, x, y, 0, 0, width, height, 256, 256);
 
         if (onInfoClick != null) {
             if (isInfoHovered(mouseX, mouseY)) {
-                blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11);
+                AbstractGui.blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11, 256, 256);
             } else {
-                blit(matrixStack, x + width - 13, y + 2, 153, 0, 11, 11);
+                AbstractGui.blit(matrixStack, x + width - 13, y + 2, 153, 0, 11, 11, 256, 256);
             }
         }
 
         if (hasPrev()) {
             if (isLeftButtonHovered(mouseX, mouseY)) {
-                blit(matrixStack, x + 10, y + height - 15, 124, 11, 18, 11);
+                AbstractGui.blit(matrixStack, x + 10, y + height - 15, 124, 11, 18, 11, 256, 256);
             } else {
-                blit(matrixStack, x + 10, y + height - 15, 106, 11, 18, 11);
+                AbstractGui.blit(matrixStack, x + 10, y + height - 15, 106, 11, 18, 11, 256, 256);
             }
         }
         if (hasNext()) {
             if (isRightButtonHovered(mouseX, mouseY)) {
-                blit(matrixStack, x + width - 35, y + height - 15, 124, 0, 18, 11);
+                AbstractGui.blit(matrixStack, x + width - 35, y + height - 15, 124, 0, 18, 11, 256, 256);
             } else {
-                blit(matrixStack, x + width - 35, y + height - 15, 106, 0, 18, 11);
+                AbstractGui.blit(matrixStack, x + width - 35, y + height - 15, 106, 0, 18, 11, 256, 256);
             }
         }
 
@@ -211,30 +225,70 @@ public class TaskWidget extends Widget {
         return false;
     }
 
-
-    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (hasPrev() && isLeftButtonHovered((int) mouseX, (int) mouseY)) {
-            playDownSound(Minecraft.getInstance().getSoundHandler());
+            playClickSound();
             prevPage();
             return true;
         }
         if (hasNext() && isRightButtonHovered((int) mouseX, (int) mouseY)) {
-            playDownSound(Minecraft.getInstance().getSoundHandler());
+            playClickSound();
             nextPage();
             return true;
         }
         if (onInfoClick != null && isInfoHovered((int) mouseX, (int) mouseY)) {
-            playDownSound(Minecraft.getInstance().getSoundHandler());
+            playClickSound();
             onInfoClick.accept(task);
             return true;
         }
         return false;
     }
 
-    @Override
+    private void playClickSound() {
+        mc.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1F));
+    }
+
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         return false;
+    }
+
+    public Object getIngredientUnderMouse(double mouseX, double mouseY) {
+        int xPos = 8;
+        int yPos = 15;
+        int h = 16;
+
+        for (int i = page * COUNT; i < Math.min(page * COUNT + COUNT, elements.size()); i++) {
+            if (mouseX >= xPos + x && mouseX < xPos + x + 16) {
+                if (mouseY >= yPos + y && mouseY < yPos + y + h) {
+                    Element<?> element = elements.get(i);
+                    if (element.item instanceof ItemElement) {
+                        return new ItemStack((Item) element.item.getCurrentDisplayedElement());
+                    } else if (element.item instanceof FluidElement) {
+                        return new FluidStack((Fluid) element.item.getCurrentDisplayedElement(), 1000);
+                    }
+                }
+            }
+            yPos += 18;
+        }
+
+        return null;
+    }
+
+    public List<Pair<Rectangle2d, Object>> getIngredients() {
+        List<Pair<Rectangle2d, Object>> ingredients = new ArrayList<>();
+        int xPos = 8;
+        int yPos = 15;
+
+        for (int i = page * COUNT; i < Math.min(page * COUNT + COUNT, elements.size()); i++) {
+            Element<?> element = elements.get(i);
+            if (element.item instanceof ItemElement) {
+                ingredients.add(new Pair<>(new Rectangle2d(xPos + x, yPos + y, 16, 16), new ItemStack((Item) element.item.getCurrentDisplayedElement())));
+            } else if (element.item instanceof FluidElement) {
+                ingredients.add(new Pair<>(new Rectangle2d(xPos + x, yPos + y, 16, 16), new FluidStack((Fluid) element.item.getCurrentDisplayedElement(), 1000)));
+            }
+            yPos += 18;
+        }
+        return ingredients;
     }
 
     protected void drawCentered(MatrixStack matrixStack, FontRenderer font, IFormattableTextComponent text, int y) {

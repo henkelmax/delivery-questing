@@ -3,6 +3,8 @@ package de.maxhenkel.delivery.gui.computer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.gui.TaskWidget;
+import de.maxhenkel.delivery.integration.jei.ITaskWidgetScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
@@ -10,7 +12,7 @@ import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nullable;
 
-public class ComputerScreen extends ScreenBase<ComputerContainer> {
+public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITaskWidgetScreen {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/computer.png");
 
@@ -102,6 +104,19 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> {
 
     public void addHoverArea(HoverArea hoverArea) {
         hoverAreas.add(hoverArea);
+    }
+
+    @Nullable
+    @Override
+    public TaskWidget getTaskWidget() {
+        if (program instanceof NotesProgram) {
+            NotesProgram notesProgram = (NotesProgram) program;
+            return notesProgram.getTaskWidget();
+        } else if (program instanceof ContractProgram) {
+            ContractProgram contractProgram = (ContractProgram) program;
+            return contractProgram.getTaskWidget();
+        }
+        return null;
     }
 
     @Override

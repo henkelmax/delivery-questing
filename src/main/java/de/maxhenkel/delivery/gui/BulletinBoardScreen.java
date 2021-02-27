@@ -3,6 +3,7 @@ package de.maxhenkel.delivery.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
+import de.maxhenkel.delivery.integration.jei.ITaskWidgetScreen;
 import de.maxhenkel.delivery.net.MessageShowTask;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
+public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> implements ITaskWidgetScreen {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/bulletin_board.png");
 
@@ -49,7 +50,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
         prev = null;
         next = null;
 
-        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(guiLeft + 35, guiTop + 35, activeTask, true, t -> {
+        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(35, 35, activeTask, true, t -> {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageShowTask(t.getTaskProgress().getTaskID()));
         })).collect(Collectors.toList());
 
@@ -73,7 +74,6 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
             next.visible = false;
         }
 
-        addButton(currentTaskWidget);
         addButton(prev);
         addButton(next);
     }
@@ -88,6 +88,10 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
             drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 145, FONT_COLOR);
         } else {
             drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), 65, FONT_COLOR);
+        }
+
+        if (currentTaskWidget != null) {
+            currentTaskWidget.render(matrixStack, x - guiLeft, y - guiTop);
         }
     }
 
@@ -107,6 +111,32 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> {
 
         blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 223, 162, 5);
         blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 228, (int) (((float) 162) * (container.getGroup().getLevel() - Math.floor(container.getGroup().getLevel()))), 5);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (currentTaskWidget != null) {
+            if (currentTaskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (currentTaskWidget != null) {
+            if (currentTaskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+                return true;
+            }
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Nullable
+    @Override
+    public TaskWidget getTaskWidget() {
+        return currentTaskWidget;
     }
 
     @Override

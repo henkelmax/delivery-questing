@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.entity.DummyPlayer;
+import de.maxhenkel.delivery.integration.jei.ITaskWidgetScreen;
 import de.maxhenkel.delivery.tasks.ActiveTask;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -11,9 +12,10 @@ import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class ContractScreen extends ScreenBase<ContractContainer> {
+public class ContractScreen extends ScreenBase<ContractContainer> implements ITaskWidgetScreen {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/contract.png");
 
@@ -31,10 +33,8 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
     protected void init() {
         super.init();
         ActiveTask task = new ActiveTask(container.getTask(), null);
-        taskWidget = new TaskWidget(guiLeft + 61, guiTop + 6, task, false, null);
+        taskWidget = new TaskWidget(61, 6, task, false, null);
         player = new DummyPlayer(minecraft.world, container.getTask().getSkin(), container.getTask().getContractorName());
-
-        addButton(taskWidget);
     }
 
     @Override
@@ -68,6 +68,30 @@ public class ContractScreen extends ScreenBase<ContractContainer> {
             yPos += lineHeight / 2;
         }
         matrixStack.pop();
+
+        taskWidget.render(matrixStack, mouseX - guiLeft, mouseY - guiTop);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (taskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (taskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Nullable
+    @Override
+    public TaskWidget getTaskWidget() {
+        return taskWidget;
     }
 
     @Override

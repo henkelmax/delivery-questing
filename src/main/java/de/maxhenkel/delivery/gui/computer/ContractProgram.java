@@ -47,8 +47,7 @@ public class ContractProgram extends ComputerProgram {
     protected void init() {
         super.init();
         player = new DummyPlayer(mc.world, task.getSkin(), task.getContractorName());
-        taskWidget = new TaskWidget(guiLeft + xSize - 106 - 6, guiTop + 15, new ActiveTask(task, null), false, null, TASK);
-        addWidget(taskWidget);
+        taskWidget = new TaskWidget(xSize - 106 - 6, 15, new ActiveTask(task, null), false, null, TASK);
 
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
 
@@ -64,6 +63,8 @@ public class ContractProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
+
+        taskWidget.render(matrixStack, mouseX - guiLeft, mouseY - guiTop);
 
         if (accept.isHovered() && !accept.active) {
             screen.renderTooltip(matrixStack, new TranslationTextComponent("message.delivery.contract_already_accepted"), mouseX - guiLeft, mouseY - guiTop);
@@ -109,6 +110,10 @@ public class ContractProgram extends ComputerProgram {
         }
     }
 
+    public TaskWidget getTaskWidget() {
+        return taskWidget;
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (close.isHovered(guiLeft, guiTop, (int) mouseX, (int) mouseY)) {
@@ -116,6 +121,21 @@ public class ContractProgram extends ComputerProgram {
             playClickSound();
             return true;
         }
+
+        if (taskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+            return true;
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+
+        if (taskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+            return true;
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 }

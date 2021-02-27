@@ -12,6 +12,7 @@ import de.maxhenkel.delivery.commands.TestCommand;
 import de.maxhenkel.delivery.entity.ModEntities;
 import de.maxhenkel.delivery.events.ContainerEvents;
 import de.maxhenkel.delivery.events.StitchEvents;
+import de.maxhenkel.delivery.events.TooltipEvents;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.integration.IMC;
@@ -97,6 +98,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
         MinecraftForge.EVENT_BUS.register(new ContainerEvents());
         MinecraftForge.EVENT_BUS.register(new ModTriggers());
+        MinecraftForge.EVENT_BUS.register(new TooltipEvents());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);

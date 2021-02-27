@@ -2,8 +2,12 @@ package de.maxhenkel.delivery.integration.jei;
 
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.ModBlocks;
+import de.maxhenkel.delivery.gui.BulletinBoardScreen;
+import de.maxhenkel.delivery.gui.ContractScreen;
+import de.maxhenkel.delivery.gui.computer.ComputerScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -54,4 +58,10 @@ public class JEIPlugin implements IModPlugin {
         registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_6), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_6.description").getString());
     }
 
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(BulletinBoardScreen.class, new TaskWidgetContainerHandler());
+        registration.addGuiContainerHandler(ComputerScreen.class, new TaskWidgetContainerHandler());
+        registration.addGuiContainerHandler(ContractScreen.class, new TaskWidgetContainerHandler());
+    }
 }
