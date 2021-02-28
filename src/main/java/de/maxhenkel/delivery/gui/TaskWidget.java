@@ -302,34 +302,38 @@ public class TaskWidget {
             return "" + num;
         }
         float n = ((float) num) / 1000F;
-        if (n < 1000) {
+        if (n < 1000F) {
             return String.format("%.1f", n) + " k";
         }
-        n = n / 1000;
-        if (n < 1000) {
+        n = n / 1000F;
+        if (n < 1000F) {
             return String.format("%.1f", n) + " M";
         }
-        n = n / 1000;
+        n = n / 1000F;
         return String.format("%.1f", n) + " T";
     }
 
     private static String getNumberBuckets(long num) {
         if (num < 1000) {
-            return "" + num + " mB";
+            return num + " mB";
         }
         float n = ((float) num) / 1000F;
-        if (n < 1000) {
+        if (n < 1000F) {
             return String.format("%.1f", n) + " B";
         }
         n = n / 1000F;
-        return String.format("%.1f", n) + " kB";
+        if (n < 1000F) {
+            return String.format("%.1f", n) + " kB";
+        }
+        n = n / 1000F;
+        return String.format("%.1f", n) + " MB";
     }
 
     private static class Element<T> {
-        private TaskElement item;
-        private long current, max;
+        private final TaskElement<T> item;
+        private final long current, max;
 
-        public Element(TaskElement item, long current, long max) {
+        public Element(TaskElement<T> item, long current, long max) {
             this.item = item;
             this.current = current;
             this.max = max;
