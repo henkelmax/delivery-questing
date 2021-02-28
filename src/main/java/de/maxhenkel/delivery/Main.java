@@ -98,7 +98,6 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new CapabilityEvents());
         MinecraftForge.EVENT_BUS.register(new ContainerEvents());
         MinecraftForge.EVENT_BUS.register(new ModTriggers());
-        MinecraftForge.EVENT_BUS.register(new TooltipEvents());
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageSwitchLiquifier.class);
@@ -131,6 +130,7 @@ public class Main {
 
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
+        MinecraftForge.EVENT_BUS.register(new TooltipEvents());
         ModTileEntities.clientSetup();
         Containers.clientSetup();
         ModEntities.clientSetup();

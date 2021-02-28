@@ -1,1 +1,1 @@
-- Fixed handing in empty task items
+- Fixed crash on servers
