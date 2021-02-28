@@ -1,1 +1,2 @@
-- Fixed integer overflow on some tasks
+- Fixed overflow on computer money
+- Improved fluid task rendering

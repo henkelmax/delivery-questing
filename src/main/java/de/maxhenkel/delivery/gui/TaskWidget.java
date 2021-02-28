@@ -318,7 +318,11 @@ public class TaskWidget {
             return "" + num + " mB";
         }
         float n = ((float) num) / 1000F;
-        return String.format("%.1f", n) + " B";
+        if (n < 1000) {
+            return String.format("%.1f", n) + " B";
+        }
+        n = n / 1000F;
+        return String.format("%.1f", n) + " kB";
     }
 
     private static class Element<T> {
