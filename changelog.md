@@ -1,1 +1,1 @@
-- Improved fluid task rendering
+- Fixed drones carrying non-packed items

@@ -6,6 +6,7 @@ import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.entity.DroneEntity;
 import de.maxhenkel.delivery.items.UpgradeItem;
+import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -215,7 +216,12 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     private IItemHandler getItemHandler() {
-        return new ItemStackHandler(inventory);
+        return new ItemStackHandler(inventory) {
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                return super.isItemValid(slot, stack) && Group.getTaskContainer(stack) != null;
+            }
+        };
     }
 
     public IIntArray getFields() {
