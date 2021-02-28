@@ -1,1 +1,1 @@
-- Added envelope and parcel rendering in drones
+- Fixed handing in empty task items

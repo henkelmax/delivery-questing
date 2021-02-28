@@ -48,6 +48,9 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     }
 
     public void add(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
         for (int i = 0; i < taskItems.size(); i++) {
             ItemStack s = taskItems.get(i);
             if (ItemUtils.isStackable(stack, s)) {
@@ -86,7 +89,9 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
         ListNBT taskList = new ListNBT();
         for (ItemStack item : taskItems) {
-            taskList.add(ItemUtils.writeOverstackedItem(new CompoundNBT(), item));
+            if (!item.isEmpty()) {
+                taskList.add(ItemUtils.writeOverstackedItem(new CompoundNBT(), item));
+            }
         }
         compound.put("TaskItems", taskList);
 
@@ -108,7 +113,9 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         this.taskItems = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             ItemStack stack = ItemUtils.readOverstackedItem(taskList.getCompound(i));
-            this.taskItems.add(stack);
+            if (!stack.isEmpty()) {
+                this.taskItems.add(stack);
+            }
         }
 
         ListNBT taskFluidList = compound.getList("TaskFluids", 10);
