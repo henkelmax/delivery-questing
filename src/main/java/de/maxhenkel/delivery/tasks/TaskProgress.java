@@ -53,6 +53,9 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
         }
         for (int i = 0; i < taskItems.size(); i++) {
             ItemStack s = taskItems.get(i);
+            if (isOverMaxValue(stack.getCount(), s.getCount())) {
+                continue;
+            }
             if (ItemUtils.isStackable(stack, s)) {
                 s.setCount(s.getCount() + stack.getCount());
                 taskItems.set(i, s);
@@ -66,6 +69,9 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     public void add(FluidStack stack) {
         for (int i = 0; i < taskFluids.size(); i++) {
             FluidStack s = taskFluids.get(i);
+            if (isOverMaxValue(stack.getAmount(), s.getAmount())) {
+                continue;
+            }
             if (s.isFluidEqual(stack)) {
                 s.setAmount(s.getAmount() + stack.getAmount());
                 taskFluids.set(i, s);
@@ -73,6 +79,10 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
             }
         }
         taskFluids.add(stack);
+    }
+
+    public boolean isOverMaxValue(int amount1, int amount2) {
+        return ((long) amount1 + (long) amount2) > (long) Integer.MAX_VALUE;
     }
 
     @Nullable
