@@ -1,1 +1,1 @@
-- Fixed drones carrying non-packed items
+- Added initial mailbox items
