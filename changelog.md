@@ -1,1 +1,2 @@
-- Fixed duplication glitch with envelopes and parcels
+- Removed level requirement in the manual
+- Updated the manual

@@ -3,7 +3,6 @@
   "category": "delivery:drone_delivery",
   "icon": "delivery:drone_pad",
   "sortnum": 1,
-  "advancement": "delivery:drone",
   "pages": [
     {
       "type": "spotlight",

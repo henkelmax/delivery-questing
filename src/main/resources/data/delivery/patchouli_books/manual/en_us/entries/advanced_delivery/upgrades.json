@@ -3,7 +3,6 @@
   "category": "delivery:advanced_delivery",
   "icon": "delivery:upgrade_tier_6",
   "sortnum": 1,
-  "advancement": "delivery:computer",
   "pages": [
     {
       "type": "text",

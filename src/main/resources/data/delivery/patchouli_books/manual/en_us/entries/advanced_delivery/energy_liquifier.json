@@ -3,7 +3,6 @@
   "category": "delivery:advanced_delivery",
   "icon": "delivery:energy_liquifier",
   "sortnum": 1,
-  "advancement": "delivery:computer",
   "pages": [
     {
       "type": "spotlight",
