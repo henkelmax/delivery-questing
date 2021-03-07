@@ -1,1 +1,1 @@
-- Added initial mailbox items
+- Fixed duplication glitch with envelopes and parcels

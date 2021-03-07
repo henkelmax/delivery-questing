@@ -204,7 +204,20 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public void initInitialInbox() {
         ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
-        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY, new ItemStack(ModItems.ENVELOPE, 8), new ItemStack(ModItems.PARCEL, 4)));
+        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY,
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.ENVELOPE),
+                new ItemStack(ModItems.PARCEL),
+                new ItemStack(ModItems.PARCEL),
+                new ItemStack(ModItems.PARCEL),
+                new ItemStack(ModItems.PARCEL)
+        ));
         ModItems.SEALED_PARCEL.setSender(parcel, new TranslationTextComponent("message.delivery.unknown"));
         addItemToInbox(parcel);
     }
