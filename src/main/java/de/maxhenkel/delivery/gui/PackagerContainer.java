@@ -21,12 +21,12 @@ public class PackagerContainer extends ContainerBase {
         addSlot(new TaskContainerSlot(inventory, 1, 133, 36));
 
         addPlayerInventorySlots();
-        trackIntArray(packager.getFields());
+        addDataSlots(packager.getFields());
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
+    public void broadcastChanges() {
+        super.broadcastChanges();
         if (playerInventory.player instanceof ServerPlayerEntity) {
             packager.syncContents((ServerPlayerEntity) playerInventory.player);
         }

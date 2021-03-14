@@ -62,7 +62,7 @@ public class Offer implements INBTSerializable<CompoundNBT> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
-        compound.putUniqueId("ID", id);
+        compound.putUUID("ID", id);
         ResourceLocation i = ForgeRegistries.ITEMS.getKey(item);
         compound.putString("Item", i.toString());
         compound.putInt("Amount", amount);
@@ -74,7 +74,7 @@ public class Offer implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        id = compound.getUniqueId("ID");
+        id = compound.getUUID("ID");
         item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Item")));
         amount = compound.getInt("Amount");
         price = compound.getInt("Price");

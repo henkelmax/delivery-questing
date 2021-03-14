@@ -31,13 +31,13 @@ public class DesktopProgram extends ComputerProgram {
     protected void init() {
         super.init();
 
-        minternet = new ScreenBase.HoverArea(16, 16, 32, 32, () -> Collections.singletonList(MINTERNET.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        minternet = new ScreenBase.HoverArea(16, 16, 32, 32, () -> Collections.singletonList(MINTERNET.withStyle(TextFormatting.WHITE).getVisualOrderText()));
         addHoverArea(minternet);
 
-        mail = new ScreenBase.HoverArea(64, 16, 32, 32, () -> Collections.singletonList(MAIL.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        mail = new ScreenBase.HoverArea(64, 16, 32, 32, () -> Collections.singletonList(MAIL.withStyle(TextFormatting.WHITE).getVisualOrderText()));
         addHoverArea(mail);
 
-        notes = new ScreenBase.HoverArea(112, 16, 32, 32, () -> Collections.singletonList(NOTES.mergeStyle(TextFormatting.WHITE).func_241878_f()));
+        notes = new ScreenBase.HoverArea(112, 16, 32, 32, () -> Collections.singletonList(NOTES.withStyle(TextFormatting.WHITE).getVisualOrderText()));
         addHoverArea(notes);
     }
 
@@ -56,7 +56,7 @@ public class DesktopProgram extends ComputerProgram {
     }
 
     private void drawIcon(MatrixStack matrixStack, ScreenBase.HoverArea hoverArea, int mouseX, int mouseY, int xOffset, int yOffset, IFormattableTextComponent name) {
-        mc.getTextureManager().bindTexture(ICONS);
+        mc.getTextureManager().bind(ICONS);
         if (hoverArea.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, hoverArea.getPosX(), hoverArea.getPosY(), xOffset + hoverArea.getWidth(), yOffset, hoverArea.getWidth(), hoverArea.getHeight());
         }
@@ -67,16 +67,16 @@ public class DesktopProgram extends ComputerProgram {
 
     private void drawCount(MatrixStack matrixStack, ScreenBase.HoverArea hoverArea, int count) {
         if (count > 0) {
-            IFormattableTextComponent num = new StringTextComponent(String.valueOf(count)).mergeStyle(TextFormatting.DARK_RED);
-            int w = mc.fontRenderer.getStringPropertyWidth(num);
-            mc.fontRenderer.func_243248_b(matrixStack, num, hoverArea.getPosX() + hoverArea.getWidth() - 1 - w, hoverArea.getPosY() + 4, 0);
+            IFormattableTextComponent num = new StringTextComponent(String.valueOf(count)).withStyle(TextFormatting.DARK_RED);
+            int w = mc.font.width(num);
+            mc.font.draw(matrixStack, num, hoverArea.getPosX() + hoverArea.getWidth() - 1 - w, hoverArea.getPosY() + 4, 0);
         }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
     }
 

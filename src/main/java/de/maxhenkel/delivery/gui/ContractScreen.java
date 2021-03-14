@@ -25,56 +25,56 @@ public class ContractScreen extends ScreenBase<ContractContainer> implements ITa
 
     public ContractScreen(ContractContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
-        xSize = 176;
-        ySize = 222;
+        imageWidth = 176;
+        imageHeight = 222;
     }
 
     @Override
     protected void init() {
         super.init();
-        ActiveTask task = new ActiveTask(container.getTask(), null);
+        ActiveTask task = new ActiveTask(menu.getTask(), null);
         taskWidget = new TaskWidget(61, 6, task, false, null);
-        player = new DummyPlayer(minecraft.world, container.getTask().getSkin(), container.getTask().getContractorName());
+        player = new DummyPlayer(minecraft.level, menu.getTask().getSkin(), menu.getTask().getContractorName());
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
-        InventoryScreen.drawEntityOnScreen(31, 78, 30, guiLeft + 31 - mouseX, guiTop + 42 - mouseY, player);
+    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+        InventoryScreen.renderEntityInInventory(31, 78, 30, leftPos + 31 - mouseX, topPos + 42 - mouseY, player);
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.scale(0.75F, 0.75F, 1F);
 
-        font.func_243248_b(matrixStack, new StringTextComponent(container.getTask().getProfession()), 11, 113, 0);
-        font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", container.getTask().getExperience()), 11, 126, FONT_COLOR);
-        if (container.getTask().getMoney() > 0) {
-            font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_money", container.getTask().getMoney()), 11, 136, FONT_COLOR);
+        font.draw(matrixStack, new StringTextComponent(menu.getTask().getProfession()), 11, 113, 0);
+        font.draw(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", menu.getTask().getExperience()), 11, 126, FONT_COLOR);
+        if (menu.getTask().getMoney() > 0) {
+            font.draw(matrixStack, new TranslationTextComponent("message.delivery.reward_money", menu.getTask().getMoney()), 11, 136, FONT_COLOR);
         }
-        matrixStack.pop();
+        matrixStack.popPose();
 
         int paddingLeft = 8;
-        int lineHeight = font.FONT_HEIGHT + 2;
+        int lineHeight = font.lineHeight + 2;
         int yPos = 114;
 
-        drawCentered(matrixStack, new StringTextComponent(container.getTask().getName()).mergeStyle(TextFormatting.BLACK), xSize / 2, yPos, 0);
+        drawCentered(matrixStack, new StringTextComponent(menu.getTask().getName()).withStyle(TextFormatting.BLACK), imageWidth / 2, yPos, 0);
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.scale(0.5F, 0.5F, 1F);
 
         yPos += lineHeight + 2;
 
-        List<IReorderingProcessor> list = font.trimStringToWidth(new StringTextComponent(container.getTask().getDescription()), (xSize - 16) * 2);
+        List<IReorderingProcessor> list = font.split(new StringTextComponent(menu.getTask().getDescription()), (imageWidth - 16) * 2);
         for (IReorderingProcessor text : list) {
-            font.func_238422_b_(matrixStack, text, paddingLeft * 2, yPos * 2, FONT_COLOR);
+            font.draw(matrixStack, text, paddingLeft * 2, yPos * 2, FONT_COLOR);
             yPos += lineHeight / 2;
         }
-        matrixStack.pop();
+        matrixStack.popPose();
 
-        taskWidget.render(matrixStack, mouseX - guiLeft, mouseY - guiTop);
+        taskWidget.render(matrixStack, mouseX - leftPos, mouseY - topPos);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (taskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+        if (taskWidget.mouseClicked(mouseX - leftPos, mouseY - topPos, button)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -82,7 +82,7 @@ public class ContractScreen extends ScreenBase<ContractContainer> implements ITa
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (taskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+        if (taskWidget.mouseReleased(mouseX - leftPos, mouseY - topPos, button)) {
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);

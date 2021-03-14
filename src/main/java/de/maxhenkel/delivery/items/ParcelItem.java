@@ -16,15 +16,15 @@ import net.minecraft.world.World;
 public class ParcelItem extends SingleSlotInventoryItem {
 
     public ParcelItem() {
-        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY), 16);
+        super(new Properties().stacksTo(1).tab(ModItemGroups.TAB_DELIVERY), 16);
         setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
 
-        playerIn.openContainer(new INamedContainerProvider() {
+        playerIn.openMenu(new INamedContainerProvider() {
             @Override
             public ITextComponent getDisplayName() {
                 return stack.getDisplayName();
@@ -35,17 +35,17 @@ public class ParcelItem extends SingleSlotInventoryItem {
                 return new ParcelContainer(id, playerInventory, new ItemInventory(playerEntity, stack, 1) {
                     @Override
                     public SoundEvent getOpenSound() {
-                        return SoundEvents.ITEM_BOOK_PAGE_TURN;
+                        return SoundEvents.BOOK_PAGE_TURN;
                     }
 
                     @Override
                     public SoundEvent getCloseSound() {
-                        return SoundEvents.ITEM_BOOK_PAGE_TURN;
+                        return SoundEvents.BOOK_PAGE_TURN;
                     }
                 });
             }
         });
 
-        return ActionResult.resultSuccess(stack);
+        return ActionResult.success(stack);
     }
 }

@@ -167,19 +167,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
             MessageChallengeToast msg = new MessageChallengeToast(task);
 
             IFormattableTextComponent txt = new TranslationTextComponent("message.delivery.challenge_contract")
-                    .appendString(" ")
-                    .append(TextComponentUtils.wrapWithSquareBrackets(
-                            new TranslationTextComponent("message.delivery.view_contract").modifyStyle(style -> {
+                    .append(" ")
+                    .append(TextComponentUtils.wrapInSquareBrackets(
+                            new TranslationTextComponent("message.delivery.view_contract").withStyle(style -> {
                                 return style
-                                        .applyFormatting(TextFormatting.GREEN)
-                                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/group showtask " + task.getId().toString()))
-                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("message.delivery.click_to_view_contract")));
+                                        .applyFormat(TextFormatting.GREEN)
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/group showtask " + task.getId().toString()))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("message.delivery.click_to_view_contract")));
                             })
-                    ).mergeStyle(TextFormatting.GREEN));
+                    ).withStyle(TextFormatting.GREEN));
 
             forEachOnlineMember(player -> {
                 NetUtils.sendTo(Main.SIMPLE_CHANNEL, player, msg);
-                player.sendMessage(txt, Util.DUMMY_UUID);
+                player.sendMessage(txt, Util.NIL_UUID);
             });
 
             addTask(task.getId());
@@ -197,14 +197,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public void onReachComputerAge() {
         ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
-        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY, new ItemStack(ModBlocks.COMPUTER)));
+        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.of(ItemStack.EMPTY, new ItemStack(ModBlocks.COMPUTER)));
         ModItems.SEALED_PARCEL.setSender(parcel, new TranslationTextComponent("message.delivery.unknown"));
         addItemToInbox(parcel);
     }
 
     public void initInitialInbox() {
         ItemStack parcel = new ItemStack(ModItems.SEALED_PARCEL);
-        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.from(ItemStack.EMPTY,
+        ModItems.SEALED_PARCEL.setContents(parcel, NonNullList.of(ItemStack.EMPTY,
                 new ItemStack(ModItems.ENVELOPE),
                 new ItemStack(ModItems.ENVELOPE),
                 new ItemStack(ModItems.ENVELOPE),
@@ -309,19 +309,19 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     public void tick(MinecraftServer server) {
         if (!isInEndgame) {
-            if (server.getTickCounter() % 1200 == 0 && getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
+            if (server.getTickCount() % 1200 == 0 && getLevel() < Main.SERVER_CONFIG.minComputerLevel.get()) {
                 generateMailboxTask();
             }
-            if (server.getTickCounter() % 3600 == 0 && getLevel() >= Main.SERVER_CONFIG.minComputerLevel.get()) {
+            if (server.getTickCount() % 3600 == 0 && getLevel() >= Main.SERVER_CONFIG.minComputerLevel.get()) {
                 generateEMailTask();
             }
         } else {
-            if (server.getTickCounter() % 3600 == 0) {
+            if (server.getTickCount() % 3600 == 0) {
                 generateEndGameTask();
             }
         }
 
-        if (server.getWorld(World.OVERWORLD).getDayTime() % 24000 == 20) {
+        if (server.getLevel(World.OVERWORLD).getDayTime() % 24000 == 20) {
             pendingDeliveries.forEach(this::addItemToInbox);
             pendingDeliveries.clear();
         }
@@ -564,7 +564,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public void forEachOnlineMember(Consumer<ServerPlayerEntity> playerEntityConsumer) {
         PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
         for (UUID member : members) {
-            ServerPlayerEntity player = playerList.getPlayerByUUID(member);
+            ServerPlayerEntity player = playerList.getPlayer(member);
             if (player != null) {
                 playerEntityConsumer.accept(player);
             }
@@ -619,11 +619,11 @@ public class Group implements INBTSerializable<CompoundNBT> {
     }
 
     public static long getCurrentAmount(TaskProgress progress, ItemElement element) {
-        return progress.getTaskItems().stream().filter(stack -> stack.getItem().isIn(element.item)).filter(stack -> NBTUtil.areNBTEquals(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getCount()).reduce(0L, Long::sum);
+        return progress.getTaskItems().stream().filter(stack -> stack.getItem().is(element.item)).filter(stack -> NBTUtil.compareNbt(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getCount()).reduce(0L, Long::sum);
     }
 
     public static long getCurrentAmount(TaskProgress progress, FluidElement element) {
-        return progress.getTaskFluids().stream().filter(stack -> stack.getFluid().isIn(element.item)).filter(stack -> NBTUtil.areNBTEquals(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getAmount()).reduce(0L, Long::sum);
+        return progress.getTaskFluids().stream().filter(stack -> stack.getFluid().is(element.item)).filter(stack -> NBTUtil.compareNbt(element.getNbt(), stack.getTag(), true)).map(stack -> (long) stack.getAmount()).reduce(0L, Long::sum);
     }
 
     @Nullable
@@ -633,7 +633,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
             if (task == null) {
                 continue;
             }
-            Optional<ItemElement> item = task.getItems().stream().filter(i -> stack.getItem().isIn(i.getItem())).filter(e -> NBTUtil.areNBTEquals(e.getNbt(), stack.getTag(), true)).findAny();
+            Optional<ItemElement> item = task.getItems().stream().filter(i -> stack.getItem().is(i.getItem())).filter(e -> NBTUtil.compareNbt(e.getNbt(), stack.getTag(), true)).findAny();
             if (item.isPresent()) {
                 return new Triple<>(task, taskProgress, item.get());
             }
@@ -649,7 +649,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
             if (task == null) {
                 continue;
             }
-            Optional<FluidElement> item = task.getFluids().stream().filter(i -> stack.getFluid().isIn(i.getItem())).filter(e -> NBTUtil.areNBTEquals(e.getNbt(), stack.getTag(), true)).findAny();
+            Optional<FluidElement> item = task.getFluids().stream().filter(i -> stack.getFluid().is(i.getItem())).filter(e -> NBTUtil.compareNbt(e.getNbt(), stack.getTag(), true)).findAny();
             if (item.isPresent()) {
                 return new Triple<>(task, taskProgress, item.get());
             }
@@ -673,14 +673,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
-        compound.putUniqueId("ID", id);
+        compound.putUUID("ID", id);
         compound.putString("Name", name);
         compound.putString("Password", password);
 
         ListNBT memberList = new ListNBT();
         for (UUID member : members) {
             CompoundNBT memberTag = new CompoundNBT();
-            memberTag.putUniqueId("Member", member);
+            memberTag.putUUID("Member", member);
             memberList.add(memberTag);
         }
         compound.put("Members", memberList);
@@ -694,7 +694,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ListNBT completedTasksList = new ListNBT();
         for (UUID t : completedTasks) {
             CompoundNBT taskTag = new CompoundNBT();
-            taskTag.putUniqueId("ID", t);
+            taskTag.putUUID("ID", t);
             completedTasksList.add(taskTag);
         }
         compound.put("CompletedTasks", completedTasksList);
@@ -719,14 +719,14 @@ public class Group implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        this.id = compound.getUniqueId("ID");
+        this.id = compound.getUUID("ID");
         this.name = compound.getString("Name");
         this.password = compound.getString("Name");
 
         ListNBT memberList = compound.getList("Members", 10);
         this.members = new ArrayList<>();
         for (int i = 0; i < memberList.size(); i++) {
-            this.members.add(memberList.getCompound(i).getUniqueId("Member"));
+            this.members.add(memberList.getCompound(i).getUUID("Member"));
         }
 
         ListNBT taskList = compound.getList("Tasks", 10);
@@ -740,7 +740,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
         ListNBT completedTasksList = compound.getList("CompletedTasks", 10);
         this.completedTasks = new ArrayList<>();
         for (int i = 0; i < completedTasksList.size(); i++) {
-            this.completedTasks.add(completedTasksList.getCompound(i).getUniqueId("ID"));
+            this.completedTasks.add(completedTasksList.getCompound(i).getUUID("ID"));
         }
 
         this.experience = compound.getLong("Experience");

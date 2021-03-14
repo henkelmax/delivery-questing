@@ -61,10 +61,10 @@ public class OfferEMail extends EMail {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void renderIcon(MatrixStack matrixStack, Group group) {
-        matrixStack.push();
-        Minecraft.getInstance().getTextureManager().bindTexture(MINAZON_ICON);
+        matrixStack.pushPose();
+        Minecraft.getInstance().getTextureManager().bind(MINAZON_ICON);
         AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     public Offer getOffer() {
@@ -77,13 +77,13 @@ public class OfferEMail extends EMail {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = super.serializeNBT();
-        compound.putUniqueId("OfferID", offerID);
+        compound.putUUID("OfferID", offerID);
         return compound;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
         super.deserializeNBT(compound);
-        offerID = compound.getUniqueId("OfferID");
+        offerID = compound.getUUID("OfferID");
     }
 }

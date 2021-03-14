@@ -30,7 +30,7 @@ public class TaskContainerProvider<T extends ContainerBase> implements INamedCon
     public static <T extends ContainerBase> void openGui(PlayerEntity player, Task task, ITextComponent title, ContainerFactoryTask.ContainerCreator<T> containerCreator) {
         if (player instanceof ServerPlayerEntity) {
             NetworkHooks.openGui((ServerPlayerEntity) player, new TaskContainerProvider<T>(containerCreator, task, title), (packetBuffer) -> {
-                packetBuffer.writeCompoundTag(task.serializeNBT());
+                packetBuffer.writeNbt(task.serializeNBT());
             });
         }
     }

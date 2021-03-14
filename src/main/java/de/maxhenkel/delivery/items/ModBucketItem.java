@@ -13,7 +13,7 @@ import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 public class ModBucketItem extends BucketItem {
 
     public ModBucketItem(Fluid containedFluidIn, ResourceLocation registryName) {
-        super(() -> containedFluidIn, new Properties().containerItem(Items.BUCKET).maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(() -> containedFluidIn, new Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(ModItemGroups.TAB_DELIVERY));
         setRegistryName(registryName);
     }
 

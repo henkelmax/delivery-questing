@@ -22,12 +22,12 @@ public class SealedEnvelopeItem extends SealedItem {
 
     @Override
     IFormattableTextComponent getTooltip(ItemStack stack) {
-        return new TranslationTextComponent("tooltip.delivery.sealed_envelope").mergeStyle(TextFormatting.GRAY);
+        return new TranslationTextComponent("tooltip.delivery.sealed_envelope").withStyle(TextFormatting.GRAY);
     }
 
     @Override
     SoundEvent getOpenSound(ItemStack stack) {
-        return SoundEvents.ITEM_BOOK_PAGE_TURN;
+        return SoundEvents.BOOK_PAGE_TURN;
     }
 
     public static ItemStack createTask(Task task, ItemStack... additionalItems) {

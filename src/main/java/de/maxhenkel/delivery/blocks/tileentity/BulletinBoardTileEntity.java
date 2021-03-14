@@ -12,20 +12,20 @@ public class BulletinBoardTileEntity extends GroupTileEntity implements ITickabl
 
     @Override
     public void tick() {
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
-        if (world.getGameTime() % 20 == 0) {
+        if (level.getGameTime() % 20 == 0) {
             Group group = getGroup();
             if (group == null) {
-                if (getBlockState().get(BulletinBoardBlock.CONTRACTS) != 0) {
-                    world.setBlockState(getPos(), getBlockState().with(BulletinBoardBlock.CONTRACTS, 0));
+                if (getBlockState().getValue(BulletinBoardBlock.CONTRACTS) != 0) {
+                    level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(BulletinBoardBlock.CONTRACTS, 0));
                 }
                 return;
             }
             int size = group.getActiveTasks().getTasks().size();
-            if (getBlockState().get(BulletinBoardBlock.CONTRACTS) != size) {
-                world.setBlockState(getPos(), getBlockState().with(BulletinBoardBlock.CONTRACTS, Math.min(size, 3)));
+            if (getBlockState().getValue(BulletinBoardBlock.CONTRACTS) != size) {
+                level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(BulletinBoardBlock.CONTRACTS, Math.min(size, 3)));
             }
         }
     }

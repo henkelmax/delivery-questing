@@ -28,36 +28,36 @@ public class ComputerTileEntity extends GroupTileEntity implements ITickableTile
 
     @Override
     public void tick() {
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
-        if (world.getGameTime() % 20 != 0) {
+        if (level.getGameTime() % 20 != 0) {
             return;
         }
         if (energy.getEnergyStored() <= 0) {
-            if (getBlockState().get(ComputerBlock.ON)) {
-                world.setBlockState(pos, getBlockState().with(ComputerBlock.ON, false));
+            if (getBlockState().getValue(ComputerBlock.ON)) {
+                level.setBlockAndUpdate(worldPosition, getBlockState().setValue(ComputerBlock.ON, false));
             }
         } else {
-            if (!getBlockState().get(ComputerBlock.ON)) {
-                world.setBlockState(pos, getBlockState().with(ComputerBlock.ON, true));
+            if (!getBlockState().getValue(ComputerBlock.ON)) {
+                level.setBlockAndUpdate(worldPosition, getBlockState().setValue(ComputerBlock.ON, true));
             }
         }
     }
 
     public void containerTick() {
         energy.useEnergy(10, false);
-        markDirty();
+        setChanged();
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (removed) {
+        if (remove) {
             return super.getCapability(cap, side);
         }
 
         if (cap == CapabilityEnergy.ENERGY) {
-            if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().get(HorizontalRotatableBlock.FACING).rotateY())) {
+            if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getClockWise())) {
                 return LazyOptional.of(() -> energy).cast();
             }
         }
@@ -65,14 +65,14 @@ public class ComputerTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY, compound.getInt("Energy"));
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         compound.putInt("Energy", energy.getEnergyStored());
-        return super.write(compound);
+        return super.save(compound);
     }
 }

@@ -14,8 +14,8 @@ public class NonRecursiveSlot extends Slot {
     }
 
     @Override
-    public boolean isItemValid(ItemStack stack) {
-        if (!super.isItemValid(stack)) {
+    public boolean mayPlace(ItemStack stack) {
+        if (!super.mayPlace(stack)) {
             return false;
         }
 

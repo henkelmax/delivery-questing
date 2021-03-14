@@ -50,36 +50,36 @@ public class OfferMailProgram extends ComputerProgram {
     protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
         ItemStack i = offerEMail.getOffer().getStack();
-        mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, i, this.item.getPosX(), this.item.getPosY());
+        mc.getItemRenderer().renderAndDecorateItem(mc.player, i, this.item.getPosX(), this.item.getPosY());
 
         if (this.item.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             List<ITextComponent> tooltip = screen.getTooltipFromItem(i);
-            screen.renderWrappedToolTip(matrixStack, tooltip, mouseX - guiLeft, mouseY - guiTop, mc.fontRenderer);
+            screen.renderWrappedToolTip(matrixStack, tooltip, mouseX - guiLeft, mouseY - guiTop, mc.font);
         }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
         }
 
-        FontRenderer font = mc.fontRenderer;
+        FontRenderer font = mc.font;
 
-        mc.fontRenderer.func_243248_b(matrixStack, offerEMail.getTitle(), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        mc.font.draw(matrixStack, offerEMail.getTitle(), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
         screen.drawCentered(matrixStack, offerEMail.getTitle(), guiLeft + xSize / 2, guiTop + 3 + 9 + 3, 0);
 
 
         int yPos = guiTop + 3 + 9 + 3 + 15;
 
-        List<IReorderingProcessor> list = font.trimStringToWidth(offerEMail.getText(), xSize - 16);
+        List<IReorderingProcessor> list = font.split(offerEMail.getText(), xSize - 16);
         for (IReorderingProcessor text : list) {
-            font.func_238422_b_(matrixStack, text, guiLeft + 3 + 8, yPos, screen.FONT_COLOR);
+            font.draw(matrixStack, text, guiLeft + 3 + 8, yPos, screen.FONT_COLOR);
             yPos += 10;
         }
     }

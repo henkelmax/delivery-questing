@@ -42,9 +42,9 @@ public class QuestsFinishedEMail extends EMail {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void renderIcon(MatrixStack matrixStack, Group group) {
-        matrixStack.push();
-        Minecraft.getInstance().getTextureManager().bindTexture(ICON);
+        matrixStack.pushPose();
+        Minecraft.getInstance().getTextureManager().bind(ICON);
         AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }

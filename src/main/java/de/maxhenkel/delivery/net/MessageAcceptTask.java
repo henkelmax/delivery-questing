@@ -31,7 +31,7 @@ public class MessageAcceptTask implements Message<MessageAcceptTask> {
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
         try {
-            Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUniqueID());
+            Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUUID());
             Task task = Main.TASK_MANAGER.getTask(this.task, playerGroup);
             if (task == null) {
                 return;
@@ -44,12 +44,12 @@ public class MessageAcceptTask implements Message<MessageAcceptTask> {
 
     @Override
     public MessageAcceptTask fromBytes(PacketBuffer packetBuffer) {
-        task = packetBuffer.readUniqueId();
+        task = packetBuffer.readUUID();
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeUniqueId(task);
+        packetBuffer.writeUUID(task);
     }
 }

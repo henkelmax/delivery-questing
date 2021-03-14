@@ -10,8 +10,8 @@ public class ContainerEvents {
     @SubscribeEvent
     public void onContainerTick(TickEvent.PlayerTickEvent event) {
         if (event.player instanceof ServerPlayerEntity) {
-            if (event.player.openContainer instanceof ComputerContainer) {
-                ComputerContainer container = (ComputerContainer) event.player.openContainer;
+            if (event.player.containerMenu instanceof ComputerContainer) {
+                ComputerContainer container = (ComputerContainer) event.player.containerMenu;
                 container.tick();
             }
         }

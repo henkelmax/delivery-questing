@@ -25,14 +25,14 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (stack.hasTag()) {
             CompoundNBT compound = stack.getTag();
             NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
             ItemUtils.readInventory(compound, "Items", items);
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_count", items.stream().filter(stack1 -> !stack1.isEmpty()).map(ItemStack::getCount).reduce(Integer::sum).orElse(0)).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_count", items.stream().filter(stack1 -> !stack1.isEmpty()).map(ItemStack::getCount).reduce(Integer::sum).orElse(0)).withStyle(TextFormatting.GRAY));
         }
     }
 
@@ -52,7 +52,7 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
         if (content.isEmpty()) {
             return NonNullList.withSize(1, ItemStack.EMPTY);
         }
-        return NonNullList.from(ItemStack.EMPTY, content);
+        return NonNullList.of(ItemStack.EMPTY, content);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
         stackToAdd.shrink(amountToAdd);
 
         CompoundNBT compound = stack.getOrCreateTag();
-        NonNullList<ItemStack> items = NonNullList.from(ItemStack.EMPTY, content);
+        NonNullList<ItemStack> items = NonNullList.of(ItemStack.EMPTY, content);
         ItemUtils.saveInventory(compound, "Items", items);
 
         return stackToAdd;

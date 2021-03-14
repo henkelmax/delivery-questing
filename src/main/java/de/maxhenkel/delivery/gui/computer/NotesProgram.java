@@ -90,7 +90,7 @@ public class NotesProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
@@ -100,10 +100,10 @@ public class NotesProgram extends ComputerProgram {
         screen.blit(matrixStack, guiLeft + 3 + 44, guiTop + 3 + 9 + 10, 0, 197, 162, 5);
         screen.blit(matrixStack, guiLeft + 3 + 44, guiTop + 3 + 9 + 10, 0, 202, (int) (((float) 162) * (getContainer().getGroup().getLevel() - Math.floor(getContainer().getGroup().getLevel()))), 5);
 
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.notes"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.notes"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
         if (tasks.isEmpty()) {
-            screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), guiLeft + xSize / 2, guiTop + ySize / 2 - mc.fontRenderer.FONT_HEIGHT, ScreenBase.FONT_COLOR);
+            screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), guiLeft + xSize / 2, guiTop + ySize / 2 - mc.font.lineHeight, ScreenBase.FONT_COLOR);
             return;
         }
 
@@ -113,13 +113,13 @@ public class NotesProgram extends ComputerProgram {
     }
 
     private void drawLevel(MatrixStack matrixStack, IFormattableTextComponent text) {
-        int w = mc.fontRenderer.getStringPropertyWidth(text);
+        int w = mc.font.width(text);
         int xPos = xSize / 2 - w / 2;
-        mc.fontRenderer.func_243248_b(matrixStack, text, xPos + 1, 17, 0);
-        mc.fontRenderer.func_243248_b(matrixStack, text, xPos - 1, 17, 0);
-        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 18, 0);
-        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 16, 0);
-        mc.fontRenderer.func_243248_b(matrixStack, text, xPos, 17, 0xFFFFFF);
+        mc.font.draw(matrixStack, text, xPos + 1, 17, 0);
+        mc.font.draw(matrixStack, text, xPos - 1, 17, 0);
+        mc.font.draw(matrixStack, text, xPos, 18, 0);
+        mc.font.draw(matrixStack, text, xPos, 16, 0);
+        mc.font.draw(matrixStack, text, xPos, 17, 0xFFFFFF);
     }
 
     @Override

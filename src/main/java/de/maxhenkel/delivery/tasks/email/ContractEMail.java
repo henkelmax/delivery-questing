@@ -72,14 +72,14 @@ public class ContractEMail extends EMail {
         }
 
         if (icon != null) {
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.scale(2F, 2F, 1F);
-            Minecraft.getInstance().getTextureManager().bindTexture(icon);
+            Minecraft.getInstance().getTextureManager().bind(icon);
             AbstractGui.blit(matrixStack, 0, 0, 8, 8, 8, 8, 64, 64);
             AbstractGui.blit(matrixStack, 0, 0, 40, 8, 8, 8, 64, 64);
-            matrixStack.pop();
+            matrixStack.popPose();
             if (group != null && !group.canAcceptTask(taskID)) {
-                Minecraft.getInstance().getTextureManager().bindTexture(ACCEPTED_TASK);
+                Minecraft.getInstance().getTextureManager().bind(ACCEPTED_TASK);
                 AbstractGui.blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
             }
         }
@@ -95,13 +95,13 @@ public class ContractEMail extends EMail {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = super.serializeNBT();
-        compound.putUniqueId("TaskID", taskID);
+        compound.putUUID("TaskID", taskID);
         return compound;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
         super.deserializeNBT(compound);
-        taskID = compound.getUniqueId("TaskID");
+        taskID = compound.getUUID("TaskID");
     }
 }

@@ -38,42 +38,42 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder()
             .direction(Direction.NORTH,
-                    Block.makeCuboidShape(5D, 0D, 0D, 11D, 6D, 16D),
-                    Block.makeCuboidShape(6D, 6D, 0D, 10D, 7D, 16D),
-                    Block.makeCuboidShape(7D, 7D, 0D, 9D, 8D, 16D)
+                    Block.box(5D, 0D, 0D, 11D, 6D, 16D),
+                    Block.box(6D, 6D, 0D, 10D, 7D, 16D),
+                    Block.box(7D, 7D, 0D, 9D, 8D, 16D)
             ).direction(Direction.SOUTH,
-                    Block.makeCuboidShape(5D, 0D, 0D, 11D, 6D, 16D),
-                    Block.makeCuboidShape(6D, 6D, 0D, 10D, 7D, 16D),
-                    Block.makeCuboidShape(7D, 7D, 0D, 9D, 8D, 16D)
+                    Block.box(5D, 0D, 0D, 11D, 6D, 16D),
+                    Block.box(6D, 6D, 0D, 10D, 7D, 16D),
+                    Block.box(7D, 7D, 0D, 9D, 8D, 16D)
             ).direction(Direction.EAST,
-                    Block.makeCuboidShape(0D, 0D, 5D, 16D, 6D, 11D),
-                    Block.makeCuboidShape(0D, 6D, 6D, 16D, 7D, 10D),
-                    Block.makeCuboidShape(0D, 7D, 7D, 16D, 8D, 9D)
+                    Block.box(0D, 0D, 5D, 16D, 6D, 11D),
+                    Block.box(0D, 6D, 6D, 16D, 7D, 10D),
+                    Block.box(0D, 7D, 7D, 16D, 8D, 9D)
             ).direction(Direction.WEST,
-                    Block.makeCuboidShape(0D, 0D, 5D, 16D, 6D, 11D),
-                    Block.makeCuboidShape(0D, 6D, 6D, 16D, 7D, 10D),
-                    Block.makeCuboidShape(0D, 7D, 7D, 16D, 8D, 9D)
+                    Block.box(0D, 0D, 5D, 16D, 6D, 11D),
+                    Block.box(0D, 6D, 6D, 16D, 7D, 10D),
+                    Block.box(0D, 7D, 7D, 16D, 8D, 9D)
             ).build();
 
     public static final BooleanProperty NEW_MAIL = BooleanProperty.create("new_mail");
 
     public MailboxBlock() {
-        super(Properties.create(Material.IRON).sound(SoundType.METAL).notSolid().hardnessAndResistance(1.5F));
+        super(Properties.of(Material.METAL).sound(SoundType.METAL).noOcclusion().strength(1.5F));
         setRegistryName(new ResourceLocation(Main.MODID, "mailbox"));
-        setDefaultState(getDefaultState().with(NEW_MAIL, false));
+        registerDefaultState(defaultBlockState().setValue(NEW_MAIL, false));
     }
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
+        TileEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof MailboxTileEntity)) {
-            return super.onBlockActivated(state, worldIn, pos, p, handIn, hit);
+            return super.use(state, worldIn, pos, p, handIn, hit);
         }
         MailboxTileEntity mailbox = (MailboxTileEntity) te;
 
@@ -84,36 +84,36 @@ public class MailboxBlock extends HorizontalRotatableBlock implements IItemBlock
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+    public void setPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
         setGroup(worldIn, pos, placer);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.get(HorizontalRotatableBlock.FACING));
+        return SHAPE.get(state.getValue(HorizontalRotatableBlock.FACING));
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.isIn(newState.getBlock())) {
-            TileEntity te = worldIn.getTileEntity(pos);
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            TileEntity te = worldIn.getBlockEntity(pos);
             if (te instanceof MailboxTileEntity) {
                 MailboxTileEntity mailbox = (MailboxTileEntity) te;
-                InventoryHelper.dropInventoryItems(worldIn, pos, mailbox.getOutbox());
+                InventoryHelper.dropContents(worldIn, pos, mailbox.getOutbox());
             }
-            super.onReplaced(state, worldIn, pos, newState, isMoving);
+            super.onRemove(state, worldIn, pos, newState, isMoving);
         }
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(NEW_MAIL);
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity newBlockEntity(IBlockReader worldIn) {
         return new MailboxTileEntity();
     }
 }

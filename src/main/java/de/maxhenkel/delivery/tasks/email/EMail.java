@@ -51,14 +51,14 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
         compound.putByte("ID", id());
-        compound.putUniqueId("EMailID", id);
+        compound.putUUID("EMailID", id);
         compound.putBoolean("Read", read);
         return compound;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        id = compound.getUniqueId("EMailID");
+        id = compound.getUUID("EMailID");
         read = compound.getBoolean("Read");
     }
 

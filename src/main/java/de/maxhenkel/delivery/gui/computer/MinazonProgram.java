@@ -65,19 +65,19 @@ public class MinazonProgram extends ComputerProgram {
                 continue;
             }
             Offer offer = offers.get(offset + i);
-            List<ITextComponent> tooltipFromItem = mc.currentScreen.getTooltipFromItem(offer.getStack());
+            List<ITextComponent> tooltipFromItem = mc.screen.getTooltipFromItem(offer.getStack());
             tooltipFromItem.set(0, new TranslationTextComponent("message.delivery.item_amount", tooltipFromItem.get(0), offer.getStack().getCount()));
-            tooltipFromItem.add(1, new TranslationTextComponent("message.delivery.price", offer.getPrice()).mergeStyle(TextFormatting.GRAY));
+            tooltipFromItem.add(1, new TranslationTextComponent("message.delivery.price", offer.getPrice()).withStyle(TextFormatting.GRAY));
             if (offer.isForEveryMember()) {
-                tooltipFromItem.add(2, new TranslationTextComponent("message.delivery.for_every_member").mergeStyle(TextFormatting.DARK_GREEN));
+                tooltipFromItem.add(2, new TranslationTextComponent("message.delivery.for_every_member").withStyle(TextFormatting.DARK_GREEN));
             }
             if (offer.getPrice() > getContainer().getBalance()) {
-                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_balance").mergeStyle(TextFormatting.DARK_RED));
+                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_balance").withStyle(TextFormatting.DARK_RED));
             }
             if (offer.getLevelRequirement() > getContainer().getLevel()) {
-                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_level").mergeStyle(TextFormatting.DARK_RED));
+                tooltipFromItem.add(new TranslationTextComponent("message.delivery.insufficient_level").withStyle(TextFormatting.DARK_RED));
             }
-            mc.currentScreen.renderWrappedToolTip(matrixStack, tooltipFromItem, mouseX - guiLeft, mouseY - guiTop, mc.fontRenderer);
+            mc.screen.renderWrappedToolTip(matrixStack, tooltipFromItem, mouseX - guiLeft, mouseY - guiTop, mc.font);
             break;
         }
     }
@@ -85,22 +85,22 @@ public class MinazonProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         AbstractGui.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188, 512, 512);
 
         AbstractGui.blit(matrixStack, 3, 3, 0, 287, 56, 32, 512, 512);
-        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.balance").mergeStyle(TextFormatting.DARK_GRAY), 3 + 56 / 2, 9, 0);
-        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.price", getContainer().getBalance()).mergeStyle(TextFormatting.DARK_GREEN), 3 + 56 / 2, 21, 0);
+        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.balance").withStyle(TextFormatting.DARK_GRAY), 3 + 56 / 2, 9, 0);
+        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.price", getContainer().getBalance()).withStyle(TextFormatting.DARK_GREEN), 3 + 56 / 2, 21, 0);
 
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.minazon"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
+        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.minazon"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
 
         for (int i = offset; i < offers.size() && i < offset + 5; i++) {
-            mc.getTextureManager().bindTexture(BACKGROUND);
+            mc.getTextureManager().bind(BACKGROUND);
             int pos = i - offset;
             int startY = guiTop + 26 + pos * 33;
             Offer offer = offers.get(i);
-            if (offer.getLevelRequirement() > screen.getContainer().getLevel()) {
+            if (offer.getLevelRequirement() > screen.getMenu().getLevel()) {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 254, 239, 33, 512, 512);
             } else if (hoverAreas[pos].isHovered(guiLeft, guiTop, mouseX, mouseY)) {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 221, 239, 33, 512, 512);
@@ -108,24 +108,24 @@ public class MinazonProgram extends ComputerProgram {
                 AbstractGui.blit(matrixStack, guiLeft + 3, startY, 0, 188, 239, 33, 512, 512);
             }
 
-            mc.getItemRenderer().renderItemAndEffectIntoGUI(mc.player, offer.getStack(), guiLeft + 10, startY + 8);
-            mc.getItemRenderer().renderItemOverlayIntoGUI(mc.fontRenderer, offer.getStack(), guiLeft + 10, startY + 8, null);
+            mc.getItemRenderer().renderAndDecorateItem(mc.player, offer.getStack(), guiLeft + 10, startY + 8);
+            mc.getItemRenderer().renderGuiItemDecorations(mc.font, offer.getStack(), guiLeft + 10, startY + 8, null);
 
             IFormattableTextComponent price = new TranslationTextComponent("message.delivery.price", offer.getPrice());
 
             if (getContainer().getBalance() < offer.getPrice()) {
-                price = price.mergeStyle(TextFormatting.DARK_RED);
+                price = price.withStyle(TextFormatting.DARK_RED);
             }
 
-            mc.fontRenderer.func_243248_b(matrixStack, price, guiLeft + 35, startY + 13, 0xFFFFFF);
-            if (offer.getLevelRequirement() > screen.getContainer().getLevel()) {
-                IFormattableTextComponent lvl = new TranslationTextComponent("message.delivery.level_required", offer.getLevelRequirement()).mergeStyle(TextFormatting.DARK_RED);
-                int w = mc.fontRenderer.getStringPropertyWidth(lvl);
-                mc.fontRenderer.func_243248_b(matrixStack, lvl, guiLeft + xSize - w - 22, startY + 13, 0);
+            mc.font.draw(matrixStack, price, guiLeft + 35, startY + 13, 0xFFFFFF);
+            if (offer.getLevelRequirement() > screen.getMenu().getLevel()) {
+                IFormattableTextComponent lvl = new TranslationTextComponent("message.delivery.level_required", offer.getLevelRequirement()).withStyle(TextFormatting.DARK_RED);
+                int w = mc.font.width(lvl);
+                mc.font.draw(matrixStack, lvl, guiLeft + xSize - w - 22, startY + 13, 0);
             }
         }
 
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
 
         if (offers.size() > 5) {
             float h = 165 - 27;

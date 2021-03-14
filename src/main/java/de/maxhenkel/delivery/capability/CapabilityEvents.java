@@ -14,7 +14,7 @@ public class CapabilityEvents {
 
     @SubscribeEvent
     public void onCapabilityAttach(AttachCapabilitiesEvent<World> event) {
-        if (!event.getObject().getDimensionKey().equals(Dimension.OVERWORLD)) {
+        if (!event.getObject().dimension().equals(Dimension.OVERWORLD)) {
             return;
         }
         if (event.getObject().getCapability(Main.PROGRESSION_CAPABILITY).isPresent()) {

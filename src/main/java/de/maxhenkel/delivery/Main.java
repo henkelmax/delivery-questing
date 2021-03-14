@@ -163,7 +163,7 @@ public class Main {
     }
 
     public static Progression getProgression(MinecraftServer server) {
-        return server.getWorld(World.OVERWORLD).getCapability(PROGRESSION_CAPABILITY).orElseThrow(() -> new RuntimeException("Progression capability not found"));
+        return server.getLevel(World.OVERWORLD).getCapability(PROGRESSION_CAPABILITY).orElseThrow(() -> new RuntimeException("Progression capability not found"));
     }
 
 }

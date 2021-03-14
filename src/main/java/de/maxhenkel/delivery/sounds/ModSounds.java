@@ -28,8 +28,8 @@ public class ModSounds {
 
     @OnlyIn(Dist.CLIENT)
     public static void playSoundLoop(TickableSound loop, World world) {
-        if (world.isRemote) {
-            Minecraft.getInstance().getSoundHandler().play(loop);
+        if (world.isClientSide) {
+            Minecraft.getInstance().getSoundManager().play(loop);
         }
     }
 

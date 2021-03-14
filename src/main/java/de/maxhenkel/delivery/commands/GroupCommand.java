@@ -39,31 +39,31 @@ public class GroupCommand {
         LiteralArgumentBuilder<CommandSource> literalBuilder = Commands.literal("group");
 
         literalBuilder.then(Commands.literal("create").then(Commands.argument("name", StringArgument.create()).then(Commands.argument("password", StringArgument.create()).executes(context -> {
-            ServerPlayerEntity player = context.getSource().asPlayer();
+            ServerPlayerEntity player = context.getSource().getPlayerOrException();
             Progression tasks = Main.getProgression(context.getSource().getServer());
             String name = StringArgument.string(context, "name");
-            tasks.addGroup(player.getUniqueID(), name, StringArgument.string(context, "password"));
+            tasks.addGroup(player.getUUID(), name, StringArgument.string(context, "password"));
             giveItem(player, new ItemStack(ModBlocks.MAILBOX));
             giveItem(player, new ItemStack(ModBlocks.MAILBOX_POST));
             giveItem(player, new ItemStack(ModBlocks.BULLETIN_BOARD));
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_created", name), false);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_created", name), false);
             return 1;
         }))));
 
         literalBuilder.then(Commands.literal("join").then(Commands.argument("name", StringArgument.create()).then(Commands.argument("password", StringArgument.create()).executes(context -> {
-            ServerPlayerEntity player = context.getSource().asPlayer();
+            ServerPlayerEntity player = context.getSource().getPlayerOrException();
             Progression tasks = Main.getProgression(context.getSource().getServer());
             String name = StringArgument.string(context, "name");
-            tasks.joinGroup(player.getUniqueID(), name, StringArgument.string(context, "password"));
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_joined", name), false);
+            tasks.joinGroup(player.getUUID(), name, StringArgument.string(context, "password"));
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_joined", name), false);
             return 1;
         }))));
 
         literalBuilder.then(Commands.literal("leave").executes(context -> {
-            ServerPlayerEntity player = context.getSource().asPlayer();
+            ServerPlayerEntity player = context.getSource().getPlayerOrException();
             Progression tasks = Main.getProgression(context.getSource().getServer());
-            Group group = tasks.leaveGroup(player.getUniqueID());
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_left", group.getName()), false);
+            Group group = tasks.leaveGroup(player.getUUID());
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_left", group.getName()), false);
             return 1;
         }));
 
@@ -71,26 +71,26 @@ public class GroupCommand {
             Progression tasks = Main.getProgression(context.getSource().getServer());
             String name = StringArgument.string(context, "name");
             tasks.removeGroup(name, StringArgument.string(context, "password"));
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_removed", name), false);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_removed", name), false);
             return 1;
         }))));
 
-        literalBuilder.then(Commands.literal("remove").then(Commands.argument("name", StringArgument.create()).requires((commandSource) -> commandSource.hasPermissionLevel(2)).executes(context -> {
+        literalBuilder.then(Commands.literal("remove").then(Commands.argument("name", StringArgument.create()).requires((commandSource) -> commandSource.hasPermission(2)).executes(context -> {
             Progression tasks = Main.getProgression(context.getSource().getServer());
             String name = StringArgument.string(context, "name");
             tasks.removeGroup(name);
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.group_removed", name), false);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_removed", name), false);
             return 1;
         })));
 
-        literalBuilder.then(Commands.literal("listgroups").requires((commandSource) -> commandSource.hasPermissionLevel(2)).executes(context -> {
+        literalBuilder.then(Commands.literal("listgroups").requires((commandSource) -> commandSource.hasPermission(2)).executes(context -> {
             Progression tasks = Main.getProgression(context.getSource().getServer());
 
             if (tasks.getGroups().isEmpty()) {
-                context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.no_groups"), false);
+                context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.no_groups"), false);
             } else {
                 for (Group group : tasks.getGroups()) {
-                    context.getSource().sendFeedback(new StringTextComponent(group.getName()), false);
+                    context.getSource().sendSuccess(new StringTextComponent(group.getName()), false);
                 }
             }
 
@@ -102,22 +102,22 @@ public class GroupCommand {
             String name = StringArgument.string(context, "name");
 
             Group group = tasks.getGroup(name);
-            if (!context.getSource().hasPermissionLevel(2)) {
-                ServerPlayerEntity player = context.getSource().asPlayer();
-                if (!group.isMember(player.getUniqueID())) {
+            if (!context.getSource().hasPermission(2)) {
+                ServerPlayerEntity player = context.getSource().getPlayerOrException();
+                if (!group.isMember(player.getUUID())) {
                     throw new CommandException(new TranslationTextComponent("command.delivery.no_member_of_group"));
                 }
             }
 
             if (group.getMembers().isEmpty()) {
-                context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.no_members"), false);
+                context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.no_members"), false);
             } else {
                 for (UUID member : group.getMembers()) {
-                    ServerPlayerEntity playerByUUID = context.getSource().getServer().getPlayerList().getPlayerByUUID(member);
+                    ServerPlayerEntity playerByUUID = context.getSource().getServer().getPlayerList().getPlayer(member);
                     if (playerByUUID != null) {
-                        context.getSource().sendFeedback(new StringTextComponent("").append(playerByUUID.getDisplayName()).append(new StringTextComponent(" (" + member.toString() + ")")), false);
+                        context.getSource().sendSuccess(new StringTextComponent("").append(playerByUUID.getDisplayName()).append(new StringTextComponent(" (" + member.toString() + ")")), false);
                     } else {
-                        context.getSource().sendFeedback(new StringTextComponent(member.toString()), false);
+                        context.getSource().sendSuccess(new StringTextComponent(member.toString()), false);
                     }
                 }
             }
@@ -125,10 +125,10 @@ public class GroupCommand {
             return 1;
         })));
 
-        literalBuilder.then(Commands.literal("backup").then(Commands.literal("create").requires((commandSource) -> commandSource.hasPermissionLevel(2)).executes(context -> {
+        literalBuilder.then(Commands.literal("backup").then(Commands.literal("create").requires((commandSource) -> commandSource.hasPermission(2)).executes(context -> {
             Progression tasks = Main.getProgression(context.getSource().getServer());
 
-            File backups = CommonUtils.getWorldFolder(context.getSource().getServer().getWorld(World.OVERWORLD), PROGRESSION_BACKUPS);
+            File backups = CommonUtils.getWorldFolder(context.getSource().getServer().getLevel(World.OVERWORLD), PROGRESSION_BACKUPS);
             backups.mkdirs();
             String filename = BACKUP_FORMAT.format(Calendar.getInstance().getTime());
             try {
@@ -137,14 +137,14 @@ public class GroupCommand {
                 e.printStackTrace();
                 throw new CommandException(new TranslationTextComponent("command.delivery.backup_failed", e.getMessage()));
             }
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.backup_success", filename), false);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.backup_success", filename), false);
             return 1;
         })));
 
-        literalBuilder.then(Commands.literal("backup").then(Commands.literal("load").then(Commands.argument("name", StringArgument.create()).requires((commandSource) -> commandSource.hasPermissionLevel(2)).executes(context -> {
+        literalBuilder.then(Commands.literal("backup").then(Commands.literal("load").then(Commands.argument("name", StringArgument.create()).requires((commandSource) -> commandSource.hasPermission(2)).executes(context -> {
             Progression tasks = Main.getProgression(context.getSource().getServer());
 
-            File backups = CommonUtils.getWorldFolder(context.getSource().getServer().getWorld(World.OVERWORLD), PROGRESSION_BACKUPS);
+            File backups = CommonUtils.getWorldFolder(context.getSource().getServer().getLevel(World.OVERWORLD), PROGRESSION_BACKUPS);
 
             String name = StringArgument.string(context, "name");
             try {
@@ -154,20 +154,20 @@ public class GroupCommand {
                 e.printStackTrace();
                 throw new CommandException(new TranslationTextComponent("command.delivery.backup_load_failed", e.getMessage()));
             }
-            context.getSource().sendFeedback(new TranslationTextComponent("command.delivery.backup_load_success"), false);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.backup_load_success"), false);
             return 1;
         }))));
 
-        literalBuilder.then(Commands.literal("showtask").then(Commands.argument("taskid", UUIDArgument.func_239194_a_()).executes(context -> {
-            ServerPlayerEntity player = context.getSource().asPlayer();
-            UUID taskID = UUIDArgument.func_239195_a_(context, "taskid");
+        literalBuilder.then(Commands.literal("showtask").then(Commands.argument("taskid", UUIDArgument.uuid()).executes(context -> {
+            ServerPlayerEntity player = context.getSource().getPlayerOrException();
+            UUID taskID = UUIDArgument.getUuid(context, "taskid");
             Task task = Main.TASK_MANAGER.getTask(taskID, 0);
 
             if (task == null) {
                 throw new CommandException(new TranslationTextComponent("command.delivery.task_not_found"));
             }
 
-            TaskContainerProvider.openGui(player, task, new TranslationTextComponent(ModItems.CONTRACT.getTranslationKey()), ContractContainer::new);
+            TaskContainerProvider.openGui(player, task, new TranslationTextComponent(ModItems.CONTRACT.getDescriptionId()), ContractContainer::new);
 
             return 1;
         })));
@@ -176,8 +176,8 @@ public class GroupCommand {
     }
 
     public static void giveItem(ServerPlayerEntity player, ItemStack stack) {
-        if (!player.inventory.addItemStackToInventory(stack)) {
-            player.dropItem(stack, false);
+        if (!player.inventory.add(stack)) {
+            player.drop(stack, false);
         }
     }
 

@@ -20,7 +20,7 @@ public class Deserializers {
         ItemStack stack = new ItemStack(value, amount);
         if (obj.has("nbt")) {
             try {
-                stack.setTag(JsonToNBT.getTagFromJson(obj.get("nbt").getAsString()));
+                stack.setTag(JsonToNBT.parseTag(obj.get("nbt").getAsString()));
             } catch (CommandSyntaxException e) {
                 Main.LOGGER.warn("Failed to load NBT from stack");
             }

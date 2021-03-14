@@ -35,22 +35,22 @@ public class BarrelTileEntity extends TileEntity implements IFluidHandler {
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         tier = ((BarrelBlock) state.getBlock()).getTier();
         tank = new FluidTank(BarrelBlock.getMillibuckets(tier));
         tank.readFromNBT(compound.getCompound("Fluid"));
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
-        return super.write(compound);
+        return super.save(compound);
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (!removed && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+        if (!remove && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return LazyOptional.of(() -> tank).cast();
         }
         return super.getCapability(cap, side);

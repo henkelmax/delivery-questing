@@ -29,7 +29,7 @@ public class MessageMarkEMailRead implements Message<MessageMarkEMailRead> {
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
         try {
-            Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUniqueID());
+            Group playerGroup = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUUID());
             playerGroup.markEMailRead(mailID);
         } catch (Exception e) {
         }
@@ -37,12 +37,12 @@ public class MessageMarkEMailRead implements Message<MessageMarkEMailRead> {
 
     @Override
     public MessageMarkEMailRead fromBytes(PacketBuffer packetBuffer) {
-        mailID = packetBuffer.readUniqueId();
+        mailID = packetBuffer.readUUID();
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeUniqueId(mailID);
+        packetBuffer.writeUUID(mailID);
     }
 }

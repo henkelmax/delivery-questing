@@ -14,41 +14,41 @@ public abstract class SoundLoopDrone extends TickableSound {
     public SoundLoopDrone(DroneEntity drone, SoundEvent event, SoundCategory category) {
         super(event, category);
         this.drone = drone;
-        this.repeat = true;
-        this.repeatDelay = 0;
+        this.looping = true;
+        this.delay = 0;
         this.volume = 1F;
         this.pitch = 1F;
         this.priority = true;
-        this.global = false;
-        this.attenuationType = AttenuationType.LINEAR;
+        this.relative = false;
+        this.attenuation = AttenuationType.LINEAR;
         this.updatePos();
     }
 
     public void updatePos() {
-        this.x = (float) drone.getPosX();
-        this.y = (float) drone.getPosY();
-        this.z = (float) drone.getPosZ();
+        this.x = (float) drone.getX();
+        this.y = (float) drone.getY();
+        this.z = (float) drone.getZ();
     }
 
     @Override
     public void tick() {
-        if (isDonePlaying()) {
+        if (isStopped()) {
             return;
         }
 
         if (!drone.isAlive()) {
-            finishPlaying();
+            stop();
             return;
         }
 
         ClientPlayerEntity player = Minecraft.getInstance().player;
         if (player == null || !player.isAlive()) {
-            finishPlaying();
+            stop();
             return;
         }
 
         if (shouldStopSound()) {
-            finishPlaying();
+            stop();
             return;
         }
 

@@ -24,14 +24,15 @@ public class LevelTrigger extends AbstractCriterionTrigger<LevelTrigger.Instance
         return ID;
     }
 
-    public LevelTrigger.Instance deserializeTrigger(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
+    @Override
+    public LevelTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
         return new LevelTrigger.Instance(entityPredicate, deserializeLevel(json));
     }
 
     @Nullable
     private static Integer deserializeLevel(JsonObject jsonObject) {
         if (jsonObject.has("level")) {
-            return JSONUtils.getInt(jsonObject, "level");
+            return JSONUtils.convertToInt(jsonObject, "level");
         } else {
             return null;
         }
@@ -39,7 +40,7 @@ public class LevelTrigger extends AbstractCriterionTrigger<LevelTrigger.Instance
 
     public void trigger(ServerPlayerEntity player, int level) {
         ModTriggers.COMPUTER_AGE_TRIGGER.trigger(player, level);
-        triggerListeners(player, (instance) -> instance.test(level));
+        trigger(player, (instance) -> instance.test(level));
     }
 
     public static class Instance extends CriterionInstance {
@@ -50,8 +51,9 @@ public class LevelTrigger extends AbstractCriterionTrigger<LevelTrigger.Instance
             this.level = level;
         }
 
-        public JsonObject serialize(ConditionArraySerializer conditions) {
-            JsonObject jsonobject = super.serialize(conditions);
+        @Override
+        public JsonObject serializeToJson(ConditionArraySerializer conditions) {
+            JsonObject jsonobject = super.serializeToJson(conditions);
             if (this.level != null) {
                 jsonobject.addProperty("level", level);
             }

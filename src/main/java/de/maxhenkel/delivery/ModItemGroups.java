@@ -8,7 +8,7 @@ public class ModItemGroups {
 
     public static final ItemGroup TAB_DELIVERY = new ItemGroup("delivery") {
         @Override
-        public ItemStack createIcon() {
+        public ItemStack makeIcon() {
             return new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_1);
         }
     };

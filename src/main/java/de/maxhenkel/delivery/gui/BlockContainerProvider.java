@@ -15,7 +15,7 @@ public abstract class BlockContainerProvider implements INamedContainerProvider 
 
     @Override
     public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(block.getTranslationKey());
+        return new TranslationTextComponent(block.getDescriptionId());
     }
 
 }

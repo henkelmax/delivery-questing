@@ -33,18 +33,18 @@ public class MessageChallengeToast implements Message<MessageChallengeToast> {
 
     @OnlyIn(Dist.CLIENT)
     private void runClient() {
-        Minecraft.getInstance().getToastGui().add(new ChallengeToast(task));
+        Minecraft.getInstance().getToasts().addToast(new ChallengeToast(task));
     }
 
     @Override
     public MessageChallengeToast fromBytes(PacketBuffer packetBuffer) {
         task = new Task();
-        task.deserializeNBT(packetBuffer.readCompoundTag());
+        task.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(task.serializeNBT());
+        packetBuffer.writeNbt(task.serializeNBT());
     }
 }

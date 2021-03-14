@@ -35,18 +35,18 @@ public class MessageEMailToast implements Message<MessageEMailToast> {
     @OnlyIn(Dist.CLIENT)
     private void runClient() {
         if (eMail != null) {
-            Minecraft.getInstance().getToastGui().add(new EMailToast(eMail));
+            Minecraft.getInstance().getToasts().addToast(new EMailToast(eMail));
         }
     }
 
     @Override
     public MessageEMailToast fromBytes(PacketBuffer packetBuffer) {
-        eMail = EMail.deserialize(packetBuffer.readCompoundTag(), new Group());
+        eMail = EMail.deserialize(packetBuffer.readNbt(), new Group());
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(eMail.serializeNBT());
+        packetBuffer.writeNbt(eMail.serializeNBT());
     }
 }

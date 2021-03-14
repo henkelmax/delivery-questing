@@ -24,8 +24,8 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
     public ComputerScreen(ComputerContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
-        xSize = 256;
-        ySize = 194;
+        imageWidth = 256;
+        imageHeight = 194;
 
         program = new DesktopProgram(this);
     }
@@ -41,16 +41,16 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
         if (program != null) {
             program.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
         }
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
-        super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
+    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+        super.renderLabels(matrixStack, mouseX, mouseY);
         if (program != null) {
             program.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
         }

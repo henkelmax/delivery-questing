@@ -28,10 +28,10 @@ public abstract class CardboardBoxContainer extends ContainerBase {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         if (cardboradBox.isRemoved()) {
             return false;
         }
-        return super.canInteractWith(player);
+        return super.stillValid(player);
     }
 }

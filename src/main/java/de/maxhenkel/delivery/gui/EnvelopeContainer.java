@@ -12,7 +12,7 @@ public class EnvelopeContainer extends ContainerBase {
 
         addSlot(new NonRecursiveSlot(inventory, 0, 80, 20) {
             @Override
-            public int getSlotStackLimit() {
+            public int getMaxStackSize() {
                 return 1;
             }
         });

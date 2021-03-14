@@ -31,7 +31,7 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
 
         loadSkin(filename, resourceLocation -> skin = resourceLocation);
 
-        recalculateSize();
+        refreshDimensions();
     }
 
     public static void loadSkin(String filename, Consumer<ResourceLocation> consumer) {
@@ -48,13 +48,13 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
         }
 
         TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
-        texturemanager.deleteTexture(location);
+        texturemanager.release(location);
 
         new Thread(() -> {
             try {
                 NativeImage image = NativeImage.read(new FileInputStream(textureFile));
                 RenderSystem.recordRenderCall(() -> {
-                    texturemanager.loadTexture(location, new DynamicTexture(image));
+                    texturemanager.register(location, new DynamicTexture(image));
                     cache.put(filename, location);
                     consumer.accept(location);
                 });
@@ -65,7 +65,7 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
     }
 
     @Override
-    public boolean isWearing(PlayerModelPart part) {
+    public boolean isModelPartShown(PlayerModelPart part) {
         return true;
     }
 
@@ -75,10 +75,10 @@ public class DummyPlayer extends RemoteClientPlayerEntity {
     }
 
     @Override
-    public ResourceLocation getLocationSkin() {
+    public ResourceLocation getSkinTextureLocation() {
         if (skin != null) {
             return skin;
         }
-        return super.getLocationSkin();
+        return super.getSkinTextureLocation();
     }
 }

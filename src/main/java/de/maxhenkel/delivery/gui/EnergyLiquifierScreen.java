@@ -25,17 +25,17 @@ public class EnergyLiquifierScreen extends ScreenBase<EnergyLiquifierContainer> 
     public EnergyLiquifierScreen(EnergyLiquifierContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
-        xSize = 176;
-        ySize = 166;
+        imageWidth = 176;
+        imageHeight = 166;
 
         hoverAreas.add(new HoverArea(27, 17, BAR_WIDTH, BAR_HEIGHT,
-                () -> Collections.singletonList(new TranslationTextComponent("tooltip.delivery.energy", container.getEnergyLiquifier().getEnergy().getEnergyStored()).func_241878_f())
+                () -> Collections.singletonList(new TranslationTextComponent("tooltip.delivery.energy", container.getEnergyLiquifier().getEnergy().getEnergyStored()).getVisualOrderText())
         ));
 
         hoverAreas.add(new HoverArea(133, 17, BAR_WIDTH, BAR_HEIGHT,
                 () -> Arrays.asList(
-                        container.getEnergyLiquifier().getTank().getFluid().getDisplayName().func_241878_f(),
-                        new TranslationTextComponent("tooltip.delivery.fluid", container.getEnergyLiquifier().getTank().getFluidAmount()).func_241878_f()
+                        container.getEnergyLiquifier().getTank().getFluid().getDisplayName().getVisualOrderText(),
+                        new TranslationTextComponent("tooltip.delivery.fluid", container.getEnergyLiquifier().getTank().getFluidAmount()).getVisualOrderText()
                 )
         ));
     }
@@ -43,33 +43,33 @@ public class EnergyLiquifierScreen extends ScreenBase<EnergyLiquifierContainer> 
     @Override
     protected void init() {
         super.init();
-        addButton(new Button(guiLeft + 74, guiTop + 55, 28, 20, new TranslationTextComponent("button.delivery.switch"), button -> {
+        addButton(new Button(leftPos + 74, topPos + 55, 28, 20, new TranslationTextComponent("button.delivery.switch"), button -> {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageSwitchLiquifier());
         }));
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
         drawCentered(matrixStack, title, 6, FONT_COLOR);
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
+        font.draw(matrixStack, playerInventory.getDisplayName(), 8F, (float) (imageHeight - 96 + 3), FONT_COLOR);
 
         drawHoverAreas(matrixStack, x, y);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        EnergyLiquifierTileEntity energyLiquifier = container.getEnergyLiquifier();
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
+        EnergyLiquifierTileEntity energyLiquifier = menu.getEnergyLiquifier();
 
         if (energyLiquifier.isReversed()) {
-            blit(matrixStack, guiLeft + 76, guiTop + 36, 176, 0, 24, 15);
+            blit(matrixStack, leftPos + 76, topPos + 36, 176, 0, 24, 15);
         }
 
         int energyHeight = getBlitSize(energyLiquifier.getEnergy().getEnergyStored(), energyLiquifier.getEnergy().getMaxEnergyStored(), BAR_HEIGHT);
-        blit(matrixStack, guiLeft + 27, guiTop + 17 + energyHeight, 200, energyHeight, BAR_WIDTH, BAR_HEIGHT);
+        blit(matrixStack, leftPos + 27, topPos + 17 + energyHeight, 200, energyHeight, BAR_WIDTH, BAR_HEIGHT);
 
         int fluidHeight = getBlitSize(energyLiquifier.getTank().getFluidAmount(), energyLiquifier.getTank().getCapacity(), BAR_HEIGHT);
-        blit(matrixStack, guiLeft + 133, guiTop + 17 + fluidHeight, 216, fluidHeight, BAR_WIDTH, BAR_HEIGHT);
+        blit(matrixStack, leftPos + 133, topPos + 17 + fluidHeight, 216, fluidHeight, BAR_WIDTH, BAR_HEIGHT);
     }
 
 }

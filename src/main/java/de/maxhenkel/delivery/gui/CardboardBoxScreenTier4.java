@@ -11,7 +11,7 @@ public class CardboardBoxScreenTier4 extends CardboardBoxScreen {
 
     public CardboardBoxScreenTier4(CardboardBoxContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
-        ySize = 151;
+        imageHeight = 151;
     }
 
 }

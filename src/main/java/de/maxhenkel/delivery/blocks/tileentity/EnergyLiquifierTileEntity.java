@@ -38,6 +38,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     private static final int ENERGY_CAPACITY = 16_000;
 
     private final IIntArray fields = new IIntArray() {
+        @Override
         public int get(int index) {
             switch (index) {
                 case 0:
@@ -50,6 +51,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
             return 0;
         }
 
+        @Override
         public void set(int index, int value) {
             switch (index) {
                 case 0:
@@ -64,7 +66,8 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
             }
         }
 
-        public int size() {
+        @Override
+        public int getCount() {
             return 3;
         }
     };
@@ -85,7 +88,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
 
     @Override
     public void tick() {
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
 
@@ -95,19 +98,19 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
             } else {
                 EnergyUtils.pushEnergy(energyStorage, energy, 1000);
             }
-            markDirty();
+            setChanged();
         });
 
         int rate = getRate();
         if (reversed) {
             if (energy.getEnergyStored() <= ENERGY_CAPACITY) {
                 energy.receiveEnergy(tank.drain(new FluidStack(ModFluids.LIQUID_ENERGY, rate), IFluidHandler.FluidAction.EXECUTE).getAmount(), false);
-                markDirty();
+                setChanged();
             }
         } else {
             if (tank.getFluidAmount() <= TANK_CAPACITY) {
                 tank.fill(new FluidStack(ModFluids.LIQUID_ENERGY, energy.useEnergy(rate, false)), IFluidHandler.FluidAction.EXECUTE);
-                markDirty();
+                setChanged();
             }
         }
 
@@ -119,7 +122,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
                 FluidUtils.tryFluidTransfer(fluidHandlerItem, tank, 1000, true);
                 inventory.set(1, fluidHandlerItem.getContainer());
             }
-            markDirty();
+            setChanged();
         });
     }
 
@@ -132,11 +135,11 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     }
 
     public IInventory getInventory() {
-        return new ItemListInventory(inventory, this::markDirty);
+        return new ItemListInventory(inventory, this::setChanged);
     }
 
     public IInventory getUpgradeInventory() {
-        return new ItemListInventory(upgradeInventory, this::markDirty);
+        return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
     @Nullable
@@ -173,7 +176,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
 
     public void setReversed(boolean reversed) {
         this.reversed = reversed;
-        markDirty();
+        setChanged();
     }
 
     public boolean isReversed() {
@@ -185,8 +188,8 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         tank = new FluidTank(TANK_CAPACITY, fluidStack -> fluidStack.getFluid() == ModFluids.LIQUID_ENERGY);
         tank.readFromNBT(compound.getCompound("Fluid"));
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY, compound.getInt("Energy"));
@@ -198,27 +201,27 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
         compound.putInt("Energy", energy.getEnergyStored());
         compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
         compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
         compound.putBoolean("Reversed", reversed);
-        return super.write(compound);
+        return super.save(compound);
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (removed) {
+        if (remove) {
             return super.getCapability(cap, side);
         }
 
         if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            if (side == null || side.equals(getBlockState().get(HorizontalRotatableBlock.FACING))) {
+            if (side == null || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING))) {
                 return LazyOptional.of(() -> tank).cast();
             }
         } else if (cap == CapabilityEnergy.ENERGY) {
-            if (side == null || side.equals(getBlockState().get(HorizontalRotatableBlock.FACING).getOpposite())) {
+            if (side == null || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getOpposite())) {
                 return LazyOptional.of(() -> energy).cast();
             }
         } else if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {

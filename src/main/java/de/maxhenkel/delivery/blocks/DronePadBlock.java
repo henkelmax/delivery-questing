@@ -37,43 +37,43 @@ import javax.annotation.Nullable;
 public class DronePadBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IGroupBlock, IUpgradable {
 
     private static final DirectionalVoxelShape SHAPE = new DirectionalVoxelShape.Builder().direction(Direction.NORTH,
-            Block.makeCuboidShape(0D, 0D, 0D, 16D, 1D, 16D),
-            Block.makeCuboidShape(1D, 1D, 1D, 15D, 2D, 15D),
-            Block.makeCuboidShape(1D, 1D, 15D, 15D, 12D, 16D),
-            Block.makeCuboidShape(4D, 2D, 14D, 12D, 9D, 15D)
+            Block.box(0D, 0D, 0D, 16D, 1D, 16D),
+            Block.box(1D, 1D, 1D, 15D, 2D, 15D),
+            Block.box(1D, 1D, 15D, 15D, 12D, 16D),
+            Block.box(4D, 2D, 14D, 12D, 9D, 15D)
     ).direction(Direction.SOUTH,
-            Block.makeCuboidShape(16D, 0D, 16D, 0D, 1D, 0D),
-            Block.makeCuboidShape(15D, 1D, 15D, 1D, 2D, 1D),
-            Block.makeCuboidShape(15D, 1D, 1D, 1D, 12D, 0D),
-            Block.makeCuboidShape(12D, 2D, 2D, 4D, 9D, 1D)
+            Block.box(16D, 0D, 16D, 0D, 1D, 0D),
+            Block.box(15D, 1D, 15D, 1D, 2D, 1D),
+            Block.box(15D, 1D, 1D, 1D, 12D, 0D),
+            Block.box(12D, 2D, 2D, 4D, 9D, 1D)
     ).direction(Direction.WEST,
-            Block.makeCuboidShape(0D, 0D, 16D, 16D, 1D, 0D),
-            Block.makeCuboidShape(1D, 1D, 15D, 15D, 2D, 1D),
-            Block.makeCuboidShape(15D, 1D, 15D, 16D, 12D, 1D),
-            Block.makeCuboidShape(14D, 2D, 12D, 15D, 9D, 4D)
+            Block.box(0D, 0D, 16D, 16D, 1D, 0D),
+            Block.box(1D, 1D, 15D, 15D, 2D, 1D),
+            Block.box(15D, 1D, 15D, 16D, 12D, 1D),
+            Block.box(14D, 2D, 12D, 15D, 9D, 4D)
     ).direction(Direction.EAST,
-            Block.makeCuboidShape(16D, 0D, 0D, 0D, 1D, 16D),
-            Block.makeCuboidShape(15D, 1D, 1D, 1D, 2D, 15D),
-            Block.makeCuboidShape(1D, 1D, 1D, 0D, 12D, 15D),
-            Block.makeCuboidShape(2D, 2D, 4D, 1D, 9D, 12D)
+            Block.box(16D, 0D, 0D, 0D, 1D, 16D),
+            Block.box(15D, 1D, 1D, 1D, 2D, 15D),
+            Block.box(1D, 1D, 1D, 0D, 12D, 15D),
+            Block.box(2D, 2D, 4D, 1D, 9D, 12D)
     ).build();
 
     public DronePadBlock() {
-        super(Properties.create(Material.IRON).sound(SoundType.METAL).notSolid().hardnessAndResistance(1.5F));
+        super(Properties.of(Material.METAL).sound(SoundType.METAL).noOcclusion().strength(1.5F));
         setRegistryName(new ResourceLocation(Main.MODID, "drone_pad"));
     }
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity p, Hand handIn, BlockRayTraceResult hit) {
+        TileEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof DronePadTileEntity)) {
-            return super.onBlockActivated(state, worldIn, pos, p, handIn, hit);
+            return super.use(state, worldIn, pos, p, handIn, hit);
         }
 
         DronePadTileEntity dronePad = (DronePadTileEntity) te;
@@ -82,7 +82,7 @@ public class DronePadBlock extends HorizontalRotatableBlock implements IItemBloc
             if (dronePad.isSkyFree()) {
                 TileEntityContainerProvider.openGui(p, dronePad, (i, playerInventory, playerEntity) -> new DronePadContainer(i, playerInventory, dronePad));
             } else {
-                p.sendStatusMessage(new TranslationTextComponent("message.delivery.drone_pad_no_sky_access"), true);
+                p.displayClientMessage(new TranslationTextComponent("message.delivery.drone_pad_no_sky_access"), true);
             }
         });
         return ActionResultType.SUCCESS;
@@ -90,43 +90,43 @@ public class DronePadBlock extends HorizontalRotatableBlock implements IItemBloc
 
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+    public void setPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
         setGroup(worldIn, pos, placer);
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        TileEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof DronePadTileEntity) {
             DronePadTileEntity dronePad = (DronePadTileEntity) te;
-            InventoryHelper.dropInventoryItems(worldIn, pos, dronePad.getInventory());
-            InventoryHelper.dropInventoryItems(worldIn, pos, dronePad.getUpgradeInventory());
+            InventoryHelper.dropContents(worldIn, pos, dronePad.getInventory());
+            InventoryHelper.dropContents(worldIn, pos, dronePad.getUpgradeInventory());
         }
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.get(HorizontalRotatableBlock.FACING));
+        return SHAPE.get(state.getValue(HorizontalRotatableBlock.FACING));
     }
 
     @Override
     public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof DronePadTileEntity) {
             DronePadTileEntity dronePad = (DronePadTileEntity) te;
-            if (dronePad.getUpgradeInventory().getStackInSlot(0).isEmpty()) {
-                dronePad.getUpgradeInventory().setInventorySlotContents(0, stack.copy().split(1));
+            if (dronePad.getUpgradeInventory().getItem(0).isEmpty()) {
+                dronePad.getUpgradeInventory().setItem(0, stack.copy().split(1));
                 ItemUtils.decrItemStack(stack, player);
-                return ActionResultType.func_233537_a_(world.isRemote);
+                return ActionResultType.sidedSuccess(world.isClientSide);
             }
         }
         return ActionResultType.PASS;
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity newBlockEntity(IBlockReader worldIn) {
         return new DronePadTileEntity();
     }
 

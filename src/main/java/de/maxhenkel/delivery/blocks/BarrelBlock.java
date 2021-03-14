@@ -44,21 +44,21 @@ import java.util.List;
 public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer, ITiered {
 
     private static final VoxelShape SHAPE = VoxelUtils.combine(
-            Block.makeCuboidShape(5D, 0D, 0D, 11D, 16D, 1D),
-            Block.makeCuboidShape(3D, 0D, 1D, 13D, 16D, 2D),
-            Block.makeCuboidShape(2D, 0D, 2D, 14D, 16D, 3D),
-            Block.makeCuboidShape(1D, 0D, 3D, 15D, 16D, 5D),
-            Block.makeCuboidShape(0D, 0D, 5D, 16D, 16D, 11D),
-            Block.makeCuboidShape(1D, 0D, 11D, 15D, 16D, 13D),
-            Block.makeCuboidShape(2D, 0D, 13D, 14D, 16D, 14D),
-            Block.makeCuboidShape(3D, 0D, 14D, 13D, 16D, 15D),
-            Block.makeCuboidShape(5D, 0D, 15D, 11D, 16D, 16D)
+            Block.box(5D, 0D, 0D, 11D, 16D, 1D),
+            Block.box(3D, 0D, 1D, 13D, 16D, 2D),
+            Block.box(2D, 0D, 2D, 14D, 16D, 3D),
+            Block.box(1D, 0D, 3D, 15D, 16D, 5D),
+            Block.box(0D, 0D, 5D, 16D, 16D, 11D),
+            Block.box(1D, 0D, 11D, 15D, 16D, 13D),
+            Block.box(2D, 0D, 13D, 14D, 16D, 14D),
+            Block.box(3D, 0D, 14D, 13D, 16D, 15D),
+            Block.box(5D, 0D, 15D, 11D, 16D, 16D)
     );
 
     protected Tier tier;
 
     public BarrelBlock(Tier tier) {
-        super(Properties.create(Material.IRON).sound(SoundType.METAL).notSolid().hardnessAndResistance(1.5F));
+        super(Properties.of(Material.METAL).sound(SoundType.METAL).noOcclusion().strength(1.5F));
         this.tier = tier;
         setRegistryName(new ResourceLocation(Main.MODID, "barrel_tier_" + tier.getTier()));
 
@@ -66,17 +66,17 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY).maxStackSize(1)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY).stacksTo(1)).setRegistryName(getRegistryName());
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_type", tank.getFluid().getDisplayName()).mergeStyle(TextFormatting.GRAY));
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid", tank.getFluidAmount()).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_type", tank.getFluid().getDisplayName()).withStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid", tank.getFluidAmount()).withStyle(TextFormatting.GRAY));
         }
     }
 
@@ -86,11 +86,11 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if (FluidUtils.tryFluidInteraction(player, handIn, worldIn, pos)) {
             return ActionResultType.SUCCESS;
         }
-        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+        return super.use(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
@@ -99,14 +99,14 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity newBlockEntity(IBlockReader worldIn) {
         return new BarrelTileEntity(tier);
     }
 
     @Override
     public NonNullList<FluidStack> getFluids(ItemStack stack) {
         NonNullList<FluidStack> fluids = NonNullList.withSize(1, FluidStack.EMPTY);
-        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
             fluids.set(0, tank.getFluid());
@@ -116,7 +116,7 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public int add(ItemStack stack, IFluidHandler handler, int amount) {
-        CompoundNBT blockEntityTag = stack.getOrCreateChildTag("BlockEntityTag");
+        CompoundNBT blockEntityTag = stack.getOrCreateTagElement("BlockEntityTag");
         CompoundNBT fluidCompound = blockEntityTag.getCompound("Fluid");
         FluidStack fluid = FluidStack.loadFluidStackFromNBT(fluidCompound);
         if (fluid.isEmpty()) {

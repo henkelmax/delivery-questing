@@ -24,7 +24,7 @@ import java.util.Optional;
 public interface IGroupBlock {
 
     default Optional<Group> getGroup(World worldIn, BlockPos pos, PlayerEntity p) {
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof GroupTileEntity)) {
             return Optional.empty();
@@ -39,7 +39,7 @@ public interface IGroupBlock {
         Group playerGroup = null;
 
         try {
-            playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+            playerGroup = Main.getProgression(player).getPlayerGroup(player.getUUID());
         } catch (Exception e) {
 
         }
@@ -49,31 +49,31 @@ public interface IGroupBlock {
                 player.sendMessage(
                         new TranslationTextComponent("message.delivery.no_group")
                                 .append(new StringTextComponent(" "))
-                                .append(TextComponentUtils.wrapWithSquareBrackets(
+                                .append(TextComponentUtils.wrapInSquareBrackets(
                                         new TranslationTextComponent("message.delivery.create_group")
-                                ).modifyStyle((style) -> style
-                                        .applyFormatting(TextFormatting.GREEN)
-                                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/group create <group_name> <group_password>"))
-                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("/group create <group_name> <group_password>")))
+                                ).withStyle((style) -> style
+                                        .applyFormat(TextFormatting.GREEN)
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/group create <group_name> <group_password>"))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("/group create <group_name> <group_password>")))
                                 ))
                                 .append(new StringTextComponent(" "))
-                                .append(TextComponentUtils.wrapWithSquareBrackets(
+                                .append(TextComponentUtils.wrapInSquareBrackets(
                                         new TranslationTextComponent("message.delivery.join_group")
-                                ).modifyStyle((style) -> style
-                                        .applyFormatting(TextFormatting.GREEN)
-                                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/group join <group_name> <group_password>"))
-                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("/group join <group_name> <group_password>")))
+                                ).withStyle((style) -> style
+                                        .applyFormat(TextFormatting.GREEN)
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/group join <group_name> <group_password>"))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("/group join <group_name> <group_password>")))
                                 ))
-                        , Util.DUMMY_UUID);
+                        , Util.NIL_UUID);
                 return Optional.empty();
             } else {
                 groupTileEntity.setGroup(playerGroup.getId());
             }
         } else if (playerGroup != null && !groupTileEntity.getGroupID().equals(playerGroup.getId())) {
-            player.sendMessage(new TranslationTextComponent("message.delivery.no_member"), Util.DUMMY_UUID);
+            player.sendMessage(new TranslationTextComponent("message.delivery.no_member"), Util.NIL_UUID);
             return Optional.empty();
         } else if (playerGroup == null) {
-            player.sendMessage(new TranslationTextComponent("message.delivery.no_group"), Util.DUMMY_UUID);
+            player.sendMessage(new TranslationTextComponent("message.delivery.no_group"), Util.NIL_UUID);
             return Optional.empty();
         }
 
@@ -88,11 +88,11 @@ public interface IGroupBlock {
         Progression progression = Main.getProgression(player);
         Group group;
         try {
-            group = progression.getPlayerGroup(player.getUniqueID());
+            group = progression.getPlayerGroup(player.getUUID());
         } catch (Exception e) {
             return;
         }
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntity te = worldIn.getBlockEntity(pos);
         if (!(te instanceof GroupTileEntity)) {
             return;
         }

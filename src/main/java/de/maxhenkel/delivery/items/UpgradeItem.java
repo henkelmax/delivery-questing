@@ -16,7 +16,7 @@ public class UpgradeItem extends Item implements ITiered {
     private final Tier tier;
 
     public UpgradeItem(Tier tier) {
-        super(new Properties().group(ModItemGroups.TAB_DELIVERY));
+        super(new Properties().tab(ModItemGroups.TAB_DELIVERY));
         this.tier = tier;
         setRegistryName(new ResourceLocation(Main.MODID, "upgrade_tier_" + tier.getTier()));
     }
@@ -27,15 +27,15 @@ public class UpgradeItem extends Item implements ITiered {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        BlockState blockState = context.getWorld().getBlockState(context.getPos());
+    public ActionResultType useOn(ItemUseContext context) {
+        BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
         if (blockState.getBlock() instanceof IUpgradable) {
             IUpgradable upgradable = (IUpgradable) blockState.getBlock();
-            ActionResultType actionResultType = upgradable.addUpgrade(context.getPlayer(), context.getItem(), context.getWorld(), context.getPos());
-            if (actionResultType.isSuccessOrConsume()) {
+            ActionResultType actionResultType = upgradable.addUpgrade(context.getPlayer(), context.getItemInHand(), context.getLevel(), context.getClickedPos());
+            if (actionResultType.consumesAction()) {
                 return actionResultType;
             }
         }
-        return super.onItemUse(context);
+        return super.useOn(context);
     }
 }

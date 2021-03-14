@@ -24,22 +24,22 @@ public class ItemInventory implements IInventory {
         items = NonNullList.withSize(size, ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "Items", items);
 
-        openInventory(player);
+        startOpen(player);
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {
+    public void startOpen(PlayerEntity player) {
         SoundEvent openSound = getOpenSound();
         if (openSound != null) {
-            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
         }
     }
 
     @Override
-    public void closeInventory(PlayerEntity player) {
+    public void stopOpen(PlayerEntity player) {
         SoundEvent closeSound = getCloseSound();
         if (closeSound != null) {
-            player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), closeSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), closeSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
         }
     }
 
@@ -52,7 +52,7 @@ public class ItemInventory implements IInventory {
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return items.size();
     }
 
@@ -62,44 +62,44 @@ public class ItemInventory implements IInventory {
     }
 
     @Override
-    public ItemStack getStackInSlot(int index) {
+    public ItemStack getItem(int index) {
         return items.get(index);
     }
 
     @Override
-    public ItemStack decrStackSize(int index, int count) {
-        ItemStack itemstack = ItemStackHelper.getAndSplit(items, index, count);
+    public ItemStack removeItem(int index, int count) {
+        ItemStack itemstack = ItemStackHelper.removeItem(items, index, count);
         if (!itemstack.isEmpty()) {
-            markDirty();
+            setChanged();
         }
         return itemstack;
     }
 
     @Override
-    public ItemStack removeStackFromSlot(int index) {
-        ItemStack stack = ItemStackHelper.getAndRemove(items, index);
-        markDirty();
+    public ItemStack removeItemNoUpdate(int index) {
+        ItemStack stack = ItemStackHelper.takeItem(items, index);
+        setChanged();
         return stack;
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
+    public void setItem(int index, ItemStack stack) {
         items.set(index, stack);
-        if (stack.getCount() > getInventoryStackLimit()) {
-            stack.setCount(getInventoryStackLimit());
+        if (stack.getCount() > getMaxStackSize()) {
+            stack.setCount(getMaxStackSize());
         }
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
         ItemUtils.saveInventory(stack.getOrCreateTag(), "Items", items);
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         for (Hand hand : Hand.values()) {
-            if (player.getHeldItem(hand).equals(stack)) {
+            if (player.getItemInHand(hand).equals(stack)) {
                 return true;
             }
         }
@@ -107,9 +107,9 @@ public class ItemInventory implements IInventory {
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         items.clear();
-        markDirty();
+        setChanged();
     }
 
 }

@@ -38,12 +38,12 @@ public class MessageSyncTasks implements Message<MessageSyncTasks> {
     @Override
     public MessageSyncTasks fromBytes(PacketBuffer packetBuffer) {
         taskManager = new TaskManager();
-        taskManager.deserializeNBT(packetBuffer.readCompoundTag());
+        taskManager.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(taskManager.serializeNBT());
+        packetBuffer.writeNbt(taskManager.serializeNBT());
     }
 }

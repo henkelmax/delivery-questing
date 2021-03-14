@@ -96,7 +96,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
         if (!items.isEmpty()) {
             if (items.get(0).item instanceof SingleElementTag) {
                 SingleElementTag<Item> tag = (SingleElementTag<Item>) items.get(0).item;
-                name = new TranslationTextComponent(tag.getElement().getTranslationKey()).getString();
+                name = new TranslationTextComponent(tag.getElement().getDescriptionId()).getString();
             } else {
                 name = localize(items.get(0).item.getName());
             }
@@ -141,7 +141,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
-        compound.putUniqueId("ID", id);
+        compound.putUUID("ID", id);
         compound.putString("ContractorName", contractorName);
         compound.putString("Skin", skin);
         compound.putString("Profession", profession);
@@ -170,7 +170,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        id = compound.getUniqueId("ID");
+        id = compound.getUUID("ID");
         contractorName = compound.getString("ContractorName");
         skin = compound.getString("Skin");
         profession = compound.getString("Profession");

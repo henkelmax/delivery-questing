@@ -12,7 +12,7 @@ public class TaskContainerSlot extends Slot {
     }
 
     @Override
-    public boolean isItemValid(ItemStack stack) {
-        return super.isItemValid(stack) && Group.getTaskContainer(stack) != null;
+    public boolean mayPlace(ItemStack stack) {
+        return super.mayPlace(stack) && Group.getTaskContainer(stack) != null;
     }
 }

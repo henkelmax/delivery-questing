@@ -20,7 +20,7 @@ public class MessageSwitchLiquifier implements Message<MessageSwitchLiquifier> {
 
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
-        Container container = context.getSender().openContainer;
+        Container container = context.getSender().containerMenu;
         if (container instanceof EnergyLiquifierContainer) {
             EnergyLiquifierContainer energyLiquifier = (EnergyLiquifierContainer) container;
             energyLiquifier.getEnergyLiquifier().reverse();

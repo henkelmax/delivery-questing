@@ -16,16 +16,18 @@ public class ComputerAgeTrigger extends AbstractCriterionTrigger<ComputerAgeTrig
     public ComputerAgeTrigger() {
     }
 
+    @Override
     public ResourceLocation getId() {
         return ID;
     }
 
-    public ComputerAgeTrigger.Instance deserializeTrigger(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
+    @Override
+    public ComputerAgeTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
         return new ComputerAgeTrigger.Instance(entityPredicate);
     }
 
     public void trigger(ServerPlayerEntity player, int level) {
-        triggerListeners(player, (instance) -> instance.test(level));
+        trigger(player, (instance) -> instance.test(level));
     }
 
     public static class Instance extends CriterionInstance {

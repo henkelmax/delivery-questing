@@ -19,8 +19,8 @@ public class ModFluids {
         );
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY, RenderType.getTranslucent());
-            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY_FLOWING, RenderType.getTranslucent());
+            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY, RenderType.translucent());
+            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY_FLOWING, RenderType.translucent());
         }
     }
 

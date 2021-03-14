@@ -50,7 +50,7 @@ public class TaskWidget {
         this.width = 106;
         this.height = 104;
         mc = Minecraft.getInstance();
-        font = mc.fontRenderer;
+        font = mc.font;
         if (background != null) {
             this.background = background;
         } else {
@@ -97,7 +97,7 @@ public class TaskWidget {
     }
 
     public void render(MatrixStack matrixStack, int mouseX, int mouseY) {
-        mc.getTextureManager().bindTexture(background);
+        mc.getTextureManager().bind(background);
         RenderSystem.color4f(1F, 1F, 1F, 1F);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -127,7 +127,7 @@ public class TaskWidget {
             }
         }
 
-        drawCentered(matrixStack, font, new TranslationTextComponent("message.delivery.task_items").mergeStyle(TextFormatting.DARK_GRAY), y + 4);
+        drawCentered(matrixStack, font, new TranslationTextComponent("message.delivery.task_items").withStyle(TextFormatting.DARK_GRAY), y + 4);
 
         int xPos = 8;
         int yPos = 15;
@@ -154,24 +154,24 @@ public class TaskWidget {
             }
 
             if (!showProgress) {
-                str = str.mergeStyle(TextFormatting.DARK_GRAY);
+                str = str.withStyle(TextFormatting.DARK_GRAY);
             } else if (element.current <= 0) {
-                str = str.mergeStyle(TextFormatting.DARK_GRAY);
+                str = str.withStyle(TextFormatting.DARK_GRAY);
             } else if (element.current >= element.max) {
-                str = str.mergeStyle(TextFormatting.DARK_GREEN);
+                str = str.withStyle(TextFormatting.DARK_GREEN);
             } else {
-                str = str.mergeStyle(TextFormatting.DARK_RED);
+                str = str.withStyle(TextFormatting.DARK_RED);
             }
-            font.func_243248_b(matrixStack, str, x + xPos + 20, y + yPos + 5, 0);
+            font.draw(matrixStack, str, x + xPos + 20, y + yPos + 5, 0);
 
             if (mouseX >= xPos + x && mouseX < xPos + x + 16) {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
-                    List<ITextComponent> tooltip = abstractStack.getTooltip(mc.currentScreen);
+                    List<ITextComponent> tooltip = abstractStack.getTooltip(mc.screen);
 
                     if (element.item.getItem() != null && !(element.item.getItem() instanceof SingleElementTag)) {
                         tooltip.add(new TranslationTextComponent("tooltip.delivery.tag", element.item.getItem().getName().toString()));
                     }
-                    mc.currentScreen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+                    mc.screen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
                 }
             }
             if (mouseX >= xPos + x + 16 && mouseX < xPos + x + w - 16) {
@@ -190,7 +190,7 @@ public class TaskWidget {
                             tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_amount", element.max));
                         }
                     }
-                    mc.currentScreen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+                    mc.screen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
                 }
             }
 
@@ -245,7 +245,7 @@ public class TaskWidget {
     }
 
     private void playClickSound() {
-        mc.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1F));
+        mc.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1F));
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -292,8 +292,8 @@ public class TaskWidget {
     }
 
     protected void drawCentered(MatrixStack matrixStack, FontRenderer font, IFormattableTextComponent text, int y) {
-        int w = font.getStringPropertyWidth(text);
-        font.func_243248_b(matrixStack, text, x + width / 2F - w / 2F, y, 0);
+        int w = font.width(text);
+        font.draw(matrixStack, text, x + width / 2F - w / 2F, y, 0);
     }
 
     // TODO localize

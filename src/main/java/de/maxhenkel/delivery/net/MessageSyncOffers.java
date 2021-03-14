@@ -38,12 +38,12 @@ public class MessageSyncOffers implements Message<MessageSyncOffers> {
     @Override
     public MessageSyncOffers fromBytes(PacketBuffer packetBuffer) {
         offerManager = new OfferManager();
-        offerManager.deserializeNBT(packetBuffer.readCompoundTag());
+        offerManager.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(offerManager.serializeNBT());
+        packetBuffer.writeNbt(offerManager.serializeNBT());
     }
 }

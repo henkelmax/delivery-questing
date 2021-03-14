@@ -21,25 +21,26 @@ public class EMailToast implements IToast {
 
     public EMailToast(EMail eMail) {
         this.eMail = eMail;
-        this.title = new TranslationTextComponent("message.delivery.new_mail").mergeStyle(TextFormatting.WHITE);
-        this.subtitle = eMail.getTitle().mergeStyle(TextFormatting.WHITE);
+        this.title = new TranslationTextComponent("message.delivery.new_mail").withStyle(TextFormatting.WHITE);
+        this.subtitle = eMail.getTitle().withStyle(TextFormatting.WHITE);
         this.showTime = 5000L;
     }
 
-    public Visibility func_230444_a_(MatrixStack matrixStack, ToastGui toastGui, long time) {
-        toastGui.getMinecraft().getTextureManager().bindTexture(TEXTURE_TOASTS);
+    @Override
+    public Visibility render(MatrixStack matrixStack, ToastGui toastGui, long time) {
+        toastGui.getMinecraft().getTextureManager().bind(TEXTURE);
         RenderSystem.color3f(1F, 1F, 1F);
-        toastGui.blit(matrixStack, 0, 0, 0, 0, func_230445_a_(), func_238540_d_());
+        toastGui.blit(matrixStack, 0, 0, 0, 0, width(), height());
 
-        List<IReorderingProcessor> list = toastGui.getMinecraft().fontRenderer.trimStringToWidth(subtitle, 125);
-        toastGui.getMinecraft().fontRenderer.func_243248_b(matrixStack, title, 30F, 7F, 0);
+        List<IReorderingProcessor> list = toastGui.getMinecraft().font.split(subtitle, 125);
+        toastGui.getMinecraft().font.draw(matrixStack, title, 30F, 7F, 0);
         if (list.size() > 0) {
-            toastGui.getMinecraft().fontRenderer.func_238422_b_(matrixStack, list.get(0), 30F, 18F, 0);
+            toastGui.getMinecraft().font.draw(matrixStack, list.get(0), 30F, 18F, 0);
         }
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(8D, 8D, 0D);
         eMail.renderIcon(matrixStack, null);
-        matrixStack.pop();
+        matrixStack.popPose();
 
         return time >= showTime ? Visibility.HIDE : Visibility.SHOW;
     }

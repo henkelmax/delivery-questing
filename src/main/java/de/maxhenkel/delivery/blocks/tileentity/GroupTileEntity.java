@@ -27,39 +27,39 @@ public class GroupTileEntity extends TileEntity {
 
     @Nullable
     public Group getGroup() {
-        if (world instanceof ServerWorld) {
+        if (level instanceof ServerWorld) {
             UUID groupID = getGroupID();
             if (groupID == null) {
                 return null;
             }
 
-            return Main.getProgression(((ServerWorld) world).getServer()).getGroup(groupID);
+            return Main.getProgression(((ServerWorld) level).getServer()).getGroup(groupID);
         }
         return null;
     }
 
     public void setGroup(@Nullable UUID group) {
         this.group = group;
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
 
         if (compound.contains("Group")) {
-            group = compound.getUniqueId("Group");
+            group = compound.getUUID("Group");
         } else {
             group = null;
         }
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         if (group != null) {
-            compound.putUniqueId("Group", group);
+            compound.putUUID("Group", group);
         }
-        return super.write(compound);
+        return super.save(compound);
     }
 
 }

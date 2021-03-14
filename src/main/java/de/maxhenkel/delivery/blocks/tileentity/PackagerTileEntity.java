@@ -39,6 +39,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     private static final int ENERGY_CAPACITY = 16_000;
 
     private final IIntArray fields = new IIntArray() {
+        @Override
         public int get(int index) {
             switch (index) {
                 case 0:
@@ -49,6 +50,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
             return 0;
         }
 
+        @Override
         public void set(int index, int value) {
             switch (index) {
                 case 0:
@@ -60,7 +62,8 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
             }
         }
 
-        public int size() {
+        @Override
+        public int getCount() {
             return 2;
         }
     };
@@ -80,7 +83,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
 
     @Override
     public void tick() {
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
 
@@ -103,7 +106,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
             }
         }
 
-        if (world.getGameTime() % 4 != 0) {
+        if (level.getGameTime() % 4 != 0) {
             return;
         }
 
@@ -127,11 +130,11 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     }
 
     public IInventory getInventory() {
-        return new ItemListInventory(inventory, this::markDirty);
+        return new ItemListInventory(inventory, this::setChanged);
     }
 
     public IInventory getUpgradeInventory() {
-        return new ItemListInventory(upgradeInventory, this::markDirty);
+        return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
     @Nullable
@@ -197,8 +200,8 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         tank = new FluidTank(TANK_CAPACITY);
         tank.readFromNBT(compound.getCompound("Fluid"));
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, compound.getInt("Energy"));
@@ -209,17 +212,17 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
         compound.putInt("Energy", energy.getEnergyStored());
         compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
         compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
-        return super.write(compound);
+        return super.save(compound);
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (removed) {
+        if (remove) {
             return super.getCapability(cap, side);
         }
 
@@ -274,22 +277,22 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     }
 
     public void syncContents(ServerPlayerEntity player) {
-        player.connection.sendPacket(getUpdatePacket());
+        player.connection.send(getUpdatePacket());
     }
 
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(pos, 1, getUpdateTag());
+        return new SUpdateTileEntityPacket(worldPosition, 1, getUpdateTag());
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        handleUpdateTag(getBlockState(), pkt.getNbtCompound());
+        handleUpdateTag(getBlockState(), pkt.getTag());
     }
 
     @Override
     public CompoundNBT getUpdateTag() {
-        return write(new CompoundNBT());
+        return save(new CompoundNBT());
     }
 
 }

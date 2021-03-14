@@ -17,13 +17,13 @@ public class ParcelScreen extends ScreenBase<ParcelContainer> {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
 
-        xSize = 176;
-        ySize = 133;
+        imageWidth = 176;
+        imageHeight = 133;
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
         drawCentered(matrixStack, title, 9, FONT_COLOR);
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8F, (float) (ySize - 96 + 3), FONT_COLOR);
+        font.draw(matrixStack, playerInventory.getDisplayName(), 8F, (float) (imageHeight - 96 + 3), FONT_COLOR);
     }
 }

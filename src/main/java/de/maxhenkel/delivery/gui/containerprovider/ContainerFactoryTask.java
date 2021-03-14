@@ -17,7 +17,7 @@ public class ContainerFactoryTask<T extends ContainerBase> implements IContainer
 
     public T create(int windowId, PlayerInventory inv, PacketBuffer data) {
         Task task = new Task();
-        task.deserializeNBT(data.readCompoundTag());
+        task.deserializeNBT(data.readNbt());
 
         try {
             return this.containerCreator.create(windowId, inv, task);

@@ -17,23 +17,23 @@ public class EnergyLiquifierContainer extends ContainerBase {
         this.energyLiquifier = energyLiquifier;
         addSlot(new Slot(inventory, 0, 53, 36) {
             @Override
-            public boolean isItemValid(ItemStack stack) {
-                return super.isItemValid(stack) && stack.getCapability(CapabilityEnergy.ENERGY).isPresent();
+            public boolean mayPlace(ItemStack stack) {
+                return super.mayPlace(stack) && stack.getCapability(CapabilityEnergy.ENERGY).isPresent();
             }
 
             @Override
-            public int getSlotStackLimit() {
+            public int getMaxStackSize() {
                 return 1;
             }
         });
         addSlot(new Slot(inventory, 1, 107, 36) {
             @Override
-            public boolean isItemValid(ItemStack stack) {
-                return super.isItemValid(stack) && stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
+            public boolean mayPlace(ItemStack stack) {
+                return super.mayPlace(stack) && stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
             }
 
             @Override
-            public int getSlotStackLimit() {
+            public int getMaxStackSize() {
                 return 1;
             }
         });
@@ -41,7 +41,7 @@ public class EnergyLiquifierContainer extends ContainerBase {
         addSlot(new UpgradeSlot(energyLiquifier.getUpgradeInventory(), 0, 80, 17));
 
         addPlayerInventorySlots();
-        trackIntArray(energyLiquifier.getFields());
+        addDataSlots(energyLiquifier.getFields());
     }
 
     public EnergyLiquifierTileEntity getEnergyLiquifier() {

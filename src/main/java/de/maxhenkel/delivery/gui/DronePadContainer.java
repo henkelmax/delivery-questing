@@ -18,11 +18,11 @@ public class DronePadContainer extends ContainerBase {
         this.dronePadTileEntity = dronePadTileEntity;
         addSlot(new Slot(inventory, 0, 53, 36) {
             @Override
-            public boolean isItemValid(ItemStack stack) {
+            public boolean mayPlace(ItemStack stack) {
                 return Group.getTaskContainer(stack) != null;
             }
         });
-        if (dronePadTileEntity.getWorld().isRemote) {
+        if (dronePadTileEntity.getLevel().isClientSide) {
             addSlot(new LockedSlot(new Inventory(1), 0, 107, 36, true, true));
         } else {
             addSlot(new LockedSlot(dronePadTileEntity.getTemporaryDroneInventory(), 0, 107, 36, true, true));
@@ -31,7 +31,7 @@ public class DronePadContainer extends ContainerBase {
         addSlot(new UpgradeSlot(dronePadTileEntity.getUpgradeInventory(), 0, 80, 59));
 
         addPlayerInventorySlots();
-        trackIntArray(dronePadTileEntity.getFields());
+        addDataSlots(dronePadTileEntity.getFields());
     }
 
     public DronePadTileEntity getDronePadTileEntity() {

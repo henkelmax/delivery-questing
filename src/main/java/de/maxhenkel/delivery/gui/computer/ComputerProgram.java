@@ -53,7 +53,7 @@ public abstract class ComputerProgram {
     }
 
     public ComputerContainer getContainer() {
-        return screen.getContainer();
+        return screen.getMenu();
     }
 
     public void addHoverArea(ScreenBase.HoverArea hoverArea) {
@@ -61,7 +61,7 @@ public abstract class ComputerProgram {
     }
 
     public void playSound(SoundEvent sound) {
-        mc.getSoundHandler().play(SimpleSound.master(sound, 1F));
+        mc.getSoundManager().play(SimpleSound.forUI(sound, 1F));
     }
 
     public void playClickSound() {

@@ -32,10 +32,10 @@ import javax.annotation.Nullable;
 
 public class DroneEntity extends DroneEntitySoundBase {
 
-    private static final DataParameter<ItemStack> PAYLOAD = EntityDataManager.createKey(DroneEntity.class, DataSerializers.ITEMSTACK);
-    private static final DataParameter<BlockPos> PAD_LOCATION = EntityDataManager.createKey(DroneEntity.class, DataSerializers.BLOCK_POS);
-    private static final DataParameter<Integer> ENERGY = EntityDataManager.createKey(DroneEntity.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> TIER = EntityDataManager.createKey(DroneEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<ItemStack> PAYLOAD = EntityDataManager.defineId(DroneEntity.class, DataSerializers.ITEM_STACK);
+    private static final DataParameter<BlockPos> PAD_LOCATION = EntityDataManager.defineId(DroneEntity.class, DataSerializers.BLOCK_POS);
+    private static final DataParameter<Integer> ENERGY = EntityDataManager.defineId(DroneEntity.class, DataSerializers.INT);
+    private static final DataParameter<Integer> TIER = EntityDataManager.defineId(DroneEntity.class, DataSerializers.INT);
 
     public DroneEntity(World worldIn) {
         super(ModEntities.DRONE, worldIn);
@@ -47,27 +47,27 @@ public class DroneEntity extends DroneEntitySoundBase {
 
         moveDrone();
 
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
 
-        rotationPitch = 0F;
-        prevRotationPitch = 0F;
+        xRot = 0F;
+        xRotO = 0F;
 
-        if (world.getGameTime() % 20 == 0) {
+        if (level.getGameTime() % 20 == 0) {
             onEverySecond();
         }
 
         if (!isOnPad()) {
-            if (collidedHorizontally) {
+            if (horizontalCollision) {
                 explode();
             }
-            if (collidedVertically && getMotion().y == 0D) {
+            if (verticalCollision && getDeltaMovement().y == 0D) {
                 explode();
             }
         }
 
-        if (isInWaterOrBubbleColumn() || isInLava()) {
+        if (isInWaterOrBubble() || isInLava()) {
             explode();
         }
     }
@@ -79,18 +79,18 @@ public class DroneEntity extends DroneEntitySoundBase {
             return;
         }
 
-        if (dronePad.getDroneID() == null || !dronePad.getDroneID().equals(getUniqueID())) {
+        if (dronePad.getDroneID() == null || !dronePad.getDroneID().equals(getUUID())) {
             explode();
             return;
         }
 
-        if (getPosY() > dronePad.getPos().getY() + world.getHeight()) {
+        if (getY() > dronePad.getBlockPos().getY() + level.getHeight()) {
             if (!getPayload().isEmpty()) {
                 Group group = dronePad.getGroup();
                 if (group == null) {
                     explode();
                 } else {
-                    group.handInTaskItems(NonNullList.from(ItemStack.EMPTY, getPayload().copy()));
+                    group.handInTaskItems(NonNullList.of(ItemStack.EMPTY, getPayload().copy()));
                     setPayload(ItemStack.EMPTY);
                 }
             }
@@ -99,7 +99,7 @@ public class DroneEntity extends DroneEntitySoundBase {
 
     @Nullable
     public DronePadTileEntity getDronePad() {
-        TileEntity tileEntity = world.getTileEntity(getPadLocation());
+        TileEntity tileEntity = level.getBlockEntity(getPadLocation());
         if (tileEntity instanceof DronePadTileEntity) {
             return (DronePadTileEntity) tileEntity;
         }
@@ -107,21 +107,21 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     public void moveDrone() {
-        Vector3d oldMotion = getMotion();
+        Vector3d oldMotion = getDeltaMovement();
         Vector3d newMotion = Vector3d.ZERO;
 
         double oldYMotion = oldMotion.y;
 
-        double speedPerc = Math.max(Math.min(getPositionVec().subtract(getPadVector()).y, 1D), 0.05D);
+        double speedPerc = Math.max(Math.min(position().subtract(getPadVector()).y, 1D), 0.05D);
 
         if (getEnergy() < DronePadTileEntity.ENERGY_CAPACITY && isOnPad()) {
             // Wait for full charge
             decreasePropellerSpeed();
-        } else if (getEnergy() <= 0 && !isOnPad() && !collidedVertically) {
+        } else if (getEnergy() <= 0 && !isOnPad() && !verticalCollision) {
             newMotion = new Vector3d(0D, Math.min(oldYMotion - 0.01D, -0.2D), 0D);
             decreasePropellerSpeed();
         } else if (getPayload().isEmpty()) {
-            if (!isOnPad() && !collidedVertically) {
+            if (!isOnPad() && !verticalCollision) {
                 newMotion = moveHorizontal().add(new Vector3d(0D, speedPerc * -0.2D, 0D));
                 setEnergy(getEnergy() - 1);
                 increasePropellerSpeed(0.75F);
@@ -134,23 +134,23 @@ public class DroneEntity extends DroneEntitySoundBase {
             increasePropellerSpeed(1F);
         }
 
-        setMotion(newMotion);
+        setDeltaMovement(newMotion);
         if (newMotion.length() > 0D) {
             move(MoverType.SELF, newMotion);
         }
     }
 
     @Override
-    public boolean onLivingFall(float distance, float damageMultiplier) {
-        if (world.isRemote) {
+    public boolean causeFallDamage(float distance, float damageMultiplier) {
+        if (level.isClientSide) {
             playCrashSound();
         }
-        return super.onLivingFall(distance, damageMultiplier);
+        return super.causeFallDamage(distance, damageMultiplier);
     }
 
     @OnlyIn(Dist.CLIENT)
     private void playCrashSound() {
-        world.playSound(Minecraft.getInstance().player, getPosX(), getPosY(), getPosZ(), ModSounds.DRONE_CRASH, SoundCategory.NEUTRAL, 1F, 1F);
+        level.playSound(Minecraft.getInstance().player, getX(), getY(), getZ(), ModSounds.DRONE_CRASH, SoundCategory.NEUTRAL, 1F, 1F);
     }
 
     public double getRiseSpeed() {
@@ -175,24 +175,24 @@ public class DroneEntity extends DroneEntitySoundBase {
 
     public boolean isOnPad() {
         BlockPos padLocation = getPadLocation();
-        double diff = getPositionVec().y - padLocation.getY();
-        return getPosition().equals(padLocation) && diff > 1.8F / 16 && diff < 2.2F / 16;
+        double diff = position().y - padLocation.getY();
+        return blockPosition().equals(padLocation) && diff > 1.8F / 16 && diff < 2.2F / 16;
     }
 
     public Vector3d moveHorizontal() {
-        Vector3d moveVec = getPadVector().mul(1D, 0D, 1D).subtract(getPositionVec().mul(1D, 0D, 1D));
+        Vector3d moveVec = getPadVector().multiply(1D, 0D, 1D).subtract(position().multiply(1D, 0D, 1D));
         if (moveVec.x >= 16D || moveVec.z >= 16D) {
             explode();
         }
-        return new Vector3d(Math.min(moveVec.getX(), 0.1D), Math.min(moveVec.getY(), 0.1D), Math.min(moveVec.getZ(), 0.1D));
+        return new Vector3d(Math.min(moveVec.x(), 0.1D), Math.min(moveVec.y(), 0.1D), Math.min(moveVec.z(), 0.1D));
     }
 
     public void explode() {
         if (removed) {
             return;
         }
-        world.createExplosion(this, getPosX(), getPosY(), getPosZ(), 1, Explosion.Mode.NONE);
-        InventoryHelper.spawnItemStack(world, getPosX(), getPosY(), getPosZ(), getPayload());
+        level.explode(this, getX(), getY(), getZ(), 1, Explosion.Mode.NONE);
+        InventoryHelper.dropItemStack(level, getX(), getY(), getZ(), getPayload());
         remove();
     }
 
@@ -202,63 +202,63 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     public ItemStack getPayload() {
-        return dataManager.get(PAYLOAD);
+        return entityData.get(PAYLOAD);
     }
 
     public void setPayload(ItemStack stack) {
-        dataManager.set(PAYLOAD, stack);
+        entityData.set(PAYLOAD, stack);
     }
 
     public BlockPos getPadLocation() {
-        return dataManager.get(PAD_LOCATION);
+        return entityData.get(PAD_LOCATION);
     }
 
     public Vector3d getPadVector() {
         BlockPos padLocation = getPadLocation();
         DronePadTileEntity dronePad = getDronePad();
         if (dronePad != null) {
-            Direction direction = dronePad.getBlockState().get(HorizontalRotatableBlock.FACING);
-            return new Vector3d(padLocation.getX() + 0.5D + direction.getXOffset() * 1D / 16D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D + direction.getZOffset() * 1D / 16D);
+            Direction direction = dronePad.getBlockState().getValue(HorizontalRotatableBlock.FACING);
+            return new Vector3d(padLocation.getX() + 0.5D + direction.getStepX() * 1D / 16D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D + direction.getStepZ() * 1D / 16D);
         }
         return new Vector3d(padLocation.getX() + 0.5D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D);
     }
 
     public void setPadLocation(BlockPos pos) {
-        dataManager.set(PAD_LOCATION, pos);
+        entityData.set(PAD_LOCATION, pos);
     }
 
     public int getEnergy() {
-        return dataManager.get(ENERGY);
+        return entityData.get(ENERGY);
     }
 
     public void setEnergy(int energy) {
-        dataManager.set(ENERGY, Math.max(0, energy));
+        entityData.set(ENERGY, Math.max(0, energy));
     }
 
     public int getTier() {
-        return dataManager.get(TIER);
+        return entityData.get(TIER);
     }
 
     public void setTier(int tier) {
-        dataManager.set(TIER, Math.min(Math.max(0, tier), 6));
+        entityData.set(TIER, Math.min(Math.max(0, tier), 6));
     }
 
     @Override
-    public boolean canRenderOnFire() {
+    public boolean displayFireAnimation() {
         return false;
     }
 
     @Override
-    protected void registerData() {
-        dataManager.register(PAYLOAD, ItemStack.EMPTY);
-        dataManager.register(PAD_LOCATION, new BlockPos(0, -1, 0));
-        dataManager.register(ENERGY, 0);
-        dataManager.register(TIER, 0);
+    protected void defineSynchedData() {
+        entityData.define(PAYLOAD, ItemStack.EMPTY);
+        entityData.define(PAD_LOCATION, new BlockPos(0, -1, 0));
+        entityData.define(ENERGY, 0);
+        entityData.define(TIER, 0);
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
-        setPayload(ItemStack.read(compound.getCompound("Payload")));
+    protected void readAdditionalSaveData(CompoundNBT compound) {
+        setPayload(ItemStack.of(compound.getCompound("Payload")));
         CompoundNBT padLocation = compound.getCompound("PadLocation");
         setPadLocation(new BlockPos(padLocation.getInt("X"), padLocation.getInt("Y"), padLocation.getInt("Z")));
         setEnergy(compound.getInt("Energy"));
@@ -266,20 +266,20 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
-        compound.put("Payload", dataManager.get(PAYLOAD).write(new CompoundNBT()));
+    protected void addAdditionalSaveData(CompoundNBT compound) {
+        compound.put("Payload", entityData.get(PAYLOAD).save(new CompoundNBT()));
         CompoundNBT padLocation = new CompoundNBT();
-        BlockPos loc = dataManager.get(PAD_LOCATION);
+        BlockPos loc = entityData.get(PAD_LOCATION);
         padLocation.putInt("X", loc.getX());
         padLocation.putInt("Y", loc.getY());
         padLocation.putInt("Z", loc.getZ());
         compound.put("PadLocation", padLocation);
-        compound.putInt("Energy", dataManager.get(ENERGY));
-        compound.putInt("Tier", dataManager.get(TIER));
+        compound.putInt("Energy", entityData.get(ENERGY));
+        compound.putInt("Tier", entityData.get(TIER));
     }
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public IPacket<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

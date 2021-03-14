@@ -32,7 +32,7 @@ public class MessageBuyOffer implements Message<MessageBuyOffer> {
         Progression progression = Main.getProgression(context.getSender());
         Group playerGroup;
         try {
-            playerGroup = progression.getPlayerGroup(context.getSender().getUniqueID());
+            playerGroup = progression.getPlayerGroup(context.getSender().getUUID());
         } catch (Exception e) {
             return;
         }
@@ -41,12 +41,12 @@ public class MessageBuyOffer implements Message<MessageBuyOffer> {
 
     @Override
     public MessageBuyOffer fromBytes(PacketBuffer packetBuffer) {
-        offerID = packetBuffer.readUniqueId();
+        offerID = packetBuffer.readUUID();
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeUniqueId(offerID);
+        packetBuffer.writeUUID(offerID);
     }
 }

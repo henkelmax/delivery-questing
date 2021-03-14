@@ -39,7 +39,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                             new Vector3d(4D / 16D, 1D / 16D, 5D / 16D),
                             (drone, matrixStack, partialTicks) -> {
                                 matrixStack.scale(1F / 16F, 1F / 16F, 1F / 16F);
-                                matrixStack.rotate(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
+                                matrixStack.mulPose(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
                             }
                     )
             ),
@@ -52,7 +52,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                             new Vector3d(-4D / 16D, 1D / 16D, 5D / 16D),
                             (drone, matrixStack, partialTicks) -> {
                                 matrixStack.scale(1F / 16F, 1F / 16F, 1F / 16F);
-                                matrixStack.rotate(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
+                                matrixStack.mulPose(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
                             }
                     )
             ),
@@ -65,7 +65,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                             new Vector3d(4D / 16D, 1D / 16D, -5D / 16D),
                             (drone, matrixStack, partialTicks) -> {
                                 matrixStack.scale(1F / 16F, 1F / 16F, 1F / 16F);
-                                matrixStack.rotate(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
+                                matrixStack.mulPose(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
                             }
                     )
             ),
@@ -78,7 +78,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                             new Vector3d(-4D / 16D, 1D / 16D, -5D / 16D),
                             (drone, matrixStack, partialTicks) -> {
                                 matrixStack.scale(1F / 16F, 1F / 16F, 1F / 16F);
-                                matrixStack.rotate(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
+                                matrixStack.mulPose(Vector3f.YP.rotationDegrees(-drone.getPropellerRotation(partialTicks)));
                             }
                     )
             ),
@@ -135,24 +135,24 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
 
             if (payload.getItem() instanceof BlockItem) {
                 BlockItem blockItem = (BlockItem) payload.getItem();
-                BlockState defaultState = blockItem.getBlock().getDefaultState();
+                BlockState defaultState = blockItem.getBlock().defaultBlockState();
                 return (entity1, yaw1, partialTicks1, matrixStack1, buffer1, packedLight1) -> {
-                    matrixStack1.push();
+                    matrixStack1.pushPose();
                     matrixStack1.translate(-0.5D, -1.5D, -0.5D);
                     matrixStack1.translate(0.5D / 16D, 0.5D / 16D, 0.5D / 16D);
                     matrixStack1.scale(15F / 16F, 15F / 16F, 15F / 16F);
-                    BlockRendererDispatcher dispatcher = mc.getBlockRendererDispatcher();
+                    BlockRendererDispatcher dispatcher = mc.getBlockRenderer();
                     int color = mc.getBlockColors().getColor(defaultState, null, null, 0);
-                    dispatcher.getBlockModelRenderer().renderModel(matrixStack1.getLast(), buffer1.getBuffer(RenderTypeLookup.func_239221_b_(defaultState)), defaultState, dispatcher.getModelForState(defaultState), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight1, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
-                    matrixStack1.pop();
+                    dispatcher.getModelRenderer().renderModel(matrixStack1.last(), buffer1.getBuffer(RenderTypeLookup.getMovingBlockRenderType(defaultState)), defaultState, dispatcher.getBlockModel(defaultState), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight1, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    matrixStack1.popPose();
                 };
             } else {
                 return (entity1, yaw1, partialTicks1, matrixStack1, buffer1, packedLight1) -> {
-                    matrixStack1.push();
+                    matrixStack1.pushPose();
                     matrixStack1.translate(0D, -0.5D, 0D);
                     matrixStack1.scale(0.5F, 0.5F, 0.5F);
-                    mc.getItemRenderer().renderItem(payload, ItemCameraTransforms.TransformType.FIXED, packedLight1, OverlayTexture.NO_OVERLAY, matrixStack1, buffer1);
-                    matrixStack1.pop();
+                    mc.getItemRenderer().renderStatic(payload, ItemCameraTransforms.TransformType.FIXED, packedLight1, OverlayTexture.NO_OVERLAY, matrixStack1, buffer1);
+                    matrixStack1.popPose();
                 };
             }
         });

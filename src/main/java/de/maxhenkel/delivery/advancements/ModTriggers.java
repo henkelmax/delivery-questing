@@ -21,7 +21,7 @@ public class ModTriggers {
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
 
         try {
-            Group group = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+            Group group = Main.getProgression(player).getPlayerGroup(player.getUUID());
             LEVEL_TRIGGER.trigger(player, (int) group.getLevel());
         } catch (Exception e) {
         }

@@ -43,24 +43,24 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
     protected Tier tier;
 
     public CardboardBoxBlock(Tier tier) {
-        super(Properties.create(Material.MISCELLANEOUS).sound(SoundType.PLANT).hardnessAndResistance(0.5F));
+        super(Properties.of(Material.DECORATION).sound(SoundType.GRASS).strength(0.5F));
         this.tier = tier;
         setRegistryName(new ResourceLocation(Main.MODID, "cardboard_box_tier_" + tier.getTier()));
     }
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY).maxStackSize(1)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY).stacksTo(1)).setRegistryName(getRegistryName());
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             NonNullList<ItemStack> itemStacks = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
             ItemUtils.readInventory(blockEntityTag, "Items", itemStacks);
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.stack_count", itemStacks.stream().filter(stack1 -> !stack1.isEmpty()).count()).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.stack_count", itemStacks.stream().filter(stack1 -> !stack1.isEmpty()).count()).withStyle(TextFormatting.GRAY));
         }
     }
 
@@ -70,11 +70,11 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+        TileEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof CardboradBoxTileEntity)) {
-            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+            return super.use(state, worldIn, pos, player, handIn, hit);
         }
 
         CardboradBoxTileEntity cardboardBox = (CardboradBoxTileEntity) te;
@@ -103,14 +103,14 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity newBlockEntity(IBlockReader worldIn) {
         return new CardboradBoxTileEntity(tier);
     }
 
     @Override
     public NonNullList<ItemStack> getItems(ItemStack stack) {
         NonNullList<ItemStack> inv = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
-        CompoundNBT blockEntityTag = stack.getChildTag("BlockEntityTag");
+        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             ItemUtils.readInventory(blockEntityTag, "Items", inv);
         }
@@ -119,7 +119,7 @@ public class CardboardBoxBlock extends HorizontalRotatableBlock implements IItem
 
     @Override
     public ItemStack add(ItemStack stack, ItemStack stackToAdd, int amount) {
-        CompoundNBT blockEntityTag = stack.getOrCreateChildTag("BlockEntityTag");
+        CompoundNBT blockEntityTag = stack.getOrCreateTagElement("BlockEntityTag");
         NonNullList<ItemStack> items = NonNullList.withSize(getSlots(tier), ItemStack.EMPTY);
         ItemUtils.readInventory(blockEntityTag, "Items", items);
         ItemStackHandler stackHandler = new ItemStackHandler(items);

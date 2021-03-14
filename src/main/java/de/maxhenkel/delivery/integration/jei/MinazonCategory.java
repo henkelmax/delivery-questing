@@ -44,7 +44,7 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
 
             @Override
             public void draw(MatrixStack matrixStack, int x, int y) {
-                Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation(Main.MODID, "textures/gui/computer/minazon_icon.png"));
+                Minecraft.getInstance().getTextureManager().bind(new ResourceLocation(Main.MODID, "textures/gui/computer/minazon_icon.png"));
                 AbstractGui.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             }
         };
@@ -80,7 +80,7 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
     @Override
     public void draw(Offer offer, MatrixStack matrixStack, double mouseX, double mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        ScreenBase.drawCentered(mc.fontRenderer, matrixStack, new TranslationTextComponent("jei.delivery.minazon_level", offer.getLevelRequirement()), 50, 1, 0xFFFFFF);
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("jei.delivery.minazon_price", offer.getPrice()), 30, 18, ScreenBase.FONT_COLOR);
+        ScreenBase.drawCentered(mc.font, matrixStack, new TranslationTextComponent("jei.delivery.minazon_level", offer.getLevelRequirement()), 50, 1, 0xFFFFFF);
+        mc.font.draw(matrixStack, new TranslationTextComponent("jei.delivery.minazon_price", offer.getPrice()), 30, 18, ScreenBase.FONT_COLOR);
     }
 }

@@ -28,13 +28,13 @@ public class ComputerContainer extends ContainerBase {
         }
         this.group = group;
 
-        trackIntArray(new IIntArray() {
+        addDataSlots(new IIntArray() {
             @Override
             public int get(int index) {
                 if (playerInventory.player instanceof ServerPlayerEntity) {
                     ServerPlayerEntity player = (ServerPlayerEntity) playerInventory.player;
                     try {
-                        Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUniqueID());
+                        Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUUID());
                         if (index == 0) {
                             return ((int) playerGroup.getBalance()) & 0xFFFF;
                         } else if (index == 1) {
@@ -61,7 +61,7 @@ public class ComputerContainer extends ContainerBase {
             }
 
             @Override
-            public int size() {
+            public int getCount() {
                 return 3;
             }
         });
@@ -74,7 +74,7 @@ public class ComputerContainer extends ContainerBase {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         if (tileEntity != null) {
             return tileEntity.getEnergy().getEnergyStored() > 0;
         }

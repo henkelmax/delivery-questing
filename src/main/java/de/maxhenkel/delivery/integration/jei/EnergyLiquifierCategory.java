@@ -89,7 +89,7 @@ public class EnergyLiquifierCategory implements IRecipeCategory<Boolean> {
     public void draw(Boolean reversed, MatrixStack matrixStack, double mouseX, double mouseY) {
         if (reversed) {
             Minecraft mc = Minecraft.getInstance();
-            mc.getTextureManager().bindTexture(TEXTURE);
+            mc.getTextureManager().bind(TEXTURE);
             AbstractGui.blit(matrixStack, 31, 23, 83, 0, 22, 15, 256, 256);
         }
     }

@@ -39,25 +39,25 @@ public class QuestsFinishedMailProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
         }
 
-        FontRenderer font = mc.fontRenderer;
+        FontRenderer font = mc.font;
 
-        mc.fontRenderer.func_243248_b(matrixStack, eMail.getTitle(), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        mc.font.draw(matrixStack, eMail.getTitle(), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
         screen.drawCentered(matrixStack, eMail.getTitle(), guiLeft + xSize / 2, guiTop + 3 + 9 + 3, 0);
 
 
         int yPos = guiTop + 3 + 9 + 3 + 15;
 
-        List<IReorderingProcessor> list = font.trimStringToWidth(eMail.getText(), xSize - 16);
+        List<IReorderingProcessor> list = font.split(eMail.getText(), xSize - 16);
         for (IReorderingProcessor text : list) {
-            font.func_238422_b_(matrixStack, text, guiLeft + 3 + 8, yPos, screen.FONT_COLOR);
+            font.draw(matrixStack, text, guiLeft + 3 + 8, yPos, screen.FONT_COLOR);
             yPos += 10;
         }
     }

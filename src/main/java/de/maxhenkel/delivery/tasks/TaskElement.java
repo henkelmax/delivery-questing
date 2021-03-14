@@ -54,11 +54,11 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
 
     @OnlyIn(Dist.CLIENT)
     public T getCurrentDisplayedElement() {
-        long time = Minecraft.getInstance().world.getGameTime();
+        long time = Minecraft.getInstance().level.getGameTime();
         if (item == null) {
             return getDefault();
         }
-        List<T> allElements = item.getAllElements();
+        List<T> allElements = item.getValues();
         return allElements.get((int) (time / 20L % allElements.size()));
     }
 

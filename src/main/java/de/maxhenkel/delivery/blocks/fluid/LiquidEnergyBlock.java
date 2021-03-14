@@ -13,13 +13,13 @@ import net.minecraft.world.World;
 public class LiquidEnergyBlock extends FlowingFluidBlock {
 
     public LiquidEnergyBlock() {
-        super(() -> ModFluids.LIQUID_ENERGY, Block.Properties.create(Material.WATER).doesNotBlockMovement().hardnessAndResistance(100F).noDrops());
+        super(() -> ModFluids.LIQUID_ENERGY, Block.Properties.of(Material.WATER).noCollission().strength(100F).noDrops());
         setRegistryName(getFluid().getRegistryName());
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
-        entityIn.attackEntityFrom(DamageSourceEnergy.DAMAGE_ENERGY, 4F);
-        super.onEntityCollision(state, worldIn, pos, entityIn);
+    public void entityInside(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
+        entityIn.hurt(DamageSourceEnergy.DAMAGE_ENERGY, 4F);
+        super.entityInside(state, worldIn, pos, entityIn);
     }
 }

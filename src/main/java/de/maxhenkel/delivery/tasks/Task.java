@@ -111,7 +111,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
-        compound.putUniqueId("ID", id);
+        compound.putUUID("ID", id);
         compound.putString("Name", name);
         compound.putString("Description", description);
         compound.putString("ContractorName", contractorName);
@@ -122,7 +122,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
 
         ListNBT dependencyList = new ListNBT();
         for (UUID dependency : dependencies) {
-            dependencyList.add(NBTUtil.func_240626_a_(dependency));
+            dependencyList.add(NBTUtil.createUUID(dependency));
         }
         compound.put("Dependencies", dependencyList);
 
@@ -143,7 +143,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
 
         ListNBT rewardList = new ListNBT();
         for (ItemStack stack : rewards) {
-            rewardList.add(stack.write(new CompoundNBT()));
+            rewardList.add(stack.save(new CompoundNBT()));
         }
         compound.put("Rewards", rewardList);
 
@@ -152,7 +152,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        id = compound.getUniqueId("ID");
+        id = compound.getUUID("ID");
         name = compound.getString("Name");
         description = compound.getString("Description");
         contractorName = compound.getString("ContractorName");
@@ -164,7 +164,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         dependencies = new ArrayList<>();
         ListNBT dependencyList = compound.getList("Dependencies", Constants.NBT.TAG_INT_ARRAY);
         for (INBT inbt : dependencyList) {
-            dependencies.add(NBTUtil.readUniqueId(inbt));
+            dependencies.add(NBTUtil.loadUUID(inbt));
         }
 
         experience = compound.getInt("Experience");
@@ -191,7 +191,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
         rewards = new ArrayList<>();
         ListNBT rewardList = compound.getList("Rewards", 10);
         for (int i = 0; i < rewardList.size(); i++) {
-            rewards.add(ItemStack.read(rewardList.getCompound(i)));
+            rewards.add(ItemStack.of(rewardList.getCompound(i)));
         }
     }
 }

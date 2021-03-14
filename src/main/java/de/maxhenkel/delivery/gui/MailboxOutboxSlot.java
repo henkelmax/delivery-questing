@@ -13,8 +13,8 @@ public class MailboxOutboxSlot extends Slot {
     }
 
     @Override
-    public boolean isItemValid(ItemStack stack) {
-        if (!super.isItemValid(stack)) {
+    public boolean mayPlace(ItemStack stack) {
+        if (!super.mayPlace(stack)) {
             return false;
         }
         return stack.getItem() instanceof EnvelopeItem || stack.getItem() instanceof ParcelItem;

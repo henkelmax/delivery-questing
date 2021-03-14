@@ -33,7 +33,7 @@ public class MailProgram extends ComputerProgram {
         super(screen);
         this.parent = parent;
 
-        eMails = new ArrayList<>(screen.getContainer().getGroup().getEMails());
+        eMails = new ArrayList<>(screen.getMenu().getGroup().getEMails());
         Collections.reverse(eMails);
     }
 
@@ -52,13 +52,13 @@ public class MailProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         AbstractGui.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188, 512, 512);
 
-        mc.fontRenderer.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.email"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.email"), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
         for (int i = offset; i < eMails.size() && i < offset + 5; i++) {
-            mc.getTextureManager().bindTexture(BACKGROUND);
+            mc.getTextureManager().bind(BACKGROUND);
             int pos = i - offset;
             int startY = guiTop + 12 + pos * 33;
             EMail eMail = eMails.get(i);
@@ -76,20 +76,20 @@ public class MailProgram extends ComputerProgram {
                 }
             }
 
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(guiLeft + 11, startY + 8, 0F);
             eMail.renderIcon(matrixStack, getContainer().getGroup());
-            matrixStack.pop();
+            matrixStack.popPose();
 
-            mc.fontRenderer.func_243248_b(matrixStack, eMail.getTitle(), guiLeft + 35, startY + 2, 0xFFFFFF);
+            mc.font.draw(matrixStack, eMail.getTitle(), guiLeft + 35, startY + 2, 0xFFFFFF);
 
-            List<IReorderingProcessor> list = mc.fontRenderer.trimStringToWidth(eMail.getText(), hoverAreas[pos].getWidth() - 32); //TODO
+            List<IReorderingProcessor> list = mc.font.split(eMail.getText(), hoverAreas[pos].getWidth() - 32); //TODO
             for (int m = 0; m < list.size() && m < 2; m++) {
-                mc.fontRenderer.func_238422_b_(matrixStack, list.get(m), guiLeft + 35, startY + 12 + m * 10, 0);
+                mc.font.draw(matrixStack, list.get(m), guiLeft + 35, startY + 12 + m * 10, 0);
             }
         }
 
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
 
         if (eMails.size() > 5) {
             float h = 165 - 27;

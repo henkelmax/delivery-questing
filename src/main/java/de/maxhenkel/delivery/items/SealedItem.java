@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class SealedItem extends Item {
 
     public SealedItem() {
-        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(new Properties().stacksTo(1).tab(ModItemGroups.TAB_DELIVERY));
 
     }
 
@@ -31,12 +31,12 @@ public abstract class SealedItem extends Item {
 
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         IFormattableTextComponent sender = getSender(stack);
         if (sender != null) {
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.by", sender.mergeStyle(TextFormatting.DARK_BLUE)).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.by", sender.withStyle(TextFormatting.DARK_BLUE)).withStyle(TextFormatting.GRAY));
         }
 
         IFormattableTextComponent t = getTooltip(stack);
@@ -45,20 +45,20 @@ public abstract class SealedItem extends Item {
         }
         NonNullList<ItemStack> items = getContents(stack);
         if (!items.isEmpty()) {
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_count", items.stream().filter(stack1 -> !stack1.isEmpty()).map(ItemStack::getCount).reduce(Integer::sum).orElse(0)).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_count", items.stream().filter(stack1 -> !stack1.isEmpty()).map(ItemStack::getCount).reduce(Integer::sum).orElse(0)).withStyle(TextFormatting.GRAY));
         }
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand handIn) {
-        ItemStack stack = player.getHeldItem(handIn);
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand handIn) {
+        ItemStack stack = player.getItemInHand(handIn);
 
         NonNullList<ItemStack> contents = getContents(stack);
 
         SoundEvent openSound = getOpenSound(stack);
 
         if (openSound != null) {
-            world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.world));
+            world.playSound(null, player.getX(), player.getY(), player.getZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
         }
 
         stack = ItemUtils.decrItemStack(stack, player);
@@ -66,15 +66,15 @@ public abstract class SealedItem extends Item {
         for (ItemStack s : contents) {
             if (stack.isEmpty()) {
                 stack = s;
-                player.setHeldItem(handIn, s);
+                player.setItemInHand(handIn, s);
             } else {
-                if (!player.inventory.addItemStackToInventory(s)) {
-                    player.dropItem(s, false);
+                if (!player.inventory.add(s)) {
+                    player.drop(s, false);
                 }
             }
         }
 
-        return ActionResult.resultSuccess(stack);
+        return ActionResult.success(stack);
     }
 
     @Nullable
@@ -95,7 +95,7 @@ public abstract class SealedItem extends Item {
     }
 
     public ItemStack setSender(ItemStack stack, IFormattableTextComponent sender) {
-        CompoundNBT tag = stack.getOrCreateChildTag("Sender");
+        CompoundNBT tag = stack.getOrCreateTagElement("Sender");
         String json = ITextComponent.Serializer.toJson(sender);
         tag.putString("Name", json);
         return stack;
@@ -103,13 +103,13 @@ public abstract class SealedItem extends Item {
 
     @Nullable
     public IFormattableTextComponent getSender(ItemStack stack) {
-        CompoundNBT tag = stack.getChildTag("Sender");
+        CompoundNBT tag = stack.getTagElement("Sender");
         if (tag == null) {
             return null;
         }
         String s = tag.getString("Name");
         try {
-            return ITextComponent.Serializer.getComponentFromJson(s);
+            return ITextComponent.Serializer.fromJson(s);
         } catch (JsonParseException e) {
             return null;
         }

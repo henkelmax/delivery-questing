@@ -17,9 +17,9 @@ public class ContainerFactoryGroup<T extends ContainerBase> implements IContaine
     }
 
     public T create(int windowId, PlayerInventory inv, PacketBuffer data) {
-        TileEntity tileEntity = inv.player.world.getTileEntity(data.readBlockPos());
+        TileEntity tileEntity = inv.player.level.getBlockEntity(data.readBlockPos());
         Group group = new Group();
-        group.deserializeNBT(data.readCompoundTag());
+        group.deserializeNBT(data.readNbt());
 
         try {
             return this.containerCreator.create(windowId, inv, tileEntity, group);

@@ -26,38 +26,38 @@ import java.util.UUID;
 public class ContractItem extends Item {
 
     public ContractItem() {
-        super(new Properties().maxStackSize(1).group(ModItemGroups.TAB_DELIVERY));
+        super(new Properties().stacksTo(1).tab(ModItemGroups.TAB_DELIVERY));
         setRegistryName(new ResourceLocation(Main.MODID, "contract"));
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
-        tooltip.add(new TranslationTextComponent("tooltip.delivery.contract").mergeStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        tooltip.add(new TranslationTextComponent("tooltip.delivery.contract").withStyle(TextFormatting.GRAY));
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity p, Hand handIn) {
-        ItemStack stack = p.getHeldItem(handIn);
+    public ActionResult<ItemStack> use(World world, PlayerEntity p, Hand handIn) {
+        ItemStack stack = p.getItemInHand(handIn);
 
         if (!stack.hasTag()) {
-            return ActionResult.resultSuccess(stack);
+            return ActionResult.success(stack);
         }
 
         if (!(p instanceof ServerPlayerEntity)) {
-            return ActionResult.resultSuccess(stack);
+            return ActionResult.success(stack);
         }
         ServerPlayerEntity player = (ServerPlayerEntity) p;
 
         UUID taskID = getTask(stack);
 
         if (taskID == null) {
-            return ActionResult.resultSuccess(stack);
+            return ActionResult.success(stack);
         }
 
         int level;
         try {
-            level = (int) Main.getProgression(player).getPlayerGroup(player.getUniqueID()).getLevel();
+            level = (int) Main.getProgression(player).getPlayerGroup(player.getUUID()).getLevel();
         } catch (Exception e) {
             level = 0;
         }
@@ -65,17 +65,17 @@ public class ContractItem extends Item {
         Task task = Main.TASK_MANAGER.getTask(taskID, level);
 
         if (task == null) {
-            return ActionResult.resultSuccess(stack);
+            return ActionResult.success(stack);
         }
 
-        TaskContainerProvider.openGui(player, task, getDisplayName(stack), ContractContainer::new);
+        TaskContainerProvider.openGui(player, task, getName(stack), ContractContainer::new);
 
-        return ActionResult.resultSuccess(stack);
+        return ActionResult.success(stack);
     }
 
     public ItemStack setTask(ItemStack stack, UUID taskID) {
         CompoundNBT tag = stack.getOrCreateTag();
-        tag.putUniqueId("TaskID", taskID);
+        tag.putUUID("TaskID", taskID);
         return stack;
     }
 
@@ -88,7 +88,7 @@ public class ContractItem extends Item {
         if (!tag.contains("TaskID")) {
             return null;
         }
-        return tag.getUniqueId("TaskID");
+        return tag.getUUID("TaskID");
     }
 
 }

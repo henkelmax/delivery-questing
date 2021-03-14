@@ -20,7 +20,7 @@ public class ModEntities {
                     .setTrackingRange(256)
                     .setUpdateInterval(1)
                     .setShouldReceiveVelocityUpdates(true)
-                    .size(12F / 16F, 0.25F)
+                    .sized(12F / 16F, 0.25F)
                     .setCustomClientFactory((spawnEntity, world) -> new DroneEntity(world));
         });
         event.getRegistry().register(DRONE);

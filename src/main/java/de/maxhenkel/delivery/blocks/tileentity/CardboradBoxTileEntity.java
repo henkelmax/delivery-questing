@@ -37,26 +37,26 @@ public class CardboradBoxTileEntity extends TileEntity {
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         tier = ((CardboardBoxBlock) state.getBlock()).getTier();
         inventory = NonNullList.withSize(CardboardBoxBlock.getSlots(tier), ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "Items", inventory);
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         ItemUtils.saveInventory(compound, "Items", inventory);
-        return super.write(compound);
+        return super.save(compound);
     }
 
     public IInventory getInventory() {
-        return new ItemListInventory(inventory, this::markDirty);
+        return new ItemListInventory(inventory, this::setChanged);
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (!removed && cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+        if (!remove && cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return LazyOptional.of(this::getItemHandler).cast();
         }
         return super.getCapability(cap, side);

@@ -35,6 +35,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public static final int ENERGY_CAPACITY = 16_000;
 
     private final IIntArray fields = new IIntArray() {
+        @Override
         public int get(int index) {
             if (index == 0) {
                 return energy.getEnergyStored() + 1;
@@ -42,13 +43,15 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
             return 0;
         }
 
+        @Override
         public void set(int index, int value) {
             if (index == 0) {
                 energy.setEnergy(value - 1);
             }
         }
 
-        public int size() {
+        @Override
+        public int getCount() {
             return 1;
         }
     };
@@ -75,7 +78,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public void tick() {
         cachedDrone = getDrone();
 
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
 
@@ -98,7 +101,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
 
     public void dronePadTick(DroneEntity drone) {
         drone.setEnergy(drone.getEnergy() + energy.useEnergy(Math.min(2, ENERGY_CAPACITY - drone.getEnergy()), false));
-        markDirty();
+        setChanged();
 
         Tier tier = getTier();
         int t = 0;
@@ -131,31 +134,31 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
 
     @Nullable
     public DroneEntity getDrone() {
-        List<DroneEntity> drone = world.getEntitiesWithinAABB(
+        List<DroneEntity> drone = level.getEntitiesOfClass(
                 DroneEntity.class,
-                new AxisAlignedBB(getPos().getX() - 16, -16, getPos().getZ() - 16, getPos().getX() + 16, world.getHeight() + 256, getPos().getZ() + 16),
-                droneEntity -> droneEntity.getPadLocation().equals(getPos()) && (world.isRemote || droneEntity.getUniqueID().equals(droneID))
+                new AxisAlignedBB(getBlockPos().getX() - 16, -16, getBlockPos().getZ() - 16, getBlockPos().getX() + 16, level.getHeight() + 256, getBlockPos().getZ() + 16),
+                droneEntity -> droneEntity.getPadLocation().equals(getBlockPos()) && (level.isClientSide || droneEntity.getUUID().equals(droneID))
         );
         return drone.stream().findAny().orElse(null);
     }
 
     public DroneEntity spawnDrone() {
-        Direction direction = getBlockState().get(HorizontalRotatableBlock.FACING);
-        DroneEntity drone = new DroneEntity(world);
-        drone.setPosition(getPos().getX() + 0.5D + direction.getXOffset() * 1D / 16D, getPos().getY() + 32, getPos().getZ() + 0.5D + direction.getZOffset() * 1D / 16D);
-        drone.setPadLocation(getPos());
+        Direction direction = getBlockState().getValue(HorizontalRotatableBlock.FACING);
+        DroneEntity drone = new DroneEntity(level);
+        drone.setPos(getBlockPos().getX() + 0.5D + direction.getStepX() * 1D / 16D, getBlockPos().getY() + 32, getBlockPos().getZ() + 0.5D + direction.getStepZ() * 1D / 16D);
+        drone.setPadLocation(getBlockPos());
         drone.setEnergy(16000);
-        drone.rotationYaw = direction.getHorizontalAngle();
-        world.addEntity(drone);
-        setDroneID(drone.getUniqueID());
+        drone.yRot = direction.toYRot();
+        level.addFreshEntity(drone);
+        setDroneID(drone.getUUID());
         return drone;
     }
 
     public boolean isSkyFree() {
-        BlockPos.Mutable p = new BlockPos.Mutable(pos.getX(), 0, pos.getZ());
-        for (int y = pos.getY() + 1; y < world.getHeight(); y++) {
+        BlockPos.Mutable p = new BlockPos.Mutable(worldPosition.getX(), 0, worldPosition.getZ());
+        for (int y = worldPosition.getY() + 1; y < level.getHeight(); y++) {
             p.setY(y);
-            if (!world.isAirBlock(p)) {
+            if (!level.isEmptyBlock(p)) {
                 return false;
             }
         }
@@ -173,16 +176,16 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
 
     public void setDroneID(@Nullable UUID droneID) {
         this.droneID = droneID;
-        markDirty();
+        setChanged();
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (removed) {
+        if (remove) {
             return super.getCapability(cap, side);
         }
-        if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().get(HorizontalRotatableBlock.FACING).getOpposite())) {
+        if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getOpposite())) {
             if (cap == CapabilityEnergy.ENERGY) {
                 return LazyOptional.of(() -> energy).cast();
             } else if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
@@ -193,11 +196,11 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     public IInventory getInventory() {
-        return new ItemListInventory(inventory, this::markDirty);
+        return new ItemListInventory(inventory, this::setChanged);
     }
 
     public IInventory getUpgradeInventory() {
-        return new ItemListInventory(upgradeInventory, this::markDirty);
+        return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
     @Nullable
@@ -229,28 +232,28 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         inventory = NonNullList.withSize(1, ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, compound.getInt("Energy"));
         if (compound.contains("DroneID")) {
-            droneID = compound.getUniqueId("DroneID");
+            droneID = compound.getUUID("DroneID");
         } else {
             droneID = null;
         }
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
         compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
         compound.putInt("Energy", energy.getEnergyStored());
         if (droneID != null) {
-            compound.putUniqueId("DroneID", droneID);
+            compound.putUUID("DroneID", droneID);
         }
-        return super.write(compound);
+        return super.save(compound);
     }
 }

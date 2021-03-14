@@ -13,7 +13,7 @@ public class LiquidEnergySource extends ModFluidSource {
         super(
                 FluidAttributes.builder(
                         new ResourceLocation(Main.MODID, "block/liquid_energy_still"),
-                        new ResourceLocation(Main.MODID, "block/liquid_energy_flowing")).sound(SoundEvents.ITEM_BUCKET_FILL),
+                        new ResourceLocation(Main.MODID, "block/liquid_energy_flowing")).sound(SoundEvents.BUCKET_FILL),
                 () -> ModBlocks.LIQUID_ENERGY,
                 () -> ModFluids.LIQUID_ENERGY,
                 () -> ModFluids.LIQUID_ENERGY_FLOWING,

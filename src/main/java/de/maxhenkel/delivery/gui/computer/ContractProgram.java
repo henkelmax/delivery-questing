@@ -46,17 +46,17 @@ public class ContractProgram extends ComputerProgram {
     @Override
     protected void init() {
         super.init();
-        player = new DummyPlayer(mc.world, task.getSkin(), task.getContractorName());
+        player = new DummyPlayer(mc.level, task.getSkin(), task.getContractorName());
         taskWidget = new TaskWidget(xSize - 106 - 6, 15, new ActiveTask(task, null), false, null, TASK);
 
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
 
         accept = new Button(guiLeft + 3 + 54 + 10, guiTop + 3 + 67, 68, 20, new TranslationTextComponent("message.delivery.accept"), button -> {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageAcceptTask(task.getId()));
-            screen.getContainer().getGroup().addTask(task.getId());
+            screen.getMenu().getGroup().addTask(task.getId());
             screen.setProgram(parent);
         });
-        accept.active = screen.getContainer().getGroup().canAcceptTask(task.getId());
+        accept.active = screen.getMenu().getGroup().canAcceptTask(task.getId());
         addWidget(accept);
     }
 
@@ -74,38 +74,38 @@ public class ContractProgram extends ComputerProgram {
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bindTexture(BACKGROUND);
+        mc.getTextureManager().bind(BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
         }
 
-        InventoryScreen.drawEntityOnScreen(guiLeft + 31, guiTop + 87, 30, guiLeft + 31 - mouseX, guiTop + 51 - mouseY, player);
+        InventoryScreen.renderEntityInInventory(guiLeft + 31, guiTop + 87, 30, guiLeft + 31 - mouseX, guiTop + 51 - mouseY, player);
 
-        FontRenderer font = mc.fontRenderer;
+        FontRenderer font = mc.font;
 
-        font.func_243248_b(matrixStack, new StringTextComponent(task.getName()), guiLeft + 5, guiTop + 4, 0xFFFFFF);
+        font.draw(matrixStack, new StringTextComponent(task.getName()), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
-        font.func_243248_b(matrixStack, new StringTextComponent(task.getProfession()), guiLeft + 3 + 3, guiTop + 3 + 90, 0);
+        font.draw(matrixStack, new StringTextComponent(task.getProfession()), guiLeft + 3 + 3, guiTop + 3 + 90, 0);
 
         screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.rewards"), guiLeft + 3 + 54 + 44, guiTop + 3 + 9 + 3, 0);
-        font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", task.getExperience()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 10, screen.FONT_COLOR);
+        font.draw(matrixStack, new TranslationTextComponent("message.delivery.reward_xp", task.getExperience()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 10, screen.FONT_COLOR);
         if (task.getMoney() > 0) {
-            font.func_243248_b(matrixStack, new TranslationTextComponent("message.delivery.reward_money", task.getMoney()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 20, screen.FONT_COLOR);
+            font.draw(matrixStack, new TranslationTextComponent("message.delivery.reward_money", task.getMoney()), guiLeft + 3 + 60, guiTop + 3 + 9 + 3 + 20, screen.FONT_COLOR);
         }
 
         int paddingLeft = guiLeft + 8 + 3;
-        int lineHeight = font.FONT_HEIGHT + 2;
+        int lineHeight = font.lineHeight + 2;
         int yPos = guiTop + 104 + 9 + 3 + 3 + 4;
 
-        screen.drawCentered(matrixStack, new StringTextComponent(task.getName()).mergeStyle(TextFormatting.BLACK), guiLeft + xSize / 2, yPos, 0);
+        screen.drawCentered(matrixStack, new StringTextComponent(task.getName()).withStyle(TextFormatting.BLACK), guiLeft + xSize / 2, yPos, 0);
 
         yPos += lineHeight + 2;
 
-        List<IReorderingProcessor> list = font.trimStringToWidth(new StringTextComponent(task.getDescription()), xSize - 16);
+        List<IReorderingProcessor> list = font.split(new StringTextComponent(task.getDescription()), xSize - 16);
         for (IReorderingProcessor text : list) {
-            font.func_238422_b_(matrixStack, text, paddingLeft, yPos, screen.FONT_COLOR);
+            font.draw(matrixStack, text, paddingLeft, yPos, screen.FONT_COLOR);
             yPos += lineHeight;
         }
     }

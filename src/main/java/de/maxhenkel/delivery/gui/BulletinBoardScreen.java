@@ -32,8 +32,8 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
 
     public BulletinBoardScreen(BulletinBoardContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
-        xSize = 176;
-        ySize = 167;
+        imageWidth = 176;
+        imageHeight = 167;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
         prev = null;
         next = null;
 
-        tasks = container.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(35, 35, activeTask, true, t -> {
+        tasks = menu.getGroup().getActiveTasks().getTasks().stream().map(activeTask -> new TaskWidget(35, 35, activeTask, true, t -> {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageShowTask(t.getTaskProgress().getTaskID()));
         })).collect(Collectors.toList());
 
@@ -60,11 +60,11 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
 
         currentTaskWidget = tasks.get(currentTask);
 
-        prev = new Button(guiLeft + 6, guiTop + 140, 26, 20, new TranslationTextComponent("button.delivery.previous"), button -> {
+        prev = new Button(leftPos + 6, topPos + 140, 26, 20, new TranslationTextComponent("button.delivery.previous"), button -> {
             currentTask = Math.floorMod(currentTask - 1, tasks.size());
             updateScreen();
         });
-        next = new Button(guiLeft + 144, guiTop + 140, 26, 20, new TranslationTextComponent("button.delivery.next"), button -> {
+        next = new Button(leftPos + 144, topPos + 140, 26, 20, new TranslationTextComponent("button.delivery.next"), button -> {
             currentTask = Math.floorMod(currentTask + 1, tasks.size());
             updateScreen();
         });
@@ -79,10 +79,10 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
         drawCentered(matrixStack, new TranslationTextComponent("message.delivery.experience"), 8, FONT_COLOR);
 
-        drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(container.getGroup().getLevel()))));
+        drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(menu.getGroup().getLevel()))));
 
         if (!tasks.isEmpty()) {
             drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 145, FONT_COLOR);
@@ -91,32 +91,32 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
         }
 
         if (currentTaskWidget != null) {
-            currentTaskWidget.render(matrixStack, x - guiLeft, y - guiTop);
+            currentTaskWidget.render(matrixStack, x - leftPos, y - topPos);
         }
     }
 
     private void drawLevel(MatrixStack matrixStack, IFormattableTextComponent text) {
-        int w = font.getStringPropertyWidth(text);
-        int xPos = xSize / 2 - w / 2;
-        font.func_243248_b(matrixStack, text, xPos + 1, 20, 0);
-        font.func_243248_b(matrixStack, text, xPos - 1, 20, 0);
-        font.func_243248_b(matrixStack, text, xPos, 21, 0);
-        font.func_243248_b(matrixStack, text, xPos, 19, 0);
-        font.func_243248_b(matrixStack, text, xPos, 20, 0xFFFFFF);
+        int w = font.width(text);
+        int xPos = imageWidth / 2 - w / 2;
+        font.draw(matrixStack, text, xPos + 1, 20, 0);
+        font.draw(matrixStack, text, xPos - 1, 20, 0);
+        font.draw(matrixStack, text, xPos, 21, 0);
+        font.draw(matrixStack, text, xPos, 19, 0);
+        font.draw(matrixStack, text, xPos, 20, 0xFFFFFF);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
 
-        blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 223, 162, 5);
-        blit(matrixStack, guiLeft + 7, guiTop + 25, 0, 228, (int) (((float) 162) * (container.getGroup().getLevel() - Math.floor(container.getGroup().getLevel()))), 5);
+        blit(matrixStack, leftPos + 7, topPos + 25, 0, 223, 162, 5);
+        blit(matrixStack, leftPos + 7, topPos + 25, 0, 228, (int) (((float) 162) * (menu.getGroup().getLevel() - Math.floor(menu.getGroup().getLevel()))), 5);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (currentTaskWidget != null) {
-            if (currentTaskWidget.mouseClicked(mouseX - guiLeft, mouseY - guiTop, button)) {
+            if (currentTaskWidget.mouseClicked(mouseX - leftPos, mouseY - topPos, button)) {
                 return true;
             }
         }
@@ -126,7 +126,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (currentTaskWidget != null) {
-            if (currentTaskWidget.mouseReleased(mouseX - guiLeft, mouseY - guiTop, button)) {
+            if (currentTaskWidget.mouseReleased(mouseX - leftPos, mouseY - topPos, button)) {
                 return true;
             }
         }

@@ -29,43 +29,43 @@ public class BulletinBoardRenderer extends TileEntityRenderer<BulletinBoardTileE
 
     @Override
     public void render(BulletinBoardTileEntity bulletinBoard, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
-        int contracts = bulletinBoard.getBlockState().get(BulletinBoardBlock.CONTRACTS);
+        int contracts = bulletinBoard.getBlockState().getValue(BulletinBoardBlock.CONTRACTS);
         if (contracts <= 0) {
             return;
         }
 
-        Direction direction = bulletinBoard.getBlockState().get(HorizontalRotatableBlock.FACING);
+        Direction direction = bulletinBoard.getBlockState().getValue(HorizontalRotatableBlock.FACING);
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(0.5D, 0.5D, 0.5D);
-        matrixStack.rotate(direction.getRotation());
-        matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0F));
-        matrixStack.rotate(Vector3f.XP.rotationDegrees(90.0F));
+        matrixStack.mulPose(direction.getRotation());
+        matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
         matrixStack.translate(0D, 0D, -0.5D + 15D / 16D);
         matrixStack.scale(0.4F, 0.4F, 0.4F);
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(0.5D, 0.5D, 0D);
-        matrixStack.rotate(Vector3f.ZP.rotationDegrees(5F));
-        itemRenderer.renderItem(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
-        matrixStack.pop();
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(5F));
+        itemRenderer.renderStatic(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
+        matrixStack.popPose();
 
         if (contracts >= 2) {
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(-0.5D, 0.5D, 0D);
-            matrixStack.rotate(Vector3f.ZP.rotationDegrees(-2F));
-            itemRenderer.renderItem(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
-            matrixStack.pop();
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(-2F));
+            itemRenderer.renderStatic(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
+            matrixStack.popPose();
         }
         if (contracts >= 3) {
-            matrixStack.push();
-            matrixStack.rotate(Vector3f.ZP.rotationDegrees(-4F));
+            matrixStack.pushPose();
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(-4F));
             matrixStack.translate(0D, -0.5D, 0D);
-            itemRenderer.renderItem(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
-            matrixStack.pop();
+            itemRenderer.renderStatic(contract, ItemCameraTransforms.TransformType.FIXED, combinedLight, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
+            matrixStack.popPose();
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
 }

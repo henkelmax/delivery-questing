@@ -30,21 +30,21 @@ import javax.annotation.Nullable;
 public class PackagerBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IUpgradable {
 
     public PackagerBlock() {
-        super(Properties.create(Material.IRON).sound(SoundType.METAL).notSolid().hardnessAndResistance(3F));
+        super(Properties.of(Material.METAL).sound(SoundType.METAL).noOcclusion().strength(3F));
         setRegistryName(new ResourceLocation(Main.MODID, "packager"));
     }
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+        TileEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof PackagerTileEntity)) {
-            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+            return super.use(state, worldIn, pos, player, handIn, hit);
         }
 
         PackagerTileEntity packager = (PackagerTileEntity) te;
@@ -56,32 +56,32 @@ public class PackagerBlock extends HorizontalRotatableBlock implements IItemBloc
 
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        TileEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof PackagerTileEntity) {
             PackagerTileEntity energyLiquifier = (PackagerTileEntity) te;
-            InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getInventory());
-            InventoryHelper.dropInventoryItems(worldIn, pos, energyLiquifier.getUpgradeInventory());
+            InventoryHelper.dropContents(worldIn, pos, energyLiquifier.getInventory());
+            InventoryHelper.dropContents(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
     public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof PackagerTileEntity) {
             PackagerTileEntity packager = (PackagerTileEntity) te;
-            if (packager.getUpgradeInventory().getStackInSlot(0).isEmpty()) {
-                packager.getUpgradeInventory().setInventorySlotContents(0, stack.copy().split(1));
+            if (packager.getUpgradeInventory().getItem(0).isEmpty()) {
+                packager.getUpgradeInventory().setItem(0, stack.copy().split(1));
                 ItemUtils.decrItemStack(stack, player);
-                return ActionResultType.func_233537_a_(world.isRemote);
+                return ActionResultType.sidedSuccess(world.isClientSide);
             }
         }
         return ActionResultType.PASS;
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity newBlockEntity(IBlockReader worldIn) {
         return new PackagerTileEntity();
     }
 }

@@ -28,21 +28,21 @@ public class MailboxTileEntity extends GroupTileEntity implements ITickableTileE
 
     @Override
     public void tick() {
-        if (world.isRemote) {
+        if (level.isClientSide) {
             return;
         }
 
-        if (world.getDayTime() % 24000 == 20) {
+        if (level.getDayTime() % 24000 == 20) {
             Group group = getGroup();
             if (group != null) {
                 group.handInTaskItems(clearMailbox());
             }
         }
 
-        if (world.getGameTime() % 20 == 0) {
+        if (level.getGameTime() % 20 == 0) {
             boolean hasMail = !outbox.stream().allMatch(ItemStack::isEmpty);
-            if (hasMail != getBlockState().get(MailboxBlock.NEW_MAIL)) {
-                world.setBlockState(pos, world.getBlockState(pos).with(MailboxBlock.NEW_MAIL, hasMail), 3);
+            if (hasMail != getBlockState().getValue(MailboxBlock.NEW_MAIL)) {
+                level.setBlock(worldPosition, level.getBlockState(worldPosition).setValue(MailboxBlock.NEW_MAIL, hasMail), 3);
             }
         }
     }
@@ -55,12 +55,12 @@ public class MailboxTileEntity extends GroupTileEntity implements ITickableTileE
             }
         }
         outbox.clear();
-        markDirty();
+        setChanged();
         return items;
     }
 
     public IInventory getOutbox() {
-        return new ItemListInventory(outbox, this::markDirty);
+        return new ItemListInventory(outbox, this::setChanged);
     }
 
     @Nullable
@@ -74,20 +74,20 @@ public class MailboxTileEntity extends GroupTileEntity implements ITickableTileE
         if (group == null) {
             return null;
         }
-        return new ItemListInventory(group.getMailboxInbox(), this::markDirty);
+        return new ItemListInventory(group.getMailboxInbox(), this::setChanged);
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         outbox.clear();
         ItemUtils.readInventory(compound, "Outbox", outbox);
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         ItemUtils.saveInventory(compound, "Outbox", outbox);
-        return super.write(compound);
+        return super.save(compound);
     }
 
 }

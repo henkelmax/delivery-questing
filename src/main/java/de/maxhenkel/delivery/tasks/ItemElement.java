@@ -66,7 +66,7 @@ public class ItemElement extends TaskElement<net.minecraft.item.Item> {
 
         if (obj.has("nbt")) {
             try {
-                item.nbt = JsonToNBT.getTagFromJson(obj.get("nbt").getAsString());
+                item.nbt = JsonToNBT.parseTag(obj.get("nbt").getAsString());
             } catch (CommandSyntaxException e) {
                 throw new JsonParseException(e);
             }

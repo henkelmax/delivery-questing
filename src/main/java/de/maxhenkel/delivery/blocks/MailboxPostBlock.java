@@ -17,10 +17,10 @@ import net.minecraft.world.IBlockReader;
 
 public class MailboxPostBlock extends Block implements IItemBlock {
 
-    private VoxelShape SHAPE = Block.makeCuboidShape(7D, 0D, 7D, 9D, 16D, 9D);
+    private VoxelShape SHAPE = Block.box(7D, 0D, 7D, 9D, 16D, 9D);
 
     public MailboxPostBlock() {
-        super(Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(1F).notSolid());
+        super(Properties.of(Material.METAL).sound(SoundType.METAL).strength(1F).noOcclusion());
         setRegistryName(new ResourceLocation(Main.MODID, "mailbox_post"));
     }
 
@@ -31,7 +31,7 @@ public class MailboxPostBlock extends Block implements IItemBlock {
 
     @Override
     public Item toItem() {
-        return new BlockItem(this, new Item.Properties().group(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
+        return new BlockItem(this, new Item.Properties().tab(ModItemGroups.TAB_DELIVERY)).setRegistryName(getRegistryName());
     }
 
 }

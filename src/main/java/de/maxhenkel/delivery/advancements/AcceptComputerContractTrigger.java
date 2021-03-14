@@ -16,16 +16,18 @@ public class AcceptComputerContractTrigger extends AbstractCriterionTrigger<Acce
     public AcceptComputerContractTrigger() {
     }
 
+    @Override
     public ResourceLocation getId() {
         return ID;
     }
 
-    public AcceptComputerContractTrigger.Instance deserializeTrigger(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
+    @Override
+    public AcceptComputerContractTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
         return new AcceptComputerContractTrigger.Instance(entityPredicate);
     }
 
     public void trigger(ServerPlayerEntity player) {
-        triggerListeners(player, (instance) -> true);
+        trigger(player, (instance) -> true);
     }
 
     public static class Instance extends CriterionInstance {

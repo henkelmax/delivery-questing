@@ -18,6 +18,6 @@ public class SoundLoopDroneFlying extends SoundLoopDrone {
 
     @Override
     public boolean shouldStopSound() {
-        return drone.getMotion().length() <= 0D || drone.getEnergy() <= 0;
+        return drone.getDeltaMovement().length() <= 0D || drone.getEnergy() <= 0;
     }
 }

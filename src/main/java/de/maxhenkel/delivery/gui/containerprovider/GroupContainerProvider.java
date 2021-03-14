@@ -33,8 +33,8 @@ public class GroupContainerProvider<T extends ContainerBase> implements INamedCo
     public static <T extends ContainerBase> void openGui(PlayerEntity player, TileEntity tileEntity, Group group, ITextComponent title, ContainerFactoryGroup.ContainerCreator<T> containerCreator) {
         if (player instanceof ServerPlayerEntity) {
             NetworkHooks.openGui((ServerPlayerEntity) player, new GroupContainerProvider<T>(containerCreator, tileEntity, group, title), (packetBuffer) -> {
-                packetBuffer.writeBlockPos(tileEntity.getPos());
-                packetBuffer.writeCompoundTag(group.serializeNBT());
+                packetBuffer.writeBlockPos(tileEntity.getBlockPos());
+                packetBuffer.writeNbt(group.serializeNBT());
             });
         }
 

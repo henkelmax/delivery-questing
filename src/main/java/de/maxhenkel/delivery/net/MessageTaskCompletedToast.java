@@ -33,18 +33,18 @@ public class MessageTaskCompletedToast implements Message<MessageTaskCompletedTo
 
     @OnlyIn(Dist.CLIENT)
     private void runClient() {
-        Minecraft.getInstance().getToastGui().add(new TaskCompletedToast(task));
+        Minecraft.getInstance().getToasts().addToast(new TaskCompletedToast(task));
     }
 
     @Override
     public MessageTaskCompletedToast fromBytes(PacketBuffer packetBuffer) {
         task = new Task();
-        task.deserializeNBT(packetBuffer.readCompoundTag());
+        task.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(task.serializeNBT());
+        packetBuffer.writeNbt(task.serializeNBT());
     }
 }

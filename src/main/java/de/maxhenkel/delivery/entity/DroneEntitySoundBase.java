@@ -22,10 +22,10 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isRemote) {
+        if (!level.isClientSide) {
             return;
         }
-        if (Math.abs(getMotion().y) > 0D && ((DroneEntity) this).getEnergy() > 0) {
+        if (Math.abs(getDeltaMovement().y) > 0D && ((DroneEntity) this).getEnergy() > 0) {
             checkHighLoop();
         }
     }
@@ -34,7 +34,7 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
     public void checkHighLoop() {
         if (!isSoundPlaying(droneSound)) {
             droneSound = new SoundLoopDroneFlying((DroneEntity) this, ModSounds.DRONE, SoundCategory.NEUTRAL);
-            ModSounds.playSoundLoop(droneSound, world);
+            ModSounds.playSoundLoop(droneSound, level);
         }
     }
 
@@ -43,7 +43,7 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
         if (sound == null) {
             return false;
         }
-        return Minecraft.getInstance().getSoundHandler().isPlaying(sound);
+        return Minecraft.getInstance().getSoundManager().isActive(sound);
     }
 
 }

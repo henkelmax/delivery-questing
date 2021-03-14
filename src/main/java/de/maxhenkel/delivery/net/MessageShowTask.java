@@ -34,14 +34,14 @@ public class MessageShowTask implements Message<MessageShowTask> {
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
         try {
-            Group group = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUniqueID());
+            Group group = Main.getProgression(context.getSender()).getPlayerGroup(context.getSender().getUUID());
             Task task = Main.TASK_MANAGER.getTask(this.task, group);
 
             if (task == null) {
                 return;
             }
 
-            TaskContainerProvider.openGui(context.getSender(), task, new TranslationTextComponent(ModItems.CONTRACT.getTranslationKey()), ContractContainer::new);
+            TaskContainerProvider.openGui(context.getSender(), task, new TranslationTextComponent(ModItems.CONTRACT.getDescriptionId()), ContractContainer::new);
         } catch (Exception e) {
 
         }
@@ -49,12 +49,12 @@ public class MessageShowTask implements Message<MessageShowTask> {
 
     @Override
     public MessageShowTask fromBytes(PacketBuffer packetBuffer) {
-        task = packetBuffer.readUniqueId();
+        task = packetBuffer.readUUID();
         return this;
     }
 
     @Override
     public void toBytes(PacketBuffer packetBuffer) {
-        packetBuffer.writeUniqueId(task);
+        packetBuffer.writeUUID(task);
     }
 }

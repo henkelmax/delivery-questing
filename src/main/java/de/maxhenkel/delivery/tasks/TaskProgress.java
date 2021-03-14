@@ -94,7 +94,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     public CompoundNBT serializeNBT() {
         CompoundNBT compound = new CompoundNBT();
 
-        compound.putUniqueId("ID", taskID);
+        compound.putUUID("ID", taskID);
         compound.putLong("ExperienceStarted", experienceStarted);
 
         ListNBT taskList = new ListNBT();
@@ -116,7 +116,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT compound) {
-        taskID = compound.getUniqueId("ID");
+        taskID = compound.getUUID("ID");
         experienceStarted = compound.getLong("ExperienceStarted");
 
         ListNBT taskList = compound.getList("TaskItems", 10);

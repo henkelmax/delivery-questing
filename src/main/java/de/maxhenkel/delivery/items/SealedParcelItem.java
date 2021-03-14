@@ -17,12 +17,12 @@ public class SealedParcelItem extends SealedItem {
 
     @Override
     IFormattableTextComponent getTooltip(ItemStack stack) {
-        return new TranslationTextComponent("tooltip.delivery.sealed_parcel").mergeStyle(TextFormatting.GRAY);
+        return new TranslationTextComponent("tooltip.delivery.sealed_parcel").withStyle(TextFormatting.GRAY);
     }
 
     @Override
     SoundEvent getOpenSound(ItemStack stack) {
-        return SoundEvents.ITEM_BOOK_PAGE_TURN;
+        return SoundEvents.BOOK_PAGE_TURN;
     }
 
 }

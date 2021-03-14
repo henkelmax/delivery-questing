@@ -26,11 +26,11 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
     public DronePadScreen(DronePadContainer container, PlayerInventory playerInventory, ITextComponent name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
-        xSize = 176;
-        ySize = 166;
+        imageWidth = 176;
+        imageHeight = 166;
 
         hoverAreas.add(new HoverArea(27, 17, BAR_WIDTH, BAR_HEIGHT,
-                () -> Collections.singletonList(new TranslationTextComponent("tooltip.delivery.energy", container.getDronePadTileEntity().getEnergy().getEnergyStored()).func_241878_f())
+                () -> Collections.singletonList(new TranslationTextComponent("tooltip.delivery.energy", container.getDronePadTileEntity().getEnergy().getEnergyStored()).getVisualOrderText())
         ));
 
         hoverAreas.add(new HoverArea(133, 17, BAR_WIDTH, BAR_HEIGHT,
@@ -38,9 +38,9 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
                     DroneEntity droneCached = container.getDronePadTileEntity().getCachedDroneOnPad();
                     ArrayList<IReorderingProcessor> tooltip = new ArrayList<>();
                     if (droneCached == null) {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.drone_not_on_pad").func_241878_f());
+                        tooltip.add(new TranslationTextComponent("tooltip.delivery.drone_not_on_pad").getVisualOrderText());
                     } else {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.energy", droneCached.getEnergy()).func_241878_f());
+                        tooltip.add(new TranslationTextComponent("tooltip.delivery.energy", droneCached.getEnergy()).getVisualOrderText());
                     }
                     return tooltip;
                 }
@@ -48,27 +48,27 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-        font.func_243248_b(matrixStack, title, 26, 7, FONT_COLOR);
+    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+        font.draw(matrixStack, title, 26, 7, FONT_COLOR);
         IFormattableTextComponent txt = new TranslationTextComponent("entity.delivery.drone");
-        font.func_243248_b(matrixStack, txt, xSize - 26 - font.getStringPropertyWidth(txt), 7, FONT_COLOR);
-        font.func_243248_b(matrixStack, playerInventory.getDisplayName(), 8, (float) (ySize - 96 + 3), FONT_COLOR);
+        font.draw(matrixStack, txt, imageWidth - 26 - font.width(txt), 7, FONT_COLOR);
+        font.draw(matrixStack, playerInventory.getDisplayName(), 8, (float) (imageHeight - 96 + 3), FONT_COLOR);
 
         drawHoverAreas(matrixStack, x, y);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        DronePadTileEntity dronePad = container.getDronePadTileEntity();
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
+        DronePadTileEntity dronePad = menu.getDronePadTileEntity();
 
         int energyHeight = getBlitSize(dronePad.getEnergy().getEnergyStored(), dronePad.getEnergy().getMaxEnergyStored(), BAR_HEIGHT);
-        blit(matrixStack, guiLeft + 27, guiTop + 17 + energyHeight, 176, energyHeight, BAR_WIDTH, BAR_HEIGHT);
+        blit(matrixStack, leftPos + 27, topPos + 17 + energyHeight, 176, energyHeight, BAR_WIDTH, BAR_HEIGHT);
 
         DroneEntity cachedDroneOnPad = dronePad.getCachedDroneOnPad();
         if (cachedDroneOnPad != null) {
             int droneEnergyHeight = getBlitSize(cachedDroneOnPad.getEnergy(), dronePad.getEnergy().getMaxEnergyStored(), BAR_HEIGHT);
-            blit(matrixStack, guiLeft + 133, guiTop + 17 + droneEnergyHeight, 176, droneEnergyHeight, BAR_WIDTH, BAR_HEIGHT);
+            blit(matrixStack, leftPos + 133, topPos + 17 + droneEnergyHeight, 176, droneEnergyHeight, BAR_WIDTH, BAR_HEIGHT);
         }
     }
 

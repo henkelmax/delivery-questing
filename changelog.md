@@ -1,2 +1,1 @@
-- Removed level requirement in the manual
-- Updated the manual
+- Updated to official mappings
