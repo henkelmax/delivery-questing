@@ -2,7 +2,6 @@
   "name": "The Cardboard Box",
   "category": "delivery:packaging",
   "icon": "delivery:cardboard_box_tier_1",
-  "advancement": "delivery:drone",
   "sortnum": 3,
   "pages": [
     {

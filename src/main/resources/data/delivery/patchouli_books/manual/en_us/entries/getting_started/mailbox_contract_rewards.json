@@ -2,7 +2,7 @@
   "name": "Contract Rewards",
   "category": "delivery:getting_started",
   "icon": "delivery:sealed_parcel",
-  "sortnum": 6,
+  "sortnum": 7,
   "pages": [
     {
       "type": "text",

@@ -1,1 +1,1 @@
-- Fixed upgrade base recipe
+- Updated manual

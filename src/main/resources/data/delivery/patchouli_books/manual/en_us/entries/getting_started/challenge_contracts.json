@@ -2,7 +2,7 @@
   "name": "Challenge Contracts",
   "category": "delivery:getting_started",
   "icon": "delivery:contract",
-  "sortnum": 5,
+  "sortnum": 6,
   "pages": [
     {
       "type": "text",
