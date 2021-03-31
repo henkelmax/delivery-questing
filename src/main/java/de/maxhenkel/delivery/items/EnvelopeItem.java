@@ -28,7 +28,7 @@ public class EnvelopeItem extends SingleSlotInventoryItem {
         playerIn.openMenu(new INamedContainerProvider() {
             @Override
             public ITextComponent getDisplayName() {
-                return stack.getDisplayName();
+                return stack.getHoverName();
             }
 
             @Override

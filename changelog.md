@@ -1,1 +1,1 @@
-- Updated manual
+- Fixed GUI titles

@@ -74,7 +74,7 @@ public class ConfirmBuyProgram extends ComputerProgram {
 
         mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.minazon_confirm_url"), guiLeft + 3 + 50 + 2, guiTop + 3 + 70 + 4, 0);
 
-        IFormattableTextComponent buy = new TranslationTextComponent("message.delivery.confirm_buy", new TranslationTextComponent("message.delivery.item_amount", offer.getStack().getDisplayName(), offer.getStack().getCount()), new TranslationTextComponent("message.delivery.price", offer.getPrice()));
+        IFormattableTextComponent buy = new TranslationTextComponent("message.delivery.confirm_buy", new TranslationTextComponent("message.delivery.item_amount", offer.getStack().getHoverName(), offer.getStack().getCount()), new TranslationTextComponent("message.delivery.price", offer.getPrice()));
         List<IReorderingProcessor> list = mc.font.split(buy, 148 - 4);
         for (int i = 0; i < list.size(); i++) {
             IReorderingProcessor txt = list.get(i);
