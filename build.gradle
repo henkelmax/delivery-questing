@@ -132,7 +132,8 @@ processResources {
                 'mod_forge_version': mod_forge_version,
                 'mod_loader_version': mod_loader_version,
                 'mod_minecraft_version': mod_minecraft_version,
-                'patchouli_version_range': patchouli_version_range
+                'patchouli_version_range': patchouli_version_range,
+                'camera_version_range': camera_version_range
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude '**/*.toml'
@@ -146,7 +147,7 @@ curseforge {
     } else if (apiKeyFile.exists()) {
         apiKey = apiKeyFile.text
     } else {
-        apiKey = ""
+        apiKey = ''
     }
     project {
         id = curse_id
@@ -156,6 +157,10 @@ curseforge {
         addGameVersion mod_minecraft_version
         mainArtifact(jar) {
             displayName = "[${mod_minecraft_version}] ${mod_name} ${mod_version}"
+            relations {
+                requiredDependency 'camera-mod'
+                requiredDependency 'patchouli'
+            }
         }
     }
 }
@@ -173,7 +178,7 @@ forgeUpdate {
     } else if (apiKeyFile.exists()) {
         apiKey = apiKeyFile.text
     } else {
-        apiKey = ""
+        apiKey = ''
     }
     serverURL = 'https://update.maxhenkel.de/'
     modID = mod_id
@@ -225,12 +230,12 @@ task deobfJar(type: Jar) {
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    classifier 'sources'
     from sourceSets.main.allJava
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    classifier 'javadoc'
     from javadoc.getDestinationDir()
 }
 
@@ -246,7 +251,7 @@ jar.finalizedBy('reobfJar')
 shadowJar {
     project.configurations.shadow.setTransitive(true);
     configurations = [project.configurations.shadow]
-    classifier = ""
+    classifier ''
     relocate 'de.maxhenkel.corelib', "de.maxhenkel.${mod_id}.corelib"
 }
 

@@ -30,3 +30,9 @@ description='''Delivery'''
     versionRange="${patchouli_version_range}"
     ordering="AFTER"
     side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="camera"
+    mandatory=true
+    versionRange="${camera_version_range}"
+    ordering="AFTER"
+    side="BOTH"
