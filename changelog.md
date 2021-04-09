@@ -1,1 +1,1 @@
-- Fixed GUI titles
+- Fixed group passwords reset to group name

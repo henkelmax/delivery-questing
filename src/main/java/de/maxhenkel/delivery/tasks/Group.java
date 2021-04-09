@@ -721,7 +721,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
     public void deserializeNBT(CompoundNBT compound) {
         this.id = compound.getUUID("ID");
         this.name = compound.getString("Name");
-        this.password = compound.getString("Name");
+        this.password = compound.getString("Password");
 
         ListNBT memberList = compound.getList("Members", 10);
         this.members = new ArrayList<>();
