@@ -1,1 +1,1 @@
-- Fixed group passwords reset to group name
+- Added group password commands

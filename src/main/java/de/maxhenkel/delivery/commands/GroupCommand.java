@@ -172,6 +172,30 @@ public class GroupCommand {
             return 1;
         })));
 
+        literalBuilder.then(Commands.literal("changepassword").then(Commands.argument("groupname", StringArgument.create()).then(Commands.argument("oldpassword", StringArgument.create()).then(Commands.argument("newpassword", StringArgument.create()).executes(context -> {
+            Progression tasks = Main.getProgression(context.getSource().getServer());
+            String name = StringArgument.string(context, "groupname");
+            String oldPassword = StringArgument.string(context, "oldpassword");
+            String newPassword = StringArgument.string(context, "newpassword");
+            Group group = tasks.getGroup(name);
+            if (!group.getPassword().equals(oldPassword)) {
+                throw new CommandException(new TranslationTextComponent("command.delivery.wrong_password"));
+            }
+            group.setPassword(newPassword);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_password_changed", name), false);
+            return 1;
+        })))));
+
+        literalBuilder.then(Commands.literal("setpassword").then(Commands.argument("groupname", StringArgument.create()).then(Commands.argument("password", StringArgument.create()).requires((commandSource) -> commandSource.hasPermission(2)).executes(context -> {
+            Progression tasks = Main.getProgression(context.getSource().getServer());
+            String name = StringArgument.string(context, "groupname");
+            String password = StringArgument.string(context, "password");
+            Group group = tasks.getGroup(name);
+            group.setPassword(password);
+            context.getSource().sendSuccess(new TranslationTextComponent("command.delivery.group_password_changed", name), false);
+            return 1;
+        }))));
+
         dispatcher.register(literalBuilder);
     }
 

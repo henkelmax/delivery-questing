@@ -117,6 +117,7 @@
   "command.delivery.backup_success": "Backup saved as '%s'",
   "command.delivery.backup_load_success": "Successfully loaded backup",
   "command.delivery.task_not_found": "Task not found",
+  "command.delivery.group_password_changed": "Successfully changed password",
   "button.delivery.previous": "<",
   "button.delivery.next": ">",
   "toast.delivery.contract_completed": "Contract completed",
