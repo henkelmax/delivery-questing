@@ -43,10 +43,15 @@ public class PackagerScreen extends ScreenBase<PackagerContainer> {
         ));
 
         hoverAreas.add(new HoverArea(53, 17, BAR_WIDTH, BAR_HEIGHT,
-                () -> Arrays.asList(
-                        container.getPackager().getTank().getFluid().getDisplayName().getVisualOrderText(),
-                        new TranslationTextComponent("tooltip.delivery.fluid", container.getPackager().getTank().getFluidAmount()).getVisualOrderText()
-                )
+                () -> {
+                    if (container.getPackager().getTank().getFluid().isEmpty()) {
+                        return Collections.singletonList(new TranslationTextComponent("tooltip.delivery.empty").getVisualOrderText());
+                    }
+                    return Arrays.asList(
+                            container.getPackager().getTank().getFluid().getDisplayName().getVisualOrderText(),
+                            new TranslationTextComponent("tooltip.delivery.fluid", container.getPackager().getTank().getFluidAmount()).getVisualOrderText()
+                    );
+                }
         ));
     }
 

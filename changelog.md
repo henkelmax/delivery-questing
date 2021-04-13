@@ -1,1 +1,1 @@
-- Added group password commands
+- Added empty tooltip to packager

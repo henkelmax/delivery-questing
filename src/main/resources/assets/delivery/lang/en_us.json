@@ -82,6 +82,7 @@
   "tooltip.delivery.energy": "%s FE",
   "tooltip.delivery.fluid_type": "%s",
   "tooltip.delivery.fluid": "%s mb",
+  "tooltip.delivery.empty": "Empty",
   "tooltip.delivery.stack_count": "%s stack(s)",
   "tooltip.delivery.item_count": "%s item(s)",
   "tooltip.delivery.tag": "Any %s",
