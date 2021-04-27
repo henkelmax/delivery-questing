@@ -69,7 +69,7 @@ public class SingleSlotInventoryItem extends Item implements ITaskContainer {
         if (!content.isEmpty() && !ItemUtils.isStackable(content, stackToAdd)) {
             return stackToAdd;
         }
-        int amountToAdd = Math.min(amount, stackLimit - content.getCount());
+        int amountToAdd = Math.min(Math.min(amount, stackToAdd.getCount()), stackLimit - content.getCount());
         content = new ItemStack(stackToAdd.getItem(), (content.isEmpty() ? 0 : content.getCount()) + amountToAdd);
         stackToAdd.shrink(amountToAdd);
 

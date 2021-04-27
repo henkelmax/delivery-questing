@@ -113,7 +113,7 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         ItemStack toInsert = inventory.get(0);
         if (!toInsert.isEmpty() && taskContainer.canAcceptItems(taskContainerStack) && energy.getEnergyStored() >= getItemEnergyUsage()) {
             int count = getCount();
-            ItemStack rest = taskContainer.add(taskContainerStack, toInsert, count);
+            ItemStack rest = taskContainer.add(taskContainerStack, toInsert, Math.min(count, toInsert.getCount()));
             if (rest.getCount() < toInsert.getCount()) {
                 energy.useEnergy(getItemEnergyUsage(), false);
             }

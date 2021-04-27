@@ -1,1 +1,1 @@
-- Added empty tooltip to packager
+- Fixed duplication glitch with packager
