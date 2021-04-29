@@ -1,1 +1,1 @@
-- Fixed duplication glitch with packager
+- Added commands to complete contracts
