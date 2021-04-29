@@ -27,7 +27,7 @@ import java.util.UUID;
 public class TestCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        LiteralArgumentBuilder<CommandSource> literalBuilder = Commands.literal("delivery");
+        LiteralArgumentBuilder<CommandSource> literalBuilder = Commands.literal("delivery").requires(commandSource -> commandSource.hasPermission(2));
 
         literalBuilder.then(Commands.literal("test").then(Commands.literal("task_complete").executes(context -> {
             ServerPlayerEntity player = context.getSource().getPlayerOrException();
