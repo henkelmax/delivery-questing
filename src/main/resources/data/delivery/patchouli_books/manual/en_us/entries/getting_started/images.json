@@ -15,7 +15,7 @@
     },
     {
       "type": "text",
-      "text": "Whn taking an image of an entity, make sure to center the entity on your screen. Also make sure that you are not further than 128 blocks from the entity.$(br)When taking an image from a biome, make sure that you stand inside the biome when taking the image."
+      "text": "When taking an image of an entity, make sure to center the entity on your screen. Also make sure that you are not further than 128 blocks from the entity.$(br)When taking an image from a biome, make sure that you stand inside the biome when taking the image."
     }
   ]
 }

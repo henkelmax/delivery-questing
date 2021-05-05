@@ -1,1 +1,1 @@
-- Added commands to complete contracts
+- Fixed typo in the manual
