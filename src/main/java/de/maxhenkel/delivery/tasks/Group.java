@@ -411,7 +411,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
                 .collect(Collectors.toList());
 
         if (possibleTasks.isEmpty()) {
-            Main.LOGGER.warn("Could not find a new end game task for group '{}'", getName());
+            Main.LOGGER.debug("Could not find a new end game task for group '{}'", getName());
             return null;
         }
 
@@ -429,7 +429,7 @@ public class Group implements INBTSerializable<CompoundNBT> {
                 .collect(Collectors.toList());
 
         if (possibleTasks.isEmpty()) {
-            Main.LOGGER.warn("Could not find a new task for group '{}'", getName());
+            Main.LOGGER.debug("Could not find a new task for group '{}'", getName());
             return null;
         }
 

@@ -1,1 +1,1 @@
-- Fixed typo in the manual
+- Removed unnecessary log messages
