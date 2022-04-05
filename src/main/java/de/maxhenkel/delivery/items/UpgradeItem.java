@@ -5,11 +5,11 @@ import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.IUpgradable;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class UpgradeItem extends Item implements ITiered {
 
@@ -27,11 +27,11 @@ public class UpgradeItem extends Item implements ITiered {
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         BlockState blockState = context.getLevel().getBlockState(context.getClickedPos());
         if (blockState.getBlock() instanceof IUpgradable) {
             IUpgradable upgradable = (IUpgradable) blockState.getBlock();
-            ActionResultType actionResultType = upgradable.addUpgrade(context.getPlayer(), context.getItemInHand(), context.getLevel(), context.getClickedPos());
+            InteractionResult actionResultType = upgradable.addUpgrade(context.getPlayer(), context.getItemInHand(), context.getLevel(), context.getClickedPos());
             if (actionResultType.consumesAction()) {
                 return actionResultType;
             }

@@ -6,38 +6,39 @@ import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
 import de.maxhenkel.delivery.sounds.ModSounds;
 import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.MoverType;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Containers;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
 public class DroneEntity extends DroneEntitySoundBase {
 
-    private static final DataParameter<ItemStack> PAYLOAD = EntityDataManager.defineId(DroneEntity.class, DataSerializers.ITEM_STACK);
-    private static final DataParameter<BlockPos> PAD_LOCATION = EntityDataManager.defineId(DroneEntity.class, DataSerializers.BLOCK_POS);
-    private static final DataParameter<Integer> ENERGY = EntityDataManager.defineId(DroneEntity.class, DataSerializers.INT);
-    private static final DataParameter<Integer> TIER = EntityDataManager.defineId(DroneEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<ItemStack> PAYLOAD = SynchedEntityData.defineId(DroneEntity.class, EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<BlockPos> PAD_LOCATION = SynchedEntityData.defineId(DroneEntity.class, EntityDataSerializers.BLOCK_POS);
+    private static final EntityDataAccessor<Integer> ENERGY = SynchedEntityData.defineId(DroneEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TIER = SynchedEntityData.defineId(DroneEntity.class, EntityDataSerializers.INT);
 
-    public DroneEntity(World worldIn) {
+    public DroneEntity(Level worldIn) {
         super(ModEntities.DRONE, worldIn);
     }
 
@@ -51,7 +52,7 @@ public class DroneEntity extends DroneEntitySoundBase {
             return;
         }
 
-        xRot = 0F;
+        xo = 0F;
         xRotO = 0F;
 
         if (level.getGameTime() % 20 == 0) {
@@ -99,7 +100,7 @@ public class DroneEntity extends DroneEntitySoundBase {
 
     @Nullable
     public DronePadTileEntity getDronePad() {
-        TileEntity tileEntity = level.getBlockEntity(getPadLocation());
+        BlockEntity tileEntity = level.getBlockEntity(getPadLocation());
         if (tileEntity instanceof DronePadTileEntity) {
             return (DronePadTileEntity) tileEntity;
         }
@@ -107,8 +108,8 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     public void moveDrone() {
-        Vector3d oldMotion = getDeltaMovement();
-        Vector3d newMotion = Vector3d.ZERO;
+        Vec3 oldMotion = getDeltaMovement();
+        Vec3 newMotion = Vec3.ZERO;
 
         double oldYMotion = oldMotion.y;
 
@@ -118,18 +119,18 @@ public class DroneEntity extends DroneEntitySoundBase {
             // Wait for full charge
             decreasePropellerSpeed();
         } else if (getEnergy() <= 0 && !isOnPad() && !verticalCollision) {
-            newMotion = new Vector3d(0D, Math.min(oldYMotion - 0.01D, -0.2D), 0D);
+            newMotion = new Vec3(0D, Math.min(oldYMotion - 0.01D, -0.2D), 0D);
             decreasePropellerSpeed();
         } else if (getPayload().isEmpty()) {
             if (!isOnPad() && !verticalCollision) {
-                newMotion = moveHorizontal().add(new Vector3d(0D, speedPerc * -0.2D, 0D));
+                newMotion = moveHorizontal().add(new Vec3(0D, speedPerc * -0.2D, 0D));
                 setEnergy(getEnergy() - 1);
                 increasePropellerSpeed(0.75F);
             } else {
                 decreasePropellerSpeed();
             }
         } else {
-            newMotion = moveHorizontal().add(new Vector3d(0D, speedPerc * getRiseSpeed(), 0D));
+            newMotion = moveHorizontal().add(new Vec3(0D, speedPerc * getRiseSpeed(), 0D));
             setEnergy(getEnergy() - 5);
             increasePropellerSpeed(1F);
         }
@@ -141,16 +142,16 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     @Override
-    public boolean causeFallDamage(float distance, float damageMultiplier) {
+    public boolean causeFallDamage(float distance, float damageMultiplier, DamageSource source) {
         if (level.isClientSide) {
             playCrashSound();
         }
-        return super.causeFallDamage(distance, damageMultiplier);
+        return super.causeFallDamage(distance, damageMultiplier, source);
     }
 
     @OnlyIn(Dist.CLIENT)
     private void playCrashSound() {
-        level.playSound(Minecraft.getInstance().player, getX(), getY(), getZ(), ModSounds.DRONE_CRASH, SoundCategory.NEUTRAL, 1F, 1F);
+        level.playSound(Minecraft.getInstance().player, getX(), getY(), getZ(), ModSounds.DRONE_CRASH, SoundSource.NEUTRAL, 1F, 1F);
     }
 
     public double getRiseSpeed() {
@@ -179,21 +180,21 @@ public class DroneEntity extends DroneEntitySoundBase {
         return blockPosition().equals(padLocation) && diff > 1.8F / 16 && diff < 2.2F / 16;
     }
 
-    public Vector3d moveHorizontal() {
-        Vector3d moveVec = getPadVector().multiply(1D, 0D, 1D).subtract(position().multiply(1D, 0D, 1D));
+    public Vec3 moveHorizontal() {
+        Vec3 moveVec = getPadVector().multiply(1D, 0D, 1D).subtract(position().multiply(1D, 0D, 1D));
         if (moveVec.x >= 16D || moveVec.z >= 16D) {
             explode();
         }
-        return new Vector3d(Math.min(moveVec.x(), 0.1D), Math.min(moveVec.y(), 0.1D), Math.min(moveVec.z(), 0.1D));
+        return new Vec3(Math.min(moveVec.x(), 0.1D), Math.min(moveVec.y(), 0.1D), Math.min(moveVec.z(), 0.1D));
     }
 
     public void explode() {
-        if (removed) {
+        if (isRemoved()) {
             return;
         }
-        level.explode(this, getX(), getY(), getZ(), 1, Explosion.Mode.NONE);
-        InventoryHelper.dropItemStack(level, getX(), getY(), getZ(), getPayload());
-        remove();
+        level.explode(this, getX(), getY(), getZ(), 1, Explosion.BlockInteraction.NONE);
+        Containers.dropItemStack(level, getX(), getY(), getZ(), getPayload());
+        setRemoved(RemovalReason.KILLED);
     }
 
     @Override
@@ -213,14 +214,14 @@ public class DroneEntity extends DroneEntitySoundBase {
         return entityData.get(PAD_LOCATION);
     }
 
-    public Vector3d getPadVector() {
+    public Vec3 getPadVector() {
         BlockPos padLocation = getPadLocation();
         DronePadTileEntity dronePad = getDronePad();
         if (dronePad != null) {
             Direction direction = dronePad.getBlockState().getValue(HorizontalRotatableBlock.FACING);
-            return new Vector3d(padLocation.getX() + 0.5D + direction.getStepX() * 1D / 16D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D + direction.getStepZ() * 1D / 16D);
+            return new Vec3(padLocation.getX() + 0.5D + direction.getStepX() * 1D / 16D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D + direction.getStepZ() * 1D / 16D);
         }
-        return new Vector3d(padLocation.getX() + 0.5D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D);
+        return new Vec3(padLocation.getX() + 0.5D, padLocation.getY() + 2D / 16D, padLocation.getZ() + 0.5D);
     }
 
     public void setPadLocation(BlockPos pos) {
@@ -257,18 +258,18 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag compound) {
         setPayload(ItemStack.of(compound.getCompound("Payload")));
-        CompoundNBT padLocation = compound.getCompound("PadLocation");
+        CompoundTag padLocation = compound.getCompound("PadLocation");
         setPadLocation(new BlockPos(padLocation.getInt("X"), padLocation.getInt("Y"), padLocation.getInt("Z")));
         setEnergy(compound.getInt("Energy"));
         setTier(compound.getInt("Tier"));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT compound) {
-        compound.put("Payload", entityData.get(PAYLOAD).save(new CompoundNBT()));
-        CompoundNBT padLocation = new CompoundNBT();
+    protected void addAdditionalSaveData(CompoundTag compound) {
+        compound.put("Payload", entityData.get(PAYLOAD).save(new CompoundTag()));
+        CompoundTag padLocation = new CompoundTag();
         BlockPos loc = entityData.get(PAD_LOCATION);
         padLocation.putInt("X", loc.getX());
         padLocation.putInt("Y", loc.getY());
@@ -279,7 +280,7 @@ public class DroneEntity extends DroneEntitySoundBase {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

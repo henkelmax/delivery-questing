@@ -1,12 +1,12 @@
 package de.maxhenkel.delivery;
 
 import de.maxhenkel.delivery.blocks.ModBlocks;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 public class ModItemGroups {
 
-    public static final ItemGroup TAB_DELIVERY = new ItemGroup("delivery") {
+    public static final CreativeModeTab TAB_DELIVERY = new CreativeModeTab("delivery") {
         @Override
         public ItemStack makeIcon() {
             return new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_1);

@@ -1,13 +1,13 @@
 package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
 
 public class ParcelContainer extends ContainerBase {
 
-    public ParcelContainer(int id, PlayerInventory playerInventory, IInventory inventory) {
+    public ParcelContainer(int id, Inventory playerInventory, Container inventory) {
         super(Containers.PARCEL_CONTAINER, id, playerInventory, inventory);
 
         addSlot(new NonRecursiveSlot(inventory, 0, 80, 20) {
@@ -19,8 +19,8 @@ public class ParcelContainer extends ContainerBase {
         addPlayerInventorySlots();
     }
 
-    public ParcelContainer(int id, PlayerInventory playerInventory) {
-        this(id, playerInventory, new Inventory(1));
+    public ParcelContainer(int id, Inventory playerInventory) {
+        this(id, playerInventory, new SimpleContainer(1));
     }
 
     @Override

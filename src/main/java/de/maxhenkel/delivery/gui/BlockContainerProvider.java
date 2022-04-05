@@ -1,11 +1,11 @@
 package de.maxhenkel.delivery.gui;
 
-import net.minecraft.block.Block;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.block.Block;
 
-public abstract class BlockContainerProvider implements INamedContainerProvider {
+public abstract class BlockContainerProvider implements MenuProvider {
 
     private Block block;
 
@@ -14,8 +14,8 @@ public abstract class BlockContainerProvider implements INamedContainerProvider 
     }
 
     @Override
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(block.getDescriptionId());
+    public Component getDisplayName() {
+        return new TranslatableComponent(block.getDescriptionId());
     }
 
 }

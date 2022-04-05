@@ -2,8 +2,8 @@ package de.maxhenkel.delivery.tasks;
 
 import com.google.gson.Gson;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class OfferManager implements INBTSerializable<CompoundNBT> {
+public class OfferManager implements INBTSerializable<CompoundTag> {
 
     private List<Offer> offers;
 
@@ -57,10 +57,10 @@ public class OfferManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
 
-        ListNBT offerList = new ListNBT();
+        ListTag offerList = new ListTag();
         for (Offer offer : offers) {
             offerList.add(offer.serializeNBT());
         }
@@ -70,8 +70,8 @@ public class OfferManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
-        ListNBT offerList = compound.getList("Offers", 10);
+    public void deserializeNBT(CompoundTag compound) {
+        ListTag offerList = compound.getList("Offers", 10);
         this.offers = new ArrayList<>();
         for (int i = 0; i < offerList.size(); i++) {
             Offer offer = new Offer();

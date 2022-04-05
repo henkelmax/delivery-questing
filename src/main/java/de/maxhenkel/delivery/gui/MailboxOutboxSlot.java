@@ -2,13 +2,13 @@ package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.delivery.items.EnvelopeItem;
 import de.maxhenkel.delivery.items.ParcelItem;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class MailboxOutboxSlot extends Slot {
 
-    public MailboxOutboxSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+    public MailboxOutboxSlot(Container inventoryIn, int index, int xPosition, int yPosition) {
         super(inventoryIn, index, xPosition, yPosition);
     }
 

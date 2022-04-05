@@ -1,8 +1,8 @@
 package de.maxhenkel.delivery.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 
 public abstract class DroneEntityPropellerBase extends Entity {
 
@@ -11,7 +11,7 @@ public abstract class DroneEntityPropellerBase extends Entity {
     protected float propellerRotation;
     protected float propellerSpeed;
 
-    public DroneEntityPropellerBase(EntityType<?> entityTypeIn, World worldIn) {
+    public DroneEntityPropellerBase(EntityType<?> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 

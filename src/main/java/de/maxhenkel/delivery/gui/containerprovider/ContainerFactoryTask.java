@@ -2,10 +2,10 @@ package de.maxhenkel.delivery.gui.containerprovider;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraftforge.network.IContainerFactory;
 
 public class ContainerFactoryTask<T extends ContainerBase> implements IContainerFactory<T> {
 
@@ -15,7 +15,7 @@ public class ContainerFactoryTask<T extends ContainerBase> implements IContainer
         this.containerCreator = containerCreator;
     }
 
-    public T create(int windowId, PlayerInventory inv, PacketBuffer data) {
+    public T create(int windowId, Inventory inv, FriendlyByteBuf data) {
         Task task = new Task();
         task.deserializeNBT(data.readNbt());
 
@@ -26,7 +26,7 @@ public class ContainerFactoryTask<T extends ContainerBase> implements IContainer
         }
     }
 
-    public interface ContainerCreator<T extends Container> {
-        T create(int id, PlayerInventory inv, Task tasks);
+    public interface ContainerCreator<T extends AbstractContainerMenu> {
+        T create(int id, Inventory inv, Task tasks);
     }
 }

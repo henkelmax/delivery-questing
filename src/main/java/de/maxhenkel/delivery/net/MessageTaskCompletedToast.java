@@ -4,10 +4,10 @@ import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.tasks.Task;
 import de.maxhenkel.delivery.toast.TaskCompletedToast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MessageTaskCompletedToast implements Message<MessageTaskCompletedToast> {
 
@@ -37,14 +37,14 @@ public class MessageTaskCompletedToast implements Message<MessageTaskCompletedTo
     }
 
     @Override
-    public MessageTaskCompletedToast fromBytes(PacketBuffer packetBuffer) {
+    public MessageTaskCompletedToast fromBytes(FriendlyByteBuf packetBuffer) {
         task = new Task();
         task.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeNbt(task.serializeNBT());
     }
 }

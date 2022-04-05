@@ -5,19 +5,19 @@ import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.gui.ContractContainer;
 import de.maxhenkel.delivery.gui.containerprovider.TaskContainerProvider;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -31,28 +31,28 @@ public class ContractItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.add(new TranslationTextComponent("tooltip.delivery.contract").withStyle(TextFormatting.GRAY));
+        tooltip.add(new TranslatableComponent("tooltip.delivery.contract").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity p, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player p, InteractionHand handIn) {
         ItemStack stack = p.getItemInHand(handIn);
 
         if (!stack.hasTag()) {
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
 
-        if (!(p instanceof ServerPlayerEntity)) {
-            return ActionResult.success(stack);
+        if (!(p instanceof ServerPlayer)) {
+            return InteractionResultHolder.success(stack);
         }
-        ServerPlayerEntity player = (ServerPlayerEntity) p;
+        ServerPlayer player = (ServerPlayer) p;
 
         UUID taskID = getTask(stack);
 
         if (taskID == null) {
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
 
         int level;
@@ -65,16 +65,16 @@ public class ContractItem extends Item {
         Task task = Main.TASK_MANAGER.getTask(taskID, level);
 
         if (task == null) {
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
 
         TaskContainerProvider.openGui(player, task, getName(stack), ContractContainer::new);
 
-        return ActionResult.success(stack);
+        return InteractionResultHolder.success(stack);
     }
 
     public ItemStack setTask(ItemStack stack, UUID taskID) {
-        CompoundNBT tag = stack.getOrCreateTag();
+        CompoundTag tag = stack.getOrCreateTag();
         tag.putUUID("TaskID", taskID);
         return stack;
     }
@@ -84,7 +84,7 @@ public class ContractItem extends Item {
         if (!stack.hasTag()) {
             return null;
         }
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (!tag.contains("TaskID")) {
             return null;
         }

@@ -3,19 +3,19 @@ package de.maxhenkel.delivery.entity;
 import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.entity.render.DroneRenderer;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class ModEntities {
 
     public static EntityType<DroneEntity> DRONE;
 
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        DRONE = CommonRegistry.registerEntity(Main.MODID, "drone", EntityClassification.MISC, DroneEntity.class, builder -> {
+        DRONE = CommonRegistry.registerEntity(Main.MODID, "drone", MobCategory.MISC, DroneEntity.class, builder -> {
             builder
                     .setTrackingRange(256)
                     .setUpdateInterval(1)
@@ -28,7 +28,7 @@ public class ModEntities {
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
-        RenderingRegistry.registerEntityRenderingHandler(DRONE, DroneRenderer::new);
+        EntityRenderers.register(DRONE, DroneRenderer::new);
     }
 
 }

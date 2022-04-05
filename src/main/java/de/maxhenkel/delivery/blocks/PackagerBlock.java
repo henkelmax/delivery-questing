@@ -1,33 +1,35 @@
 package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.corelib.block.IItemBlock;
+import de.maxhenkel.corelib.blockentity.SimpleBlockEntityTicker;
 import de.maxhenkel.corelib.inventory.TileEntityContainerProvider;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.blocks.tileentity.PackagerTileEntity;
 import de.maxhenkel.delivery.gui.PackagerContainer;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class PackagerBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, IUpgradable {
+public class PackagerBlock extends HorizontalRotatableBlock implements IItemBlock, EntityBlock, IUpgradable {
 
     public PackagerBlock() {
         super(Properties.of(Material.METAL).sound(SoundType.METAL).noOcclusion().strength(3F));
@@ -40,8 +42,8 @@ public class PackagerBlock extends HorizontalRotatableBlock implements IItemBloc
     }
 
     @Override
-    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        TileEntity te = worldIn.getBlockEntity(pos);
+    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+        BlockEntity te = worldIn.getBlockEntity(pos);
 
         if (!(te instanceof PackagerTileEntity)) {
             return super.use(state, worldIn, pos, player, handIn, hit);
@@ -51,37 +53,43 @@ public class PackagerBlock extends HorizontalRotatableBlock implements IItemBloc
 
         TileEntityContainerProvider.openGui(player, packager, (i, playerInventory, playerEntity) -> new PackagerContainer(i, playerInventory, packager));
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-
     @Override
-    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        TileEntity te = worldIn.getBlockEntity(pos);
+    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+        BlockEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof PackagerTileEntity) {
             PackagerTileEntity energyLiquifier = (PackagerTileEntity) te;
-            InventoryHelper.dropContents(worldIn, pos, energyLiquifier.getInventory());
-            InventoryHelper.dropContents(worldIn, pos, energyLiquifier.getUpgradeInventory());
+            Containers.dropContents(worldIn, pos, energyLiquifier.getInventory());
+            Containers.dropContents(worldIn, pos, energyLiquifier.getUpgradeInventory());
         }
         super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
-    public ActionResultType addUpgrade(@Nullable PlayerEntity player, ItemStack stack, World world, BlockPos pos) {
-        TileEntity te = world.getBlockEntity(pos);
+    public InteractionResult addUpgrade(@Nullable Player player, ItemStack stack, Level world, BlockPos pos) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof PackagerTileEntity) {
             PackagerTileEntity packager = (PackagerTileEntity) te;
             if (packager.getUpgradeInventory().getItem(0).isEmpty()) {
                 packager.getUpgradeInventory().setItem(0, stack.copy().split(1));
                 ItemUtils.decrItemStack(stack, player);
-                return ActionResultType.sidedSuccess(world.isClientSide);
+                return InteractionResult.sidedSuccess(world.isClientSide);
             }
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public TileEntity newBlockEntity(IBlockReader worldIn) {
-        return new PackagerTileEntity();
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new PackagerTileEntity(blockPos, blockState);
     }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level1, BlockState state, BlockEntityType<T> type) {
+        return new SimpleBlockEntityTicker<>();
+    }
+
 }

@@ -1,38 +1,41 @@
 package de.maxhenkel.delivery.integration.jei;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import de.maxhenkel.corelib.inventory.ScreenBase;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IGuiFluidStackGroup;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EnergyLiquifierCategory implements IRecipeCategory<Boolean> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/jei/energy_liquifier.png");
 
     private IGuiHelper helper;
-    private ScreenBase.HoverArea hoverArea;
 
     public EnergyLiquifierCategory(IGuiHelper helper) {
         this.helper = helper;
-        hoverArea = new ScreenBase.HoverArea(6, 4, 16, 53);
+    }
+
+    @Override
+    public RecipeType<Boolean> getRecipeType() {
+        return JEIPlugin.CATEGORY_ENERGY_LIQUIFYING;
     }
 
     @Override
@@ -42,26 +45,28 @@ public class EnergyLiquifierCategory implements IRecipeCategory<Boolean> {
 
     @Override
     public IDrawable getIcon() {
-        return helper.createDrawableIngredient(new ItemStack(ModBlocks.ENERGY_LIQUIFIER));
+        return helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.ENERGY_LIQUIFIER));
     }
 
     @Override
-    public void setIngredients(Boolean reversed, IIngredients ingredients) {
-        if (reversed) {
-            ingredients.setInput(VanillaTypes.FLUID, new FluidStack(ModFluids.LIQUID_ENERGY, 16000));
-        } else {
-            ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(ModFluids.LIQUID_ENERGY, 16000));
-        }
+    public void setRecipe(IRecipeLayoutBuilder builder, Boolean reversed, IFocusGroup focuses) {
+        builder
+                .addSlot(reversed ? RecipeIngredientRole.INPUT : RecipeIngredientRole.OUTPUT, 62, 4)
+                .setFluidRenderer(16000, false, 16, 53)
+                .addIngredient(ForgeTypes.FLUID_STACK, new FluidStack(ModFluids.LIQUID_ENERGY, 16000))
+                .addTooltipCallback((recipeSlotView, tooltip) -> {
+                    tooltip.add(new TranslatableComponent("tooltip.delivery.energy", 16000));
+                });
     }
 
     @Override
-    public String getTitle() {
-        return new TranslationTextComponent("jei.delivery.energy_liquifying").getString();
+    public Component getTitle() {
+        return new TranslatableComponent("jei.delivery.energy_liquifying");
     }
 
     @Override
     public ResourceLocation getUid() {
-        return JEIPlugin.CATEGORY_ENERGY_LIQUIFYING;
+        return new ResourceLocation(Main.MODID, "energy_liquifying");
     }
 
     @Override
@@ -70,27 +75,13 @@ public class EnergyLiquifierCategory implements IRecipeCategory<Boolean> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayout layout, Boolean reversed, IIngredients ingredients) {
-        IGuiFluidStackGroup group = layout.getFluidStacks();
-        group.init(0, reversed, 62, 4, 16, 53, 16000, false, null);
-        group.set(0, new FluidStack(ModFluids.LIQUID_ENERGY, 16000));
-    }
-
-    @Override
-    public List<ITextComponent> getTooltipStrings(Boolean reversed, double mouseX, double mouseY) {
-        List<ITextComponent> list = new ArrayList<>();
-        if (hoverArea.isHovered(0, 0, (int) mouseX, (int) mouseY)) {
-            list.add(new TranslationTextComponent("tooltip.delivery.energy", 16000));
-        }
-        return list;
-    }
-
-    @Override
-    public void draw(Boolean reversed, MatrixStack matrixStack, double mouseX, double mouseY) {
+    public void draw(Boolean reversed, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
         if (reversed) {
-            Minecraft mc = Minecraft.getInstance();
-            mc.getTextureManager().bind(TEXTURE);
-            AbstractGui.blit(matrixStack, 31, 23, 83, 0, 22, 15, 256, 256);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+            RenderSystem.setShaderTexture(0, TEXTURE);
+            GuiComponent.blit(stack, 31, 23, 83, 0, 22, 15, 256, 256);
         }
     }
+
 }

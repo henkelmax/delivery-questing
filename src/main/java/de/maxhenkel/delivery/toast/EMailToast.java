@@ -1,38 +1,40 @@
 package de.maxhenkel.delivery.toast;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.delivery.tasks.email.EMail;
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
-public class EMailToast implements IToast {
+public class EMailToast implements Toast {
 
     private EMail eMail;
-    private ITextComponent title;
-    private ITextComponent subtitle;
+    private Component title;
+    private Component subtitle;
     private long showTime;
 
     public EMailToast(EMail eMail) {
         this.eMail = eMail;
-        this.title = new TranslationTextComponent("message.delivery.new_mail").withStyle(TextFormatting.WHITE);
-        this.subtitle = eMail.getTitle().withStyle(TextFormatting.WHITE);
+        this.title = new TranslatableComponent("message.delivery.new_mail").withStyle(ChatFormatting.WHITE);
+        this.subtitle = eMail.getTitle().withStyle(ChatFormatting.WHITE);
         this.showTime = 5000L;
     }
 
     @Override
-    public Visibility render(MatrixStack matrixStack, ToastGui toastGui, long time) {
-        toastGui.getMinecraft().getTextureManager().bind(TEXTURE);
-        RenderSystem.color3f(1F, 1F, 1F);
+    public Visibility render(PoseStack matrixStack, ToastComponent toastGui, long time) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderTexture(0, TEXTURE);
         toastGui.blit(matrixStack, 0, 0, 0, 0, width(), height());
 
-        List<IReorderingProcessor> list = toastGui.getMinecraft().font.split(subtitle, 125);
+        List<FormattedCharSequence> list = toastGui.getMinecraft().font.split(subtitle, 125);
         toastGui.getMinecraft().font.draw(matrixStack, title, 30F, 7F, 0);
         if (list.size() > 0) {
             toastGui.getMinecraft().font.draw(matrixStack, list.get(0), 30F, 18F, 0);

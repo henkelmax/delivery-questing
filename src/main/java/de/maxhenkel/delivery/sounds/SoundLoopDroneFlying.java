@@ -1,12 +1,12 @@
 package de.maxhenkel.delivery.sounds;
 
 import de.maxhenkel.delivery.entity.DroneEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
 public class SoundLoopDroneFlying extends SoundLoopDrone {
 
-    public SoundLoopDroneFlying(DroneEntity drone, SoundEvent event, SoundCategory category) {
+    public SoundLoopDroneFlying(DroneEntity drone, SoundEvent event, SoundSource category) {
         super(drone, event, category);
     }
 

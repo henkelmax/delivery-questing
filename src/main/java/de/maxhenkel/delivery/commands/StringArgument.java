@@ -3,7 +3,7 @@ package de.maxhenkel.delivery.commands;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.Collection;
 public class StringArgument implements ArgumentType<String> {
     private static final Collection<String> EXAMPLES = Arrays.asList("example");
 
-    public static String string(CommandContext<CommandSource> context, String name) {
+    public static String string(CommandContext<CommandSourceStack> context, String name) {
         return context.getArgument(name, String.class);
     }
 

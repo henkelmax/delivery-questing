@@ -5,11 +5,11 @@ import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.tileentity.ComputerTileEntity;
 import de.maxhenkel.delivery.gui.Containers;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIntArray;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 
@@ -21,18 +21,18 @@ public class ComputerContainer extends ContainerBase {
     @Nullable
     private ComputerTileEntity tileEntity;
 
-    public ComputerContainer(int id, PlayerInventory playerInventory, TileEntity tileEntity, Group group) {
+    public ComputerContainer(int id, Inventory playerInventory, BlockEntity tileEntity, Group group) {
         super(Containers.COMPUTER_CONTAINER, id, playerInventory, null);
         if (tileEntity instanceof ComputerTileEntity) {
             this.tileEntity = (ComputerTileEntity) tileEntity;
         }
         this.group = group;
 
-        addDataSlots(new IIntArray() {
+        addDataSlots(new ContainerData() {
             @Override
             public int get(int index) {
-                if (playerInventory.player instanceof ServerPlayerEntity) {
-                    ServerPlayerEntity player = (ServerPlayerEntity) playerInventory.player;
+                if (playerInventory.player instanceof ServerPlayer) {
+                    ServerPlayer player = (ServerPlayer) playerInventory.player;
                     try {
                         Group playerGroup = Main.getProgression(player).getPlayerGroup(player.getUUID());
                         if (index == 0) {
@@ -74,7 +74,7 @@ public class ComputerContainer extends ContainerBase {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         if (tileEntity != null) {
             return tileEntity.getEnergy().getEnergyStored() > 0;
         }

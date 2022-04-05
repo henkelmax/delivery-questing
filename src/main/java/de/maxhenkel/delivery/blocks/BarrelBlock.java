@@ -9,31 +9,31 @@ import de.maxhenkel.delivery.ModItemGroups;
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.tileentity.BarrelTileEntity;
 import de.maxhenkel.delivery.tasks.ITaskContainer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -41,7 +41,7 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, ITileEntityProvider, ITaskContainer, ITiered {
+public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock, EntityBlock, ITaskContainer, ITiered {
 
     private static final VoxelShape SHAPE = VoxelUtils.combine(
             Block.box(5D, 0D, 0D, 11D, 16D, 1D),
@@ -70,13 +70,13 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
+        CompoundTag blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_type", tank.getFluid().getDisplayName()).withStyle(TextFormatting.GRAY));
-            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid", tank.getFluidAmount()).withStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslatableComponent("tooltip.delivery.fluid_type", tank.getFluid().getDisplayName()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(new TranslatableComponent("tooltip.delivery.fluid", tank.getFluidAmount()).withStyle(ChatFormatting.GRAY));
         }
     }
 
@@ -86,27 +86,27 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
     }
 
     @Override
-    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
         if (FluidUtils.tryFluidInteraction(player, handIn, worldIn, pos)) {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         return super.use(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    public TileEntity newBlockEntity(IBlockReader worldIn) {
-        return new BarrelTileEntity(tier);
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new BarrelTileEntity(tier, blockPos, blockState);
     }
 
     @Override
     public NonNullList<FluidStack> getFluids(ItemStack stack) {
         NonNullList<FluidStack> fluids = NonNullList.withSize(1, FluidStack.EMPTY);
-        CompoundNBT blockEntityTag = stack.getTagElement("BlockEntityTag");
+        CompoundTag blockEntityTag = stack.getTagElement("BlockEntityTag");
         if (blockEntityTag != null) {
             FluidTank tank = new FluidTank(Integer.MAX_VALUE).readFromNBT(blockEntityTag.getCompound("Fluid"));
             fluids.set(0, tank.getFluid());
@@ -116,8 +116,8 @@ public class BarrelBlock extends HorizontalRotatableBlock implements IItemBlock,
 
     @Override
     public int add(ItemStack stack, IFluidHandler handler, int amount) {
-        CompoundNBT blockEntityTag = stack.getOrCreateTagElement("BlockEntityTag");
-        CompoundNBT fluidCompound = blockEntityTag.getCompound("Fluid");
+        CompoundTag blockEntityTag = stack.getOrCreateTagElement("BlockEntityTag");
+        CompoundTag fluidCompound = blockEntityTag.getCompound("Fluid");
         FluidStack fluid = FluidStack.loadFluidStackFromNBT(fluidCompound);
         if (fluid.isEmpty()) {
             FluidStack drain = handler.drain(Math.min(amount, getMillibuckets(getTier()) - fluid.getAmount()), IFluidHandler.FluidAction.EXECUTE);

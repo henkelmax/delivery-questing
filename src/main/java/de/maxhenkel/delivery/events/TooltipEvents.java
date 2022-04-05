@@ -8,7 +8,7 @@ public class TooltipEvents {
 
     @SubscribeEvent
     public void onRenderTooltip(RenderTooltipEvent.Pre event) {
-        if (event.getLines().stream().anyMatch(text -> text instanceof NoDisplayTextComponent)) {
+        if (event.getComponents().stream().anyMatch(text -> text instanceof NoDisplayTextComponent)) {
             event.setCanceled(true);
         }
     }

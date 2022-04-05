@@ -1,18 +1,17 @@
 package de.maxhenkel.delivery.tasks;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Task implements INBTSerializable<CompoundNBT> {
+public class Task implements INBTSerializable<CompoundTag> {
 
     private UUID id;
     private String name;
@@ -109,8 +108,8 @@ public class Task implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         compound.putUUID("ID", id);
         compound.putString("Name", name);
         compound.putString("Description", description);
@@ -120,30 +119,30 @@ public class Task implements INBTSerializable<CompoundNBT> {
         compound.putBoolean("Forced", forced);
         compound.putInt("MinLevel", minLevel);
 
-        ListNBT dependencyList = new ListNBT();
+        ListTag dependencyList = new ListTag();
         for (UUID dependency : dependencies) {
-            dependencyList.add(NBTUtil.createUUID(dependency));
+            dependencyList.add(NbtUtils.createUUID(dependency));
         }
         compound.put("Dependencies", dependencyList);
 
         compound.putInt("Experience", experience);
         compound.putInt("Money", money);
 
-        ListNBT itemList = new ListNBT();
+        ListTag itemList = new ListTag();
         for (ItemElement item : items) {
             itemList.add(item.serializeNBT());
         }
         compound.put("Items", itemList);
 
-        ListNBT fluidList = new ListNBT();
+        ListTag fluidList = new ListTag();
         for (FluidElement fluid : fluids) {
             fluidList.add(fluid.serializeNBT());
         }
         compound.put("Fluids", fluidList);
 
-        ListNBT rewardList = new ListNBT();
+        ListTag rewardList = new ListTag();
         for (ItemStack stack : rewards) {
-            rewardList.add(stack.save(new CompoundNBT()));
+            rewardList.add(stack.save(new CompoundTag()));
         }
         compound.put("Rewards", rewardList);
 
@@ -151,7 +150,7 @@ public class Task implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         id = compound.getUUID("ID");
         name = compound.getString("Name");
         description = compound.getString("Description");
@@ -162,34 +161,34 @@ public class Task implements INBTSerializable<CompoundNBT> {
         minLevel = compound.getInt("MinLevel");
 
         dependencies = new ArrayList<>();
-        ListNBT dependencyList = compound.getList("Dependencies", Constants.NBT.TAG_INT_ARRAY);
-        for (INBT inbt : dependencyList) {
-            dependencies.add(NBTUtil.loadUUID(inbt));
+        ListTag dependencyList = compound.getList("Dependencies", Tag.TAG_INT_ARRAY);
+        for (Tag inbt : dependencyList) {
+            dependencies.add(NbtUtils.loadUUID(inbt));
         }
 
         experience = compound.getInt("Experience");
         money = compound.getInt("Money");
 
         items = new ArrayList<>();
-        ListNBT itemList = compound.getList("Items", 10);
+        ListTag itemList = compound.getList("Items", 10);
         for (int i = 0; i < itemList.size(); i++) {
-            CompoundNBT e = itemList.getCompound(i);
+            CompoundTag e = itemList.getCompound(i);
             ItemElement item = new ItemElement();
             item.deserializeNBT(e);
             items.add(item);
         }
 
         fluids = new ArrayList<>();
-        ListNBT fluidList = compound.getList("Fluids", 10);
+        ListTag fluidList = compound.getList("Fluids", 10);
         for (int i = 0; i < fluidList.size(); i++) {
-            CompoundNBT e = fluidList.getCompound(i);
+            CompoundTag e = fluidList.getCompound(i);
             FluidElement fluid = new FluidElement();
             fluid.deserializeNBT(e);
             fluids.add(fluid);
         }
 
         rewards = new ArrayList<>();
-        ListNBT rewardList = compound.getList("Rewards", 10);
+        ListTag rewardList = compound.getList("Rewards", 10);
         for (int i = 0; i < rewardList.size(); i++) {
             rewards.add(ItemStack.of(rewardList.getCompound(i)));
         }

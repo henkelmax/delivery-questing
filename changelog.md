@@ -1,1 +1,1 @@
-- Removed unnecessary log messages
+- Updated to 1.18.2

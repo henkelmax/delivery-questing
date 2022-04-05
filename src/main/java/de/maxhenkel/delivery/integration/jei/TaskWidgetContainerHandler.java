@@ -1,54 +1,63 @@
 package de.maxhenkel.delivery.integration.jei;
 
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IFocusFactory;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IRecipesGui;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TaskWidgetContainerHandler implements IGuiContainerHandler<ContainerScreen<?>> {
+public class TaskWidgetContainerHandler implements IGuiContainerHandler<AbstractContainerScreen<?>> {
 
-    @Nullable
     @Override
-    public Object getIngredientUnderMouse(ContainerScreen<?> s, double mouseX, double mouseY) {
-        if (!(s instanceof ITaskWidgetScreen)) {
+    public @Nullable Object getIngredientUnderMouse(AbstractContainerScreen<?> containerScreen, double mouseX, double mouseY) {
+        if (!(containerScreen instanceof ITaskWidgetScreen)) {
             return null;
         }
-        return ((ITaskWidgetScreen) s).getIngredientUnderMouse(mouseX, mouseY);
+        return ((ITaskWidgetScreen) containerScreen).getIngredientUnderMouse(mouseX, mouseY);
     }
 
     @Override
-    public Collection<IGuiClickableArea> getGuiClickableAreas(ContainerScreen<?> s, double mouseX, double mouseY) {
-        if (!(s instanceof ITaskWidgetScreen)) {
+    public Collection<IGuiClickableArea> getGuiClickableAreas(AbstractContainerScreen<?> containerScreen, double guiMouseX, double guiMouseY) {
+        if (!(containerScreen instanceof ITaskWidgetScreen)) {
             return Collections.emptyList();
         }
-        return ((ITaskWidgetScreen) s).getIngredients().stream().map(pair -> new IGuiClickableArea() {
+        return ((ITaskWidgetScreen) containerScreen).getIngredients().stream().map(pair -> new IGuiClickableArea() {
 
             @Override
-            public List<ITextComponent> getTooltipStrings() {
+            public List<Component> getTooltipStrings() {
                 return Collections.singletonList(new NoDisplayTextComponent());
             }
 
             @Override
-            public Rectangle2d getArea() {
+            public Rect2i getArea() {
                 return pair.getKey();
             }
 
             @Override
             public void onClick(IFocusFactory iFocusFactory, IRecipesGui iRecipesGui) {
-                iRecipesGui.show(iFocusFactory.createFocus(IFocus.Mode.OUTPUT, pair.getValue()));
+                Object value = pair.getValue();
+                if (value instanceof ItemStack itemStack) {
+                    iRecipesGui.show(iFocusFactory.createFocus(RecipeIngredientRole.OUTPUT, VanillaTypes.ITEM_STACK, itemStack));
+                } else if (value instanceof FluidStack fluidStack) {
+                    iRecipesGui.show(iFocusFactory.createFocus(RecipeIngredientRole.OUTPUT, ForgeTypes.FLUID_STACK, fluidStack));
+                }
             }
 
 
         }).collect(Collectors.toList());
     }
+
 }

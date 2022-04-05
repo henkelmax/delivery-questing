@@ -3,9 +3,9 @@ package de.maxhenkel.delivery.net;
 import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -36,13 +36,13 @@ public class MessageMarkEMailRead implements Message<MessageMarkEMailRead> {
     }
 
     @Override
-    public MessageMarkEMailRead fromBytes(PacketBuffer packetBuffer) {
+    public MessageMarkEMailRead fromBytes(FriendlyByteBuf packetBuffer) {
         mailID = packetBuffer.readUUID();
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeUUID(mailID);
     }
 }

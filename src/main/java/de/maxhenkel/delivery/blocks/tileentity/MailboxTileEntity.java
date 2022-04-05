@@ -1,37 +1,34 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.corelib.blockentity.IServerTickableBlockEntity;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.MailboxBlock;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Progression;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class MailboxTileEntity extends GroupTileEntity implements ITickableTileEntity {
+public class MailboxTileEntity extends GroupTileEntity implements IServerTickableBlockEntity {
 
     private NonNullList<ItemStack> outbox;
 
-    public MailboxTileEntity() {
-        super(ModTileEntities.MAILBOX);
+    public MailboxTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.MAILBOX, pos, state);
         outbox = NonNullList.withSize(4, ItemStack.EMPTY);
     }
 
     @Override
-    public void tick() {
-        if (level.isClientSide) {
-            return;
-        }
-
+    public void tickServer() {
         if (level.getDayTime() % 24000 == 20) {
             Group group = getGroup();
             if (group != null) {
@@ -59,12 +56,12 @@ public class MailboxTileEntity extends GroupTileEntity implements ITickableTileE
         return items;
     }
 
-    public IInventory getOutbox() {
+    public Container getOutbox() {
         return new ItemListInventory(outbox, this::setChanged);
     }
 
     @Nullable
-    public IInventory getInbox(ServerPlayerEntity player) {
+    public Container getInbox(ServerPlayer player) {
         Progression progression = Main.getProgression(player);
         UUID g = getGroupID();
         if (g == null) {
@@ -78,16 +75,15 @@ public class MailboxTileEntity extends GroupTileEntity implements ITickableTileE
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         outbox.clear();
         ItemUtils.readInventory(compound, "Outbox", outbox);
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
         ItemUtils.saveInventory(compound, "Outbox", outbox);
-        return super.save(compound);
     }
-
 }

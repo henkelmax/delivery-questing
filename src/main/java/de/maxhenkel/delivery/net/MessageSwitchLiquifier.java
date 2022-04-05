@@ -2,10 +2,10 @@ package de.maxhenkel.delivery.net;
 
 import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.gui.EnergyLiquifierContainer;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MessageSwitchLiquifier implements Message<MessageSwitchLiquifier> {
 
@@ -20,7 +20,7 @@ public class MessageSwitchLiquifier implements Message<MessageSwitchLiquifier> {
 
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
-        Container container = context.getSender().containerMenu;
+        AbstractContainerMenu container = context.getSender().containerMenu;
         if (container instanceof EnergyLiquifierContainer) {
             EnergyLiquifierContainer energyLiquifier = (EnergyLiquifierContainer) container;
             energyLiquifier.getEnergyLiquifier().reverse();
@@ -28,12 +28,12 @@ public class MessageSwitchLiquifier implements Message<MessageSwitchLiquifier> {
     }
 
     @Override
-    public MessageSwitchLiquifier fromBytes(PacketBuffer packetBuffer) {
+    public MessageSwitchLiquifier fromBytes(FriendlyByteBuf packetBuffer) {
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
 
     }
 }

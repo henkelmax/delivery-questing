@@ -1,5 +1,6 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.corelib.blockentity.IServerTickableBlockEntity;
 import de.maxhenkel.corelib.energy.EnergyUtils;
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.fluid.FluidUtils;
@@ -9,16 +10,16 @@ import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.fluid.ModFluids;
 import de.maxhenkel.delivery.items.UpgradeItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -32,12 +33,12 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 
-public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTileEntity, RestrictedItemStackHandler.ItemValidator {
+public class EnergyLiquifierTileEntity extends BlockEntity implements IServerTickableBlockEntity, RestrictedItemStackHandler.ItemValidator {
 
     private static final int TANK_CAPACITY = 16_000;
     private static final int ENERGY_CAPACITY = 16_000;
 
-    private final IIntArray fields = new IIntArray() {
+    private final ContainerData fields = new ContainerData() {
         @Override
         public int get(int index) {
             switch (index) {
@@ -78,20 +79,24 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     private NonNullList<ItemStack> upgradeInventory;
     private boolean reversed;
 
-    public EnergyLiquifierTileEntity() {
-        super(ModTileEntities.ENERGY_LIQUIFIER);
+    private LazyOptional<IItemHandler> itemHandlerCache;
+    private LazyOptional<FluidTank> fluidCache;
+    private LazyOptional<UsableEnergyStorage> energyCache;
+
+    public EnergyLiquifierTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.ENERGY_LIQUIFIER, pos, state);
         tank = new FluidTank(TANK_CAPACITY, fluidStack -> fluidStack.getFluid() == ModFluids.LIQUID_ENERGY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY);
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
+
+        itemHandlerCache = LazyOptional.of(this::createItemHandler);
+        fluidCache = LazyOptional.of(() -> tank);
+        energyCache = LazyOptional.of(() -> energy);
     }
 
     @Override
-    public void tick() {
-        if (level.isClientSide) {
-            return;
-        }
-
+    public void tickServer() {
         inventory.get(0).getCapability(CapabilityEnergy.ENERGY).ifPresent(energyStorage -> {
             if (reversed) {
                 EnergyUtils.pushEnergy(energy, energyStorage, 1000);
@@ -134,11 +139,11 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         return energy;
     }
 
-    public IInventory getInventory() {
+    public Container getInventory() {
         return new ItemListInventory(inventory, this::setChanged);
     }
 
-    public IInventory getUpgradeInventory() {
+    public Container getUpgradeInventory() {
         return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
@@ -188,26 +193,34 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         tank = new FluidTank(TANK_CAPACITY, fluidStack -> fluidStack.getFluid() == ModFluids.LIQUID_ENERGY);
         tank.readFromNBT(compound.getCompound("Fluid"));
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY, compound.getInt("Energy"));
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
+        ContainerHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
+        ContainerHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
         reversed = compound.getBoolean("Reversed");
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
-        compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
+        compound.put("Fluid", tank.writeToNBT(new CompoundTag()));
         compound.putInt("Energy", energy.getEnergyStored());
-        compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
-        compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
+        compound.put("Inventory", ContainerHelper.saveAllItems(new CompoundTag(), inventory, true));
+        compound.put("UpgradeInventory", ContainerHelper.saveAllItems(new CompoundTag(), upgradeInventory, true));
         compound.putBoolean("Reversed", reversed);
-        return super.save(compound);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        itemHandlerCache.invalidate();
+        fluidCache.invalidate();
+        energyCache.invalidate();
     }
 
     @Override
@@ -218,19 +231,19 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
 
         if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             if (side == null || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING))) {
-                return LazyOptional.of(() -> tank).cast();
+                return fluidCache.cast();
             }
         } else if (cap == CapabilityEnergy.ENERGY) {
             if (side == null || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getOpposite())) {
-                return LazyOptional.of(() -> energy).cast();
+                return energyCache.cast();
             }
         } else if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return LazyOptional.of(this::getItemHandler).cast();
+            return itemHandlerCache.cast();
         }
         return super.getCapability(cap, side);
     }
 
-    private IItemHandler getItemHandler() {
+    private IItemHandler createItemHandler() {
         return new RestrictedItemStackHandler(inventory, this) {
             @Override
             public int getSlotLimit(int slot) {
@@ -239,7 +252,7 @@ public class EnergyLiquifierTileEntity extends TileEntity implements ITickableTi
         };
     }
 
-    public IIntArray getFields() {
+    public ContainerData getFields() {
         return fields;
     }
 

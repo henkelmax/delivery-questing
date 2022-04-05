@@ -1,24 +1,26 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.corelib.blockentity.IServerTickableBlockEntity;
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.items.UpgradeItem;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.ITaskContainer;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -33,12 +35,12 @@ import net.minecraftforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PackagerTileEntity extends TileEntity implements ITickableTileEntity {
+public class PackagerTileEntity extends BlockEntity implements IServerTickableBlockEntity {
 
     private static final int TANK_CAPACITY = 16_000;
     private static final int ENERGY_CAPACITY = 16_000;
 
-    private final IIntArray fields = new IIntArray() {
+    private final ContainerData fields = new ContainerData() {
         @Override
         public int get(int index) {
             switch (index) {
@@ -73,20 +75,24 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     private NonNullList<ItemStack> inventory;
     private NonNullList<ItemStack> upgradeInventory;
 
-    public PackagerTileEntity() {
-        super(ModTileEntities.PACKAGER);
+    protected LazyOptional<FluidTank> tankCache;
+    protected LazyOptional<UsableEnergyStorage> energyCache;
+    protected LazyOptional<IItemHandler> itemCache;
+
+    public PackagerTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.PACKAGER, pos, state);
         tank = new FluidTank(TANK_CAPACITY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0);
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
+
+        tankCache = LazyOptional.of(() -> tank);
+        energyCache = LazyOptional.of(() -> energy);
+        itemCache = LazyOptional.of(this::createItemHandler);
     }
 
     @Override
-    public void tick() {
-        if (level.isClientSide) {
-            return;
-        }
-
+    public void tickServer() {
         if (energy.getEnergyStored() <= 0) {
             return;
         }
@@ -129,11 +135,11 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         return energy;
     }
 
-    public IInventory getInventory() {
+    public Container getInventory() {
         return new ItemListInventory(inventory, this::setChanged);
     }
 
-    public IInventory getUpgradeInventory() {
+    public Container getUpgradeInventory() {
         return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
@@ -200,24 +206,33 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         tank = new FluidTank(TANK_CAPACITY);
         tank.readFromNBT(compound.getCompound("Fluid"));
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, compound.getInt("Energy"));
         inventory = NonNullList.withSize(2, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
+        ContainerHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
+        ContainerHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
-        compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
+        compound.put("Fluid", tank.writeToNBT(new CompoundTag()));
         compound.putInt("Energy", energy.getEnergyStored());
-        compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
-        compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
-        return super.save(compound);
+        compound.put("Inventory", ContainerHelper.saveAllItems(new CompoundTag(), inventory, true));
+        compound.put("UpgradeInventory", ContainerHelper.saveAllItems(new CompoundTag(), upgradeInventory, true));
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+
+        tankCache.invalidate();
+        energyCache.invalidate();
+        itemCache.invalidate();
     }
 
     @Override
@@ -227,16 +242,16 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         }
 
         if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return LazyOptional.of(() -> tank).cast();
+            return tankCache.cast();
         } else if (cap == CapabilityEnergy.ENERGY) {
-            return LazyOptional.of(() -> energy).cast();
+            return energyCache.cast();
         } else if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return LazyOptional.of(this::getItemHandler).cast();
+            return itemCache.cast();
         }
         return super.getCapability(cap, side);
     }
 
-    private IItemHandler getItemHandler() {
+    private IItemHandler createItemHandler() {
         return new ItemStackHandler(inventory) {
             @Nonnull
             @Override
@@ -272,27 +287,24 @@ public class PackagerTileEntity extends TileEntity implements ITickableTileEntit
         };
     }
 
-    public IIntArray getFields() {
+    public ContainerData getFields() {
         return fields;
     }
 
-    public void syncContents(ServerPlayerEntity player) {
+    public void syncContents(ServerPlayer player) {
         player.connection.send(getUpdatePacket());
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(worldPosition, 1, getUpdateTag());
+    public CompoundTag getUpdateTag() {
+        CompoundTag updateTag = super.getUpdateTag();
+        saveAdditional(updateTag);
+        return updateTag;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        handleUpdateTag(getBlockState(), pkt.getTag());
-    }
-
-    @Override
-    public CompoundNBT getUpdateTag() {
-        return save(new CompoundNBT());
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
 }

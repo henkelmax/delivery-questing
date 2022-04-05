@@ -5,10 +5,10 @@ import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.email.EMail;
 import de.maxhenkel.delivery.toast.EMailToast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MessageEMailToast implements Message<MessageEMailToast> {
 
@@ -40,13 +40,13 @@ public class MessageEMailToast implements Message<MessageEMailToast> {
     }
 
     @Override
-    public MessageEMailToast fromBytes(PacketBuffer packetBuffer) {
+    public MessageEMailToast fromBytes(FriendlyByteBuf packetBuffer) {
         eMail = EMail.deserialize(packetBuffer.readNbt(), new Group());
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeNbt(eMail.serializeNBT());
     }
 }

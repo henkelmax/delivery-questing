@@ -2,15 +2,15 @@ package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import de.maxhenkel.delivery.blocks.tileentity.PackagerTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 
 public class PackagerContainer extends ContainerBase {
 
     protected PackagerTileEntity packager;
-    protected PlayerInventory playerInventory;
+    protected Inventory playerInventory;
 
-    public PackagerContainer(int id, PlayerInventory playerInventory, PackagerTileEntity packager) {
+    public PackagerContainer(int id, Inventory playerInventory, PackagerTileEntity packager) {
         super(Containers.PACKAGER_CONTAINER, id, playerInventory, packager.getInventory());
         this.playerInventory = playerInventory;
         this.packager = packager;
@@ -27,8 +27,8 @@ public class PackagerContainer extends ContainerBase {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        if (playerInventory.player instanceof ServerPlayerEntity) {
-            packager.syncContents((ServerPlayerEntity) playerInventory.player);
+        if (playerInventory.player instanceof ServerPlayer) {
+            packager.syncContents((ServerPlayer) playerInventory.player);
         }
     }
 

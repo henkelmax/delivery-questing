@@ -1,9 +1,9 @@
 package de.maxhenkel.delivery.tasks;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandRuntimeException;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import javax.annotation.Nullable;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Progression implements INBTSerializable<CompoundNBT> {
+public class Progression implements INBTSerializable<CompoundTag> {
 
     private List<Group> groups;
 
@@ -24,44 +24,44 @@ public class Progression implements INBTSerializable<CompoundNBT> {
         return groups;
     }
 
-    public void addGroup(UUID player, String name, String password) throws CommandException {
+    public void addGroup(UUID player, String name, String password) throws CommandRuntimeException {
         if (groups.stream().anyMatch(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player)))) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.already_in_another_group"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.already_in_another_group"));
         }
 
         if (groups.stream().anyMatch(group -> group.getName().equals(name))) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_already_exists"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_already_exists"));
         }
         Group group = new Group(name, password);
         group.addMember(player);
         groups.add(group);
     }
 
-    public void joinGroup(UUID player, String name, String password) throws CommandException {
+    public void joinGroup(UUID player, String name, String password) throws CommandRuntimeException {
         if (groups.stream().anyMatch(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player)))) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.already_in_another_group"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.already_in_another_group"));
         }
 
         Optional<Group> optionalGroup = groups.stream().filter(g -> g.getName().equals(name)).findAny();
 
         if (!optionalGroup.isPresent()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_not_found", name));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_not_found", name));
         }
 
         Group group = optionalGroup.get();
 
         if (!group.getPassword().equals(password)) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.wrong_password"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.wrong_password"));
         }
 
         group.addMember(player);
     }
 
-    public Group getPlayerGroup(UUID player) throws CommandException {
+    public Group getPlayerGroup(UUID player) throws CommandRuntimeException {
         Optional<Group> optionalGroup = groups.stream().filter(group -> group.getMembers().stream().anyMatch(uuid -> uuid.equals(player))).findAny();
 
         if (!optionalGroup.isPresent()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.player_not_in_group"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.player_not_in_group"));
         }
 
         return optionalGroup.get();
@@ -72,57 +72,57 @@ public class Progression implements INBTSerializable<CompoundNBT> {
         return groups.stream().filter(group -> group.getId().equals(groupID)).findAny().orElse(null);
     }
 
-    public Group leaveGroup(UUID player) throws CommandException {
+    public Group leaveGroup(UUID player) throws CommandRuntimeException {
         Group group = getPlayerGroup(player);
         group.removeMember(player);
         return group;
     }
 
-    public void removeGroup(String name, String password) throws CommandException {
+    public void removeGroup(String name, String password) throws CommandRuntimeException {
         Optional<Group> optionalGroup = groups.stream().filter(g -> g.getName().equals(name)).findAny();
 
         if (!optionalGroup.isPresent()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_not_found", name));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_not_found", name));
         }
 
         Group group = optionalGroup.get();
 
         if (!group.getPassword().equals(password)) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.wrong_password"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.wrong_password"));
         }
 
         if (!group.getMembers().isEmpty()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_has_members"));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_has_members"));
         }
 
         groups.removeIf(g -> g.getName().equals(name));
     }
 
-    public void removeGroup(String name) throws CommandException {
+    public void removeGroup(String name) throws CommandRuntimeException {
         Optional<Group> optionalGroup = groups.stream().filter(g -> g.getName().equals(name)).findAny();
 
         if (!optionalGroup.isPresent()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_not_found", name));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_not_found", name));
         }
 
         groups.removeIf(g -> g.getName().equals(name));
     }
 
-    public Group getGroup(String name) throws CommandException {
+    public Group getGroup(String name) throws CommandRuntimeException {
         Optional<Group> optionalGroup = groups.stream().filter(group -> group.getName().equals(name)).findAny();
 
         if (!optionalGroup.isPresent()) {
-            throw new CommandException(new TranslationTextComponent("command.delivery.group_not_found", name));
+            throw new CommandRuntimeException(new TranslatableComponent("command.delivery.group_not_found", name));
         }
 
         return optionalGroup.get();
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
 
-        ListNBT groupList = new ListNBT();
+        ListTag groupList = new ListTag();
         for (Group group : groups) {
             groupList.add(group.serializeNBT());
         }
@@ -132,8 +132,8 @@ public class Progression implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
-        ListNBT groupList = compound.getList("Groups", 10);
+    public void deserializeNBT(CompoundTag compound) {
+        ListTag groupList = compound.getList("Groups", 10);
         groups = new ArrayList<>();
         for (int i = 0; i < groupList.size(); i++) {
             Group group = new Group();

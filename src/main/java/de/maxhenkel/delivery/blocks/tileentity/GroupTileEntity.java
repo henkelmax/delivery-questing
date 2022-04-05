@@ -2,22 +2,23 @@ package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class GroupTileEntity extends TileEntity {
+public class GroupTileEntity extends BlockEntity {
 
     @Nullable
     private UUID group;
 
-    public GroupTileEntity(TileEntityType<?> tileEntityTypeIn) {
-        super(tileEntityTypeIn);
+    public GroupTileEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+        super(tileEntityTypeIn, pos, state);
     }
 
     @Nullable
@@ -27,13 +28,13 @@ public class GroupTileEntity extends TileEntity {
 
     @Nullable
     public Group getGroup() {
-        if (level instanceof ServerWorld) {
+        if (level instanceof ServerLevel) {
             UUID groupID = getGroupID();
             if (groupID == null) {
                 return null;
             }
 
-            return Main.getProgression(((ServerWorld) level).getServer()).getGroup(groupID);
+            return Main.getProgression(((ServerLevel) level).getServer()).getGroup(groupID);
         }
         return null;
     }
@@ -44,8 +45,8 @@ public class GroupTileEntity extends TileEntity {
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
 
         if (compound.contains("Group")) {
             group = compound.getUUID("Group");
@@ -55,11 +56,11 @@ public class GroupTileEntity extends TileEntity {
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
         if (group != null) {
             compound.putUUID("Group", group);
         }
-        return super.save(compound);
     }
 
 }

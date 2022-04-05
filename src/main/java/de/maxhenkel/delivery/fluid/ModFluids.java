@@ -1,8 +1,8 @@
 package de.maxhenkel.delivery.fluid;
 
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -19,8 +19,8 @@ public class ModFluids {
         );
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY, RenderType.translucent());
-            RenderTypeLookup.setRenderLayer(LIQUID_ENERGY_FLOWING, RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(LIQUID_ENERGY, RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(LIQUID_ENERGY_FLOWING, RenderType.translucent());
         }
     }
 

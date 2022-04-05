@@ -6,7 +6,6 @@ import de.maxhenkel.delivery.advancements.ModTriggers;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.blocks.tileentity.ModTileEntities;
 import de.maxhenkel.delivery.capability.CapabilityEvents;
-import de.maxhenkel.delivery.capability.ProgressionStorage;
 import de.maxhenkel.delivery.commands.GroupCommand;
 import de.maxhenkel.delivery.commands.TestCommand;
 import de.maxhenkel.delivery.entity.ModEntities;
@@ -21,34 +20,34 @@ import de.maxhenkel.delivery.net.*;
 import de.maxhenkel.delivery.tasks.OfferManager;
 import de.maxhenkel.delivery.tasks.Progression;
 import de.maxhenkel.delivery.tasks.TaskManager;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -66,8 +65,8 @@ public class Main {
 
     public static SimpleChannel SIMPLE_CHANNEL;
 
-    @CapabilityInject(Progression.class)
-    public static Capability<Progression> PROGRESSION_CAPABILITY = null;
+    public static Capability<Progression> PROGRESSION_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     public static TaskManager TASK_MANAGER;
     public static OfferManager OFFER_MANAGER;
@@ -77,8 +76,8 @@ public class Main {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModItems::registerItems);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModBlocks::registerBlocks);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Fluid.class, ModFluids::registerFluids);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(TileEntityType.class, ModTileEntities::registerTileEntities);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(ContainerType.class, Containers::registerContainers);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModTileEntities::registerTileEntities);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(MenuType.class, Containers::registerContainers);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(EntityType.class, ModEntities::registerEntities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(IMC::enqueueIMC);
@@ -110,12 +109,10 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 7, MessageMarkEMailRead.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 8, MessageChallengeToast.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 9, MessageEMailToast.class);
-
-        CapabilityManager.INSTANCE.register(Progression.class, new ProgressionStorage(), Progression::new);
     }
 
     @SubscribeEvent
-    public void serverStarting(FMLServerStartingEvent event) {
+    public void serverStarting(ServerStartingEvent event) {
         try {
             TASK_MANAGER = TaskManager.load();
         } catch (IOException e) {
@@ -151,19 +148,19 @@ public class Main {
 
     @SubscribeEvent
     public void onPlayerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        if (event.getPlayer() instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) event.getPlayer();
             NetUtils.sendTo(SIMPLE_CHANNEL, player, new MessageSyncOffers(OFFER_MANAGER));
             NetUtils.sendTo(SIMPLE_CHANNEL, player, new MessageSyncTasks(TASK_MANAGER));
         }
     }
 
-    public static Progression getProgression(ServerPlayerEntity playerEntity) {
+    public static Progression getProgression(ServerPlayer playerEntity) {
         return getProgression(playerEntity.server);
     }
 
     public static Progression getProgression(MinecraftServer server) {
-        return server.getLevel(World.OVERWORLD).getCapability(PROGRESSION_CAPABILITY).orElseThrow(() -> new RuntimeException("Progression capability not found"));
+        return server.getLevel(Level.OVERWORLD).getCapability(PROGRESSION_CAPABILITY).orElseThrow(() -> new RuntimeException("Progression capability not found"));
     }
 
 }

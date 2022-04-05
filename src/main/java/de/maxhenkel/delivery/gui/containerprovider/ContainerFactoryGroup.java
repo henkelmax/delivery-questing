@@ -2,11 +2,11 @@ package de.maxhenkel.delivery.gui.containerprovider;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.IContainerFactory;
 
 public class ContainerFactoryGroup<T extends ContainerBase> implements IContainerFactory<T> {
 
@@ -16,8 +16,8 @@ public class ContainerFactoryGroup<T extends ContainerBase> implements IContaine
         this.containerCreator = containerCreator;
     }
 
-    public T create(int windowId, PlayerInventory inv, PacketBuffer data) {
-        TileEntity tileEntity = inv.player.level.getBlockEntity(data.readBlockPos());
+    public T create(int windowId, Inventory inv, FriendlyByteBuf data) {
+        BlockEntity tileEntity = inv.player.level.getBlockEntity(data.readBlockPos());
         Group group = new Group();
         group.deserializeNBT(data.readNbt());
 
@@ -28,7 +28,7 @@ public class ContainerFactoryGroup<T extends ContainerBase> implements IContaine
         }
     }
 
-    public interface ContainerCreator<T extends Container> {
-        T create(int id, PlayerInventory inv, TileEntity tileEntity, Group group);
+    public interface ContainerCreator<T extends AbstractContainerMenu> {
+        T create(int id, Inventory inv, BlockEntity tileEntity, Group group);
     }
 }

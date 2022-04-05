@@ -1,12 +1,14 @@
 package de.maxhenkel.delivery.gui.computer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.sounds.ModSounds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvent;
 
 public abstract class ComputerProgram {
 
@@ -28,11 +30,11 @@ public abstract class ComputerProgram {
         ySize = screen.getYSize();
     }
 
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawGuiContainerForegroundLayer(PoseStack matrixStack, int mouseX, int mouseY) {
 
     }
 
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
     }
 
@@ -48,8 +50,8 @@ public abstract class ComputerProgram {
         return false;
     }
 
-    protected void addWidget(Widget widget) {
-        screen.addWidget(widget);
+    public <T extends GuiEventListener & Widget & NarratableEntry> T addWidget(T widget) {
+        return screen.addRenderableWidget(widget);
     }
 
     public ComputerContainer getContainer() {
@@ -61,7 +63,7 @@ public abstract class ComputerProgram {
     }
 
     public void playSound(SoundEvent sound) {
-        mc.getSoundManager().play(SimpleSound.forUI(sound, 1F));
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(sound, 1F));
     }
 
     public void playClickSound() {

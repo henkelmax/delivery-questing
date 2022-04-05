@@ -6,18 +6,18 @@ import com.google.gson.JsonParseException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.maxhenkel.corelib.helpers.AbstractStack;
 import de.maxhenkel.corelib.helpers.WrappedItemStack;
+import de.maxhenkel.corelib.tag.Tag;
 import de.maxhenkel.corelib.tag.TagUtils;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.tags.ITag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ItemElement extends TaskElement<net.minecraft.item.Item> {
+public class ItemElement extends TaskElement<Item> {
 
-    public ItemElement(String tag, ITag.INamedTag<net.minecraft.item.Item> item, long amount) {
+    public ItemElement(String tag, Tag<Item> item, long amount) {
         super(tag, item, amount);
     }
 
@@ -26,7 +26,7 @@ public class ItemElement extends TaskElement<net.minecraft.item.Item> {
     }
 
     @Override
-    protected ITag.INamedTag<net.minecraft.item.Item> getTag(String tag) {
+    protected Tag<Item> getTag(String tag) {
         return TagUtils.getItem(tag, true);
     }
 
@@ -66,7 +66,7 @@ public class ItemElement extends TaskElement<net.minecraft.item.Item> {
 
         if (obj.has("nbt")) {
             try {
-                item.nbt = JsonToNBT.parseTag(obj.get("nbt").getAsString());
+                item.nbt = TagParser.parseTag(obj.get("nbt").getAsString());
             } catch (CommandSyntaxException e) {
                 throw new JsonParseException(e);
             }

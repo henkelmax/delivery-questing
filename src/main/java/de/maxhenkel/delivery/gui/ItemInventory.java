@@ -2,25 +2,25 @@ package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.corelib.sound.SoundUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
-public class ItemInventory implements IInventory {
+public class ItemInventory implements Container {
 
     protected NonNullList<ItemStack> items;
     protected ItemStack stack;
 
-    public ItemInventory(PlayerEntity player, ItemStack stack, int size) {
+    public ItemInventory(Player player, ItemStack stack, int size) {
         this.stack = stack;
 
-        CompoundNBT compound = stack.getOrCreateTag();
+        CompoundTag compound = stack.getOrCreateTag();
         items = NonNullList.withSize(size, ItemStack.EMPTY);
         ItemUtils.readInventory(compound, "Items", items);
 
@@ -28,18 +28,18 @@ public class ItemInventory implements IInventory {
     }
 
     @Override
-    public void startOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
         SoundEvent openSound = getOpenSound();
         if (openSound != null) {
-            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), openSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
+            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), openSound, SoundSource.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
         }
     }
 
     @Override
-    public void stopOpen(PlayerEntity player) {
+    public void stopOpen(Player player) {
         SoundEvent closeSound = getCloseSound();
         if (closeSound != null) {
-            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), closeSound, SoundCategory.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
+            player.level.playSound(null, player.getX(), player.getY(), player.getZ(), closeSound, SoundSource.PLAYERS, 0.5F, SoundUtils.getVariatedPitch(player.level));
         }
     }
 
@@ -68,7 +68,7 @@ public class ItemInventory implements IInventory {
 
     @Override
     public ItemStack removeItem(int index, int count) {
-        ItemStack itemstack = ItemStackHelper.removeItem(items, index, count);
+        ItemStack itemstack = ContainerHelper.removeItem(items, index, count);
         if (!itemstack.isEmpty()) {
             setChanged();
         }
@@ -77,7 +77,7 @@ public class ItemInventory implements IInventory {
 
     @Override
     public ItemStack removeItemNoUpdate(int index) {
-        ItemStack stack = ItemStackHelper.takeItem(items, index);
+        ItemStack stack = ContainerHelper.takeItem(items, index);
         setChanged();
         return stack;
     }
@@ -97,8 +97,8 @@ public class ItemInventory implements IInventory {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
-        for (Hand hand : Hand.values()) {
+    public boolean stillValid(Player player) {
+        for (InteractionHand hand : InteractionHand.values()) {
             if (player.getItemInHand(hand).equals(stack)) {
                 return true;
             }

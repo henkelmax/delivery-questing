@@ -4,9 +4,9 @@ import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Progression;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -40,13 +40,13 @@ public class MessageBuyOffer implements Message<MessageBuyOffer> {
     }
 
     @Override
-    public MessageBuyOffer fromBytes(PacketBuffer packetBuffer) {
+    public MessageBuyOffer fromBytes(FriendlyByteBuf packetBuffer) {
         offerID = packetBuffer.readUUID();
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeUUID(offerID);
     }
 }

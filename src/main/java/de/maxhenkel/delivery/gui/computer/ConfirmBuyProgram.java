@@ -1,15 +1,17 @@
 package de.maxhenkel.delivery.gui.computer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.net.MessageBuyOffer;
 import de.maxhenkel.delivery.sounds.ModSounds;
 import de.maxhenkel.delivery.tasks.Offer;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
@@ -41,14 +43,16 @@ public class ConfirmBuyProgram extends ComputerProgram {
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawGuiContainerForegroundLayer(PoseStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bind(BACKGROUND);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderTexture(0, BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (confirm.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
@@ -70,19 +74,19 @@ public class ConfirmBuyProgram extends ComputerProgram {
             screen.blit(matrixStack, guiLeft + closeDialog.getPosX(), guiTop + closeDialog.getPosY(), 0, 224, closeDialog.getWidth(), closeDialog.getHeight());
         }
 
-        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
+        mc.font.draw(matrixStack, new TranslatableComponent("message.delivery.minazon_url"), guiLeft + 5, guiTop + 16, 0);
 
-        mc.font.draw(matrixStack, new TranslationTextComponent("message.delivery.minazon_confirm_url"), guiLeft + 3 + 50 + 2, guiTop + 3 + 70 + 4, 0);
+        mc.font.draw(matrixStack, new TranslatableComponent("message.delivery.minazon_confirm_url"), guiLeft + 3 + 50 + 2, guiTop + 3 + 70 + 4, 0);
 
-        IFormattableTextComponent buy = new TranslationTextComponent("message.delivery.confirm_buy", new TranslationTextComponent("message.delivery.item_amount", offer.getStack().getHoverName(), offer.getStack().getCount()), new TranslationTextComponent("message.delivery.price", offer.getPrice()));
-        List<IReorderingProcessor> list = mc.font.split(buy, 148 - 4);
+        MutableComponent buy = new TranslatableComponent("message.delivery.confirm_buy", new TranslatableComponent("message.delivery.item_amount", offer.getStack().getHoverName(), offer.getStack().getCount()), new TranslatableComponent("message.delivery.price", offer.getPrice()));
+        List<FormattedCharSequence> list = mc.font.split(buy, 148 - 4);
         for (int i = 0; i < list.size(); i++) {
-            IReorderingProcessor txt = list.get(i);
+            FormattedCharSequence txt = list.get(i);
             mc.font.draw(matrixStack, txt, guiLeft + 3 + 53, guiTop + 3 + 86 + i * 10, 0);
         }
 
-        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.confirm"), guiLeft + confirm.getPosX() + confirm.getWidth() / 2, guiTop + confirm.getPosY() + confirm.getHeight() / 2 - 4, 0);
-        screen.drawCentered(matrixStack, new TranslationTextComponent("message.delivery.cancel"), guiLeft + cancel.getPosX() + cancel.getWidth() / 2, guiTop + cancel.getPosY() + cancel.getHeight() / 2 - 4, 0);
+        screen.drawCentered(matrixStack, new TranslatableComponent("message.delivery.confirm"), guiLeft + confirm.getPosX() + confirm.getWidth() / 2, guiTop + confirm.getPosY() + confirm.getHeight() / 2 - 4, 0);
+        screen.drawCentered(matrixStack, new TranslatableComponent("message.delivery.cancel"), guiLeft + cancel.getPosX() + cancel.getWidth() / 2, guiTop + cancel.getPosY() + cancel.getHeight() / 2 - 4, 0);
     }
 
     @Override

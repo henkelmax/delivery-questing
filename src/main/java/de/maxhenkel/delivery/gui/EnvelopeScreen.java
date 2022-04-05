@@ -1,19 +1,19 @@
 package de.maxhenkel.delivery.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 public class EnvelopeScreen extends ScreenBase<EnvelopeContainer> {
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/envelope.png");
 
-    private PlayerInventory playerInventory;
+    private Inventory playerInventory;
 
-    public EnvelopeScreen(EnvelopeContainer container, PlayerInventory playerInventory, ITextComponent name) {
+    public EnvelopeScreen(EnvelopeContainer container, Inventory playerInventory, Component name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
 
@@ -22,7 +22,7 @@ public class EnvelopeScreen extends ScreenBase<EnvelopeContainer> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
         drawCentered(matrixStack, title, 9, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName(), 8F, (float) (imageHeight - 96 + 3), FONT_COLOR);
     }

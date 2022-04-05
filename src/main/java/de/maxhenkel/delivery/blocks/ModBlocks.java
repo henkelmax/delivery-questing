@@ -2,9 +2,9 @@ package de.maxhenkel.delivery.blocks;
 
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.fluid.LiquidEnergyBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraftforge.event.RegistryEvent;
 
 public class ModBlocks {
@@ -29,7 +29,7 @@ public class ModBlocks {
     public static final DronePadBlock DRONE_PAD = new DronePadBlock();
     public static final PackagerBlock PACKAGER = new PackagerBlock();
 
-    public static final FlowingFluidBlock LIQUID_ENERGY = new LiquidEnergyBlock();
+    public static final LiquidBlock LIQUID_ENERGY = new LiquidEnergyBlock();
 
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(

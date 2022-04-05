@@ -1,7 +1,7 @@
 package de.maxhenkel.delivery.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.helpers.AbstractStack;
 import de.maxhenkel.corelib.helpers.Pair;
 import de.maxhenkel.corelib.helpers.WrappedFluidStack;
@@ -9,17 +9,22 @@ import de.maxhenkel.corelib.helpers.WrappedItemStack;
 import de.maxhenkel.corelib.tag.SingleElementTag;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.Rectangle2d;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.*;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -35,7 +40,7 @@ public class TaskWidget {
 
     private int x, y, width, height;
     private Minecraft mc;
-    private FontRenderer font;
+    private Font font;
 
     private List<Element<?>> elements;
     private ActiveTask task;
@@ -96,38 +101,39 @@ public class TaskWidget {
         return page > 0;
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY) {
-        mc.getTextureManager().bind(background);
-        RenderSystem.color4f(1F, 1F, 1F, 1F);
+    public void render(PoseStack matrixStack, int mouseX, int mouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderTexture(0, background);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        AbstractGui.blit(matrixStack, x, y, 0, 0, width, height, 256, 256);
+        GuiComponent.blit(matrixStack, x, y, 0, 0, width, height, 256, 256);
 
         if (onInfoClick != null) {
             if (isInfoHovered(mouseX, mouseY)) {
-                AbstractGui.blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + width - 13, y + 2, 142, 0, 11, 11, 256, 256);
             } else {
-                AbstractGui.blit(matrixStack, x + width - 13, y + 2, 153, 0, 11, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + width - 13, y + 2, 153, 0, 11, 11, 256, 256);
             }
         }
 
         if (hasPrev()) {
             if (isLeftButtonHovered(mouseX, mouseY)) {
-                AbstractGui.blit(matrixStack, x + 10, y + height - 15, 124, 11, 18, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + 10, y + height - 15, 124, 11, 18, 11, 256, 256);
             } else {
-                AbstractGui.blit(matrixStack, x + 10, y + height - 15, 106, 11, 18, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + 10, y + height - 15, 106, 11, 18, 11, 256, 256);
             }
         }
         if (hasNext()) {
             if (isRightButtonHovered(mouseX, mouseY)) {
-                AbstractGui.blit(matrixStack, x + width - 35, y + height - 15, 124, 0, 18, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + width - 35, y + height - 15, 124, 0, 18, 11, 256, 256);
             } else {
-                AbstractGui.blit(matrixStack, x + width - 35, y + height - 15, 106, 0, 18, 11, 256, 256);
+                GuiComponent.blit(matrixStack, x + width - 35, y + height - 15, 106, 0, 18, 11, 256, 256);
             }
         }
 
-        drawCentered(matrixStack, font, new TranslationTextComponent("message.delivery.task_items").withStyle(TextFormatting.DARK_GRAY), y + 4);
+        drawCentered(matrixStack, font, new TranslatableComponent("message.delivery.task_items").withStyle(ChatFormatting.DARK_GRAY), y + 4);
 
         int xPos = 8;
         int yPos = 15;
@@ -138,59 +144,59 @@ public class TaskWidget {
             AbstractStack abstractStack = element.item.getAbstractStack();
             abstractStack.render(matrixStack, x + xPos, y + yPos);
 
-            IFormattableTextComponent str;
+            MutableComponent str;
             if (abstractStack instanceof WrappedFluidStack) {
                 if (showProgress) {
-                    str = new TranslationTextComponent("tooltip.delivery.progress", getNumberBuckets(element.current), getNumberBuckets(element.max));
+                    str = new TranslatableComponent("tooltip.delivery.progress", getNumberBuckets(element.current), getNumberBuckets(element.max));
                 } else {
-                    str = new StringTextComponent(getNumberBuckets(element.max));
+                    str = new TextComponent(getNumberBuckets(element.max));
                 }
             } else {
                 if (showProgress) {
-                    str = new TranslationTextComponent("tooltip.delivery.progress", getNumberItems(element.current), getNumberItems(element.max));
+                    str = new TranslatableComponent("tooltip.delivery.progress", getNumberItems(element.current), getNumberItems(element.max));
                 } else {
-                    str = new StringTextComponent(getNumberItems(element.max));
+                    str = new TextComponent(getNumberItems(element.max));
                 }
             }
 
             if (!showProgress) {
-                str = str.withStyle(TextFormatting.DARK_GRAY);
+                str = str.withStyle(ChatFormatting.DARK_GRAY);
             } else if (element.current <= 0) {
-                str = str.withStyle(TextFormatting.DARK_GRAY);
+                str = str.withStyle(ChatFormatting.DARK_GRAY);
             } else if (element.current >= element.max) {
-                str = str.withStyle(TextFormatting.DARK_GREEN);
+                str = str.withStyle(ChatFormatting.DARK_GREEN);
             } else {
-                str = str.withStyle(TextFormatting.DARK_RED);
+                str = str.withStyle(ChatFormatting.DARK_RED);
             }
             font.draw(matrixStack, str, x + xPos + 20, y + yPos + 5, 0);
 
             if (mouseX >= xPos + x && mouseX < xPos + x + 16) {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
-                    List<ITextComponent> tooltip = abstractStack.getTooltip(mc.screen);
+                    List<Component> tooltip = abstractStack.getTooltip(mc.screen);
 
                     if (element.item.getItem() != null && !(element.item.getItem() instanceof SingleElementTag)) {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.tag", element.item.getItem().getName().toString()));
+                        tooltip.add(new TranslatableComponent("tooltip.delivery.tag", element.item.getItem().getName().toString()));
                     }
-                    mc.screen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+                    mc.screen.renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY, font);
                 }
             }
             if (mouseX >= xPos + x + 16 && mouseX < xPos + x + w - 16) {
                 if (mouseY >= yPos + y && mouseY < yPos + y + h) {
-                    List<ITextComponent> tooltip = new ArrayList<>();
+                    List<Component> tooltip = new ArrayList<>();
                     if (abstractStack instanceof WrappedItemStack) {
                         if (showProgress) {
-                            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_progress", element.current, element.max));
+                            tooltip.add(new TranslatableComponent("tooltip.delivery.item_progress", element.current, element.max));
                         } else {
-                            tooltip.add(new TranslationTextComponent("tooltip.delivery.item_amount", element.max));
+                            tooltip.add(new TranslatableComponent("tooltip.delivery.item_amount", element.max));
                         }
                     } else if (abstractStack instanceof WrappedFluidStack) {
                         if (showProgress) {
-                            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_progress", element.current, element.max));
+                            tooltip.add(new TranslatableComponent("tooltip.delivery.fluid_progress", element.current, element.max));
                         } else {
-                            tooltip.add(new TranslationTextComponent("tooltip.delivery.fluid_amount", element.max));
+                            tooltip.add(new TranslatableComponent("tooltip.delivery.fluid_amount", element.max));
                         }
                     }
-                    mc.screen.renderWrappedToolTip(matrixStack, tooltip, mouseX, mouseY, font);
+                    mc.screen.renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY, font);
                 }
             }
 
@@ -245,7 +251,7 @@ public class TaskWidget {
     }
 
     private void playClickSound() {
-        mc.getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1F));
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1F));
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -274,24 +280,24 @@ public class TaskWidget {
         return null;
     }
 
-    public List<Pair<Rectangle2d, Object>> getIngredients() {
-        List<Pair<Rectangle2d, Object>> ingredients = new ArrayList<>();
+    public List<Pair<Rect2i, Object>> getIngredients() {
+        List<Pair<Rect2i, Object>> ingredients = new ArrayList<>();
         int xPos = 8;
         int yPos = 15;
 
         for (int i = page * COUNT; i < Math.min(page * COUNT + COUNT, elements.size()); i++) {
             Element<?> element = elements.get(i);
             if (element.item instanceof ItemElement) {
-                ingredients.add(new Pair<>(new Rectangle2d(xPos + x, yPos + y, 16, 16), new ItemStack((Item) element.item.getCurrentDisplayedElement())));
+                ingredients.add(new Pair<>(new Rect2i(xPos + x, yPos + y, 16, 16), new ItemStack((Item) element.item.getCurrentDisplayedElement())));
             } else if (element.item instanceof FluidElement) {
-                ingredients.add(new Pair<>(new Rectangle2d(xPos + x, yPos + y, 16, 16), new FluidStack((Fluid) element.item.getCurrentDisplayedElement(), 1000)));
+                ingredients.add(new Pair<>(new Rect2i(xPos + x, yPos + y, 16, 16), new FluidStack((Fluid) element.item.getCurrentDisplayedElement(), 1000)));
             }
             yPos += 18;
         }
         return ingredients;
     }
 
-    protected void drawCentered(MatrixStack matrixStack, FontRenderer font, IFormattableTextComponent text, int y) {
+    protected void drawCentered(PoseStack matrixStack, Font font, MutableComponent text, int y) {
         int w = font.width(text);
         font.draw(matrixStack, text, x + width / 2F - w / 2F, y, 0);
     }

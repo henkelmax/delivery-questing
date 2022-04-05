@@ -2,15 +2,15 @@ package de.maxhenkel.delivery.items;
 
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 
@@ -21,8 +21,8 @@ public class SealedEnvelopeItem extends SealedItem {
     }
 
     @Override
-    IFormattableTextComponent getTooltip(ItemStack stack) {
-        return new TranslationTextComponent("tooltip.delivery.sealed_envelope").withStyle(TextFormatting.GRAY);
+    MutableComponent getTooltip(ItemStack stack) {
+        return new TranslatableComponent("tooltip.delivery.sealed_envelope").withStyle(ChatFormatting.GRAY);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SealedEnvelopeItem extends SealedItem {
         contents.add(taskStack);
         contents.addAll(Arrays.asList(additionalItems));
         ModItems.SEALED_ENVELOPE.setContents(stack, contents);
-        ModItems.SEALED_ENVELOPE.setSender(stack, new StringTextComponent(task.getContractorName()));
+        ModItems.SEALED_ENVELOPE.setSender(stack, new TextComponent(task.getContractorName()));
         return stack;
     }
 

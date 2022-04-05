@@ -2,7 +2,7 @@ package de.maxhenkel.delivery.integration.jei;
 
 import de.maxhenkel.corelib.helpers.Pair;
 import de.maxhenkel.delivery.gui.TaskWidget;
-import net.minecraft.client.renderer.Rectangle2d;
+import net.minecraft.client.renderer.Rect2i;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -22,7 +22,7 @@ public interface ITaskWidgetScreen {
         }
     }
 
-    default List<Pair<Rectangle2d, Object>> getIngredients() {
+    default List<Pair<Rect2i, Object>> getIngredients() {
         TaskWidget taskWidget = getTaskWidget();
         if (taskWidget != null) {
             return taskWidget.getIngredients();

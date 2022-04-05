@@ -2,8 +2,8 @@ package de.maxhenkel.delivery.capability;
 
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Progression;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ProgressionCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
+public class ProgressionCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
 
     private Progression progression;
 
@@ -29,12 +29,12 @@ public class ProgressionCapabilityProvider implements ICapabilitySerializable<Co
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundTag serializeNBT() {
         return progression.serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         progression.deserializeNBT(compound);
     }
 }

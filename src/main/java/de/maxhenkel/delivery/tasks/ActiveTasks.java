@@ -1,13 +1,13 @@
 package de.maxhenkel.delivery.tasks;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActiveTasks implements INBTSerializable<CompoundNBT> {
+public class ActiveTasks implements INBTSerializable<CompoundTag> {
 
     private List<ActiveTask> tasks;
 
@@ -24,9 +24,9 @@ public class ActiveTasks implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
-        ListNBT list = new ListNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
+        ListTag list = new ListTag();
         for (ActiveTask task : tasks) {
             list.add(task.serializeNBT());
         }
@@ -35,10 +35,10 @@ public class ActiveTasks implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         tasks = new ArrayList<>();
 
-        ListNBT list = compound.getList("Tasks", 10);
+        ListTag list = compound.getList("Tasks", 10);
         for (int i = 0; i < list.size(); i++) {
             ActiveTask t = new ActiveTask();
             t.deserializeNBT(list.getCompound(i));

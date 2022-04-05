@@ -1,9 +1,9 @@
 package de.maxhenkel.delivery.tasks;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class ActiveTask implements INBTSerializable<CompoundNBT> {
+public class ActiveTask implements INBTSerializable<CompoundTag> {
 
     private Task task;
     private TaskProgress taskProgress;
@@ -26,15 +26,15 @@ public class ActiveTask implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         compound.put("Task", task.serializeNBT());
         compound.put("TaskProgress", taskProgress.serializeNBT());
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         task = new Task();
         task.deserializeNBT(compound.getCompound("Task"));
 

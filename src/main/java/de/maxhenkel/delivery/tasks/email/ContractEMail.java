@@ -1,16 +1,17 @@
 package de.maxhenkel.delivery.tasks.email;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.entity.DummyPlayer;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -44,18 +45,18 @@ public class ContractEMail extends EMail {
     }
 
     @Override
-    public IFormattableTextComponent getTitle() {
-        return new StringTextComponent(getTask().getName());
+    public MutableComponent getTitle() {
+        return new TextComponent(getTask().getName());
     }
 
     @Override
-    public IFormattableTextComponent getText() {
-        return new StringTextComponent(getTask().getDescription());
+    public MutableComponent getText() {
+        return new TextComponent(getTask().getDescription());
     }
 
     @Override
-    public IFormattableTextComponent getSender() {
-        return new StringTextComponent(getTask().getContractorName());
+    public MutableComponent getSender() {
+        return new TextComponent(getTask().getContractorName());
     }
 
     public UUID getTaskID() {
@@ -64,7 +65,7 @@ public class ContractEMail extends EMail {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderIcon(MatrixStack matrixStack, @Nullable Group group) {
+    public void renderIcon(PoseStack matrixStack, @Nullable Group group) {
         if (icon == null && !iconLoading) {
             DummyPlayer.loadSkin(getTask().getSkin(), resourceLocation -> icon = resourceLocation);
             iconLoading = true;
@@ -74,13 +75,17 @@ public class ContractEMail extends EMail {
         if (icon != null) {
             matrixStack.pushPose();
             matrixStack.scale(2F, 2F, 1F);
-            Minecraft.getInstance().getTextureManager().bind(icon);
-            AbstractGui.blit(matrixStack, 0, 0, 8, 8, 8, 8, 64, 64);
-            AbstractGui.blit(matrixStack, 0, 0, 40, 8, 8, 8, 64, 64);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+            RenderSystem.setShaderTexture(0, icon);
+            GuiComponent.blit(matrixStack, 0, 0, 8, 8, 8, 8, 64, 64);
+            GuiComponent.blit(matrixStack, 0, 0, 40, 8, 8, 8, 64, 64);
             matrixStack.popPose();
             if (group != null && !group.canAcceptTask(taskID)) {
-                Minecraft.getInstance().getTextureManager().bind(ACCEPTED_TASK);
-                AbstractGui.blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+                RenderSystem.setShaderTexture(0, ACCEPTED_TASK);
+                GuiComponent.blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
             }
         }
     }
@@ -93,14 +98,14 @@ public class ContractEMail extends EMail {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = super.serializeNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = super.serializeNBT();
         compound.putUUID("TaskID", taskID);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         super.deserializeNBT(compound);
         taskID = compound.getUUID("TaskID");
     }

@@ -1,27 +1,26 @@
 package de.maxhenkel.delivery.tasks;
 
 import de.maxhenkel.corelib.helpers.AbstractStack;
+import de.maxhenkel.corelib.tag.Tag;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tags.ITag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
+public abstract class TaskElement<T> implements INBTSerializable<CompoundTag> {
 
     protected String tag;
     @Nullable
-    protected ITag.INamedTag<T> item;
+    protected Tag<T> item;
     protected long amount;
     @Nullable
-    protected CompoundNBT nbt;
+    protected CompoundTag nbt;
 
-    public TaskElement(String tag, ITag.INamedTag<T> item, long amount) {
+    public TaskElement(String tag, Tag<T> item, long amount) {
         this.tag = tag;
         this.item = item;
         this.amount = amount;
@@ -36,7 +35,7 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    public ITag.INamedTag<T> getItem() {
+    public Tag<T> getItem() {
         return item;
     }
 
@@ -45,7 +44,7 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
     }
 
     @Nullable
-    protected abstract ITag.INamedTag<T> getTag(String tag);
+    protected abstract Tag<T> getTag(String tag);
 
     protected abstract T getDefault();
 
@@ -58,18 +57,18 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
         if (item == null) {
             return getDefault();
         }
-        List<T> allElements = item.getValues();
+        List<T> allElements = item.getAll();
         return allElements.get((int) (time / 20L % allElements.size()));
     }
 
     @Nullable
-    public CompoundNBT getNbt() {
+    public CompoundTag getNbt() {
         return nbt;
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         if (tag != null) {
             compound.putString("Tag", tag);
         }
@@ -81,13 +80,13 @@ public abstract class TaskElement<T> implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
-        if (compound.contains("Tag", Constants.NBT.TAG_STRING)) {
+    public void deserializeNBT(CompoundTag compound) {
+        if (compound.contains("Tag", net.minecraft.nbt.Tag.TAG_STRING)) {
             tag = compound.getString("Tag");
             item = getTag(tag);
         }
         amount = compound.getLong("Amount");
-        if (compound.contains("NBT", Constants.NBT.TAG_COMPOUND)) {
+        if (compound.contains("NBT", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
             nbt = compound.getCompound("NBT");
         }
     }

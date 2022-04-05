@@ -7,10 +7,10 @@ import de.maxhenkel.delivery.gui.containerprovider.TaskContainerProvider;
 import de.maxhenkel.delivery.items.ModItems;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -41,20 +41,20 @@ public class MessageShowTask implements Message<MessageShowTask> {
                 return;
             }
 
-            TaskContainerProvider.openGui(context.getSender(), task, new TranslationTextComponent(ModItems.CONTRACT.getDescriptionId()), ContractContainer::new);
+            TaskContainerProvider.openGui(context.getSender(), task, new TranslatableComponent(ModItems.CONTRACT.getDescriptionId()), ContractContainer::new);
         } catch (Exception e) {
 
         }
     }
 
     @Override
-    public MessageShowTask fromBytes(PacketBuffer packetBuffer) {
+    public MessageShowTask fromBytes(FriendlyByteBuf packetBuffer) {
         task = packetBuffer.readUUID();
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeUUID(task);
     }
 }

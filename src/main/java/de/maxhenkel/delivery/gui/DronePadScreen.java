@@ -1,16 +1,16 @@
 package de.maxhenkel.delivery.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.tileentity.DronePadTileEntity;
 import de.maxhenkel.delivery.entity.DroneEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.player.Inventory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,26 +21,26 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
     private static final int BAR_HEIGHT = 53;
     private static final int BAR_WIDTH = 16;
 
-    private PlayerInventory playerInventory;
+    private Inventory playerInventory;
 
-    public DronePadScreen(DronePadContainer container, PlayerInventory playerInventory, ITextComponent name) {
+    public DronePadScreen(DronePadContainer container, Inventory playerInventory, Component name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
         imageWidth = 176;
         imageHeight = 166;
 
         hoverAreas.add(new HoverArea(27, 17, BAR_WIDTH, BAR_HEIGHT,
-                () -> Collections.singletonList(new TranslationTextComponent("tooltip.delivery.energy", container.getDronePadTileEntity().getEnergy().getEnergyStored()).getVisualOrderText())
+                () -> Collections.singletonList(new TranslatableComponent("tooltip.delivery.energy", container.getDronePadTileEntity().getEnergy().getEnergyStored()).getVisualOrderText())
         ));
 
         hoverAreas.add(new HoverArea(133, 17, BAR_WIDTH, BAR_HEIGHT,
                 () -> {
                     DroneEntity droneCached = container.getDronePadTileEntity().getCachedDroneOnPad();
-                    ArrayList<IReorderingProcessor> tooltip = new ArrayList<>();
+                    ArrayList<FormattedCharSequence> tooltip = new ArrayList<>();
                     if (droneCached == null) {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.drone_not_on_pad").getVisualOrderText());
+                        tooltip.add(new TranslatableComponent("tooltip.delivery.drone_not_on_pad").getVisualOrderText());
                     } else {
-                        tooltip.add(new TranslationTextComponent("tooltip.delivery.energy", droneCached.getEnergy()).getVisualOrderText());
+                        tooltip.add(new TranslatableComponent("tooltip.delivery.energy", droneCached.getEnergy()).getVisualOrderText());
                     }
                     return tooltip;
                 }
@@ -48,9 +48,9 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
         font.draw(matrixStack, title, 26, 7, FONT_COLOR);
-        IFormattableTextComponent txt = new TranslationTextComponent("entity.delivery.drone");
+        MutableComponent txt = new TranslatableComponent("entity.delivery.drone");
         font.draw(matrixStack, txt, imageWidth - 26 - font.width(txt), 7, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName(), 8, (float) (imageHeight - 96 + 3), FONT_COLOR);
 
@@ -58,7 +58,7 @@ public class DronePadScreen extends ScreenBase<DronePadContainer> {
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
         DronePadTileEntity dronePad = menu.getDronePadTileEntity();
 

@@ -1,17 +1,17 @@
 package de.maxhenkel.delivery.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.integration.jei.ITaskWidgetScreen;
 import de.maxhenkel.delivery.net.MessageShowTask;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -30,7 +30,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
     private List<TaskWidget> tasks;
     private int currentTask;
 
-    public BulletinBoardScreen(BulletinBoardContainer container, PlayerInventory playerInventory, ITextComponent name) {
+    public BulletinBoardScreen(BulletinBoardContainer container, Inventory playerInventory, Component name) {
         super(BACKGROUND, container, playerInventory, name);
         imageWidth = 176;
         imageHeight = 167;
@@ -44,8 +44,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
     }
 
     public void updateScreen() {
-        buttons.clear();
-        children.clear();
+        clearWidgets();
         currentTaskWidget = null;
         prev = null;
         next = null;
@@ -60,11 +59,11 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
 
         currentTaskWidget = tasks.get(currentTask);
 
-        prev = new Button(leftPos + 6, topPos + 140, 26, 20, new TranslationTextComponent("button.delivery.previous"), button -> {
+        prev = new Button(leftPos + 6, topPos + 140, 26, 20, new TranslatableComponent("button.delivery.previous"), button -> {
             currentTask = Math.floorMod(currentTask - 1, tasks.size());
             updateScreen();
         });
-        next = new Button(leftPos + 144, topPos + 140, 26, 20, new TranslationTextComponent("button.delivery.next"), button -> {
+        next = new Button(leftPos + 144, topPos + 140, 26, 20, new TranslatableComponent("button.delivery.next"), button -> {
             currentTask = Math.floorMod(currentTask + 1, tasks.size());
             updateScreen();
         });
@@ -74,20 +73,20 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
             next.visible = false;
         }
 
-        addButton(prev);
-        addButton(next);
+        addRenderableWidget(prev);
+        addRenderableWidget(next);
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
-        drawCentered(matrixStack, new TranslationTextComponent("message.delivery.experience"), 8, FONT_COLOR);
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
+        drawCentered(matrixStack, new TranslatableComponent("message.delivery.experience"), 8, FONT_COLOR);
 
-        drawLevel(matrixStack, new StringTextComponent(String.valueOf((int) Math.floor(menu.getGroup().getLevel()))));
+        drawLevel(matrixStack, new TextComponent(String.valueOf((int) Math.floor(menu.getGroup().getLevel()))));
 
         if (!tasks.isEmpty()) {
-            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 145, FONT_COLOR);
+            drawCentered(matrixStack, new TranslatableComponent("message.delivery.task_page", currentTask + 1, tasks.size()), 145, FONT_COLOR);
         } else {
-            drawCentered(matrixStack, new TranslationTextComponent("message.delivery.no_tasks"), 65, FONT_COLOR);
+            drawCentered(matrixStack, new TranslatableComponent("message.delivery.no_tasks"), 65, FONT_COLOR);
         }
 
         if (currentTaskWidget != null) {
@@ -95,7 +94,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
         }
     }
 
-    private void drawLevel(MatrixStack matrixStack, IFormattableTextComponent text) {
+    private void drawLevel(PoseStack matrixStack, MutableComponent text) {
         int w = font.width(text);
         int xPos = imageWidth / 2 - w / 2;
         font.draw(matrixStack, text, xPos + 1, 20, 0);
@@ -106,7 +105,7 @@ public class BulletinBoardScreen extends ScreenBase<BulletinBoardContainer> impl
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
 
         blit(matrixStack, leftPos + 7, topPos + 25, 0, 223, 162, 5);

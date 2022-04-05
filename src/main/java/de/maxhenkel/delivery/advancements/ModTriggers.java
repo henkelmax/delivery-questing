@@ -3,7 +3,7 @@ package de.maxhenkel.delivery.advancements;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Group;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -15,10 +15,10 @@ public class ModTriggers {
 
     @SubscribeEvent
     public void onPlayerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayerEntity)) {
+        if (!(event.getPlayer() instanceof ServerPlayer)) {
             return;
         }
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        ServerPlayer player = (ServerPlayer) event.getPlayer();
 
         try {
             Group group = Main.getProgression(player).getPlayerGroup(player.getUUID());

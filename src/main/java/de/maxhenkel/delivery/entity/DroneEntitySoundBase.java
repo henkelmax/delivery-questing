@@ -3,10 +3,10 @@ package de.maxhenkel.delivery.entity;
 import de.maxhenkel.delivery.sounds.ModSounds;
 import de.maxhenkel.delivery.sounds.SoundLoopDroneFlying;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,7 +15,7 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
     @OnlyIn(Dist.CLIENT)
     private SoundLoopDroneFlying droneSound;
 
-    public DroneEntitySoundBase(EntityType<?> entityTypeIn, World worldIn) {
+    public DroneEntitySoundBase(EntityType<?> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 
@@ -33,13 +33,13 @@ public abstract class DroneEntitySoundBase extends DroneEntityPropellerBase {
     @OnlyIn(Dist.CLIENT)
     public void checkHighLoop() {
         if (!isSoundPlaying(droneSound)) {
-            droneSound = new SoundLoopDroneFlying((DroneEntity) this, ModSounds.DRONE, SoundCategory.NEUTRAL);
+            droneSound = new SoundLoopDroneFlying((DroneEntity) this, ModSounds.DRONE, SoundSource.NEUTRAL);
             ModSounds.playSoundLoop(droneSound, level);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isSoundPlaying(ISound sound) {
+    public boolean isSoundPlaying(SoundInstance sound) {
         if (sound == null) {
             return false;
         }

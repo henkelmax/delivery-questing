@@ -1,16 +1,18 @@
 package de.maxhenkel.delivery.gui.computer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.email.OfferEMail;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -40,35 +42,37 @@ public class OfferMailProgram extends ComputerProgram {
         close = new ScreenBase.HoverArea(xSize - 3 - 9, 3, 9, 9);
         item = new ScreenBase.HoverArea(xSize / 2 - 8, ySize - 3 - 3 - 8 - 20 - 32, 16, 16);
 
-        openMinazon = new Button(guiLeft + xSize / 2 - 50, guiTop + ySize - 3 - 3 - 8 - 20, 100, 20, new TranslationTextComponent("message.delivery.view"), button -> {
+        openMinazon = new Button(guiLeft + xSize / 2 - 50, guiTop + ySize - 3 - 3 - 8 - 20, 100, 20, new TranslatableComponent("message.delivery.view"), button -> {
             screen.setProgram(new MinazonProgram(screen, this));
         });
         addWidget(openMinazon);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawGuiContainerForegroundLayer(PoseStack matrixStack, int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
         ItemStack i = offerEMail.getOffer().getStack();
-        mc.getItemRenderer().renderAndDecorateItem(mc.player, i, this.item.getPosX(), this.item.getPosY());
+        mc.getItemRenderer().renderAndDecorateItem(i, this.item.getPosX(), this.item.getPosY());
 
         if (this.item.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
-            List<ITextComponent> tooltip = screen.getTooltipFromItem(i);
-            screen.renderWrappedToolTip(matrixStack, tooltip, mouseX - guiLeft, mouseY - guiTop, mc.font);
+            List<Component> tooltip = screen.getTooltipFromItem(i);
+            screen.renderComponentTooltip(matrixStack, tooltip, mouseX - guiLeft, mouseY - guiTop, mc.font);
         }
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
-        mc.getTextureManager().bind(BACKGROUND);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderTexture(0, BACKGROUND);
         screen.blit(matrixStack, guiLeft + 3, guiTop + 3, 0, 0, 250, 188);
 
         if (close.isHovered(guiLeft, guiTop, mouseX, mouseY)) {
             screen.blit(matrixStack, guiLeft + close.getPosX(), guiTop + close.getPosY(), 0, 188, close.getWidth(), close.getHeight());
         }
 
-        FontRenderer font = mc.font;
+        Font font = mc.font;
 
         mc.font.draw(matrixStack, offerEMail.getTitle(), guiLeft + 5, guiTop + 4, 0xFFFFFF);
 
@@ -77,8 +81,8 @@ public class OfferMailProgram extends ComputerProgram {
 
         int yPos = guiTop + 3 + 9 + 3 + 15;
 
-        List<IReorderingProcessor> list = font.split(offerEMail.getText(), xSize - 16);
-        for (IReorderingProcessor text : list) {
+        List<FormattedCharSequence> list = font.split(offerEMail.getText(), xSize - 16);
+        for (FormattedCharSequence text : list) {
             font.draw(matrixStack, text, guiLeft + 3 + 8, yPos, screen.FONT_COLOR);
             yPos += 10;
         }

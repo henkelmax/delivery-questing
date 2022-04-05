@@ -2,10 +2,10 @@ package de.maxhenkel.delivery.sounds;
 
 import de.maxhenkel.delivery.Main;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,7 +27,7 @@ public class ModSounds {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void playSoundLoop(TickableSound loop, World world) {
+    public static void playSoundLoop(AbstractTickableSoundInstance loop, Level world) {
         if (world.isClientSide) {
             Minecraft.getInstance().getSoundManager().play(loop);
         }

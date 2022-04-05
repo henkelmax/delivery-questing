@@ -2,10 +2,11 @@ package de.maxhenkel.delivery.blocks.tileentity;
 
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.BarrelBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
@@ -13,21 +14,24 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
-public class BarrelTileEntity extends TileEntity implements IFluidHandler {
+public class BarrelTileEntity extends BlockEntity implements IFluidHandler {
 
     private FluidTank tank;
     private Tier tier;
 
-    public BarrelTileEntity(Tier tier) {
-        super(ModTileEntities.BARREL);
+    private LazyOptional<FluidTank> tankCache;
+
+    public BarrelTileEntity(Tier tier, BlockPos pos, BlockState state) {
+        super(ModTileEntities.BARREL, pos, state);
         this.tier = tier;
         if (tier != null) {
             tank = new FluidTank(BarrelBlock.getMillibuckets(tier));
         }
+        tankCache = LazyOptional.of(() -> tank);
     }
 
-    public BarrelTileEntity() {
-        this(null);
+    public BarrelTileEntity(BlockPos pos, BlockState state) {
+        this(null, pos, state);
     }
 
     public FluidTank getTank() {
@@ -35,23 +39,29 @@ public class BarrelTileEntity extends TileEntity implements IFluidHandler {
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
-        tier = ((BarrelBlock) state.getBlock()).getTier();
+    public void load(CompoundTag compound) {
+        super.load(compound);
+        tier = ((BarrelBlock) getBlockState().getBlock()).getTier();
         tank = new FluidTank(BarrelBlock.getMillibuckets(tier));
         tank.readFromNBT(compound.getCompound("Fluid"));
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
-        compound.put("Fluid", tank.writeToNBT(new CompoundNBT()));
-        return super.save(compound);
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
+        compound.put("Fluid", tank.writeToNBT(new CompoundTag()));
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        tankCache.invalidate();
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
         if (!remove && cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return LazyOptional.of(() -> tank).cast();
+            return tankCache.cast();
         }
         return super.getCapability(cap, side);
     }

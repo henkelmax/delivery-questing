@@ -3,10 +3,10 @@ package de.maxhenkel.delivery.net;
 import de.maxhenkel.corelib.net.Message;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.TaskManager;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MessageSyncTasks implements Message<MessageSyncTasks> {
 
@@ -36,14 +36,14 @@ public class MessageSyncTasks implements Message<MessageSyncTasks> {
     }
 
     @Override
-    public MessageSyncTasks fromBytes(PacketBuffer packetBuffer) {
+    public MessageSyncTasks fromBytes(FriendlyByteBuf packetBuffer) {
         taskManager = new TaskManager();
         taskManager.deserializeNBT(packetBuffer.readNbt());
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeNbt(taskManager.serializeNBT());
     }
 }

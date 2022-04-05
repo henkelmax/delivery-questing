@@ -1,6 +1,8 @@
 package de.maxhenkel.delivery.entity.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3d;
+import com.mojang.math.Vector3f;
 import de.maxhenkel.corelib.CachedMap;
 import de.maxhenkel.corelib.client.RenderUtils;
 import de.maxhenkel.corelib.client.obj.OBJEntityRenderer;
@@ -9,19 +11,17 @@ import de.maxhenkel.corelib.client.obj.OBJModelInstance;
 import de.maxhenkel.corelib.client.obj.OBJModelOptions;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.entity.DroneEntity;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.Arrays;
@@ -115,14 +115,14 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
     private Minecraft mc;
     private CachedMap<DroneEntity, IDroneRenderable> cachedPayload;
 
-    public DroneRenderer(EntityRendererManager renderManager) {
+    public DroneRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager);
         this.mc = Minecraft.getInstance();
         cachedPayload = new CachedMap<>(10_000);
     }
 
     @Override
-    public void render(DroneEntity entity, float yaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(DroneEntity entity, float yaw, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         super.render(entity, yaw, partialTicks, matrixStack, buffer, packedLight);
 
         if (!entity.isLoaded()) {
@@ -141,9 +141,9 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                     matrixStack1.translate(-0.5D, -1.5D, -0.5D);
                     matrixStack1.translate(0.5D / 16D, 0.5D / 16D, 0.5D / 16D);
                     matrixStack1.scale(15F / 16F, 15F / 16F, 15F / 16F);
-                    BlockRendererDispatcher dispatcher = mc.getBlockRenderer();
+                    BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
                     int color = mc.getBlockColors().getColor(defaultState, null, null, 0);
-                    dispatcher.getModelRenderer().renderModel(matrixStack1.last(), buffer1.getBuffer(RenderTypeLookup.getMovingBlockRenderType(defaultState)), defaultState, dispatcher.getBlockModel(defaultState), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight1, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    dispatcher.getModelRenderer().renderModel(matrixStack1.last(), buffer1.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(defaultState)), defaultState, dispatcher.getBlockModel(defaultState), RenderUtils.getRed(color), RenderUtils.getGreen(color), RenderUtils.getBlue(color), packedLight1, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
                     matrixStack1.popPose();
                 };
             } else {
@@ -151,7 +151,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
                     matrixStack1.pushPose();
                     matrixStack1.translate(0D, -0.5D, 0D);
                     matrixStack1.scale(0.5F, 0.5F, 0.5F);
-                    mc.getItemRenderer().renderStatic(payload, ItemCameraTransforms.TransformType.FIXED, packedLight1, OverlayTexture.NO_OVERLAY, matrixStack1, buffer1);
+                    mc.getItemRenderer().renderStatic(payload, ItemTransforms.TransformType.FIXED, packedLight1, OverlayTexture.NO_OVERLAY, matrixStack1, buffer1, 0);
                     matrixStack1.popPose();
                 };
             }
@@ -168,7 +168,7 @@ public class DroneRenderer extends OBJEntityRenderer<DroneEntity> {
     }
 
     private interface IDroneRenderable {
-        void render(DroneEntity entity, float yaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight);
+        void render(DroneEntity entity, float yaw, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int packedLight);
     }
 
 }

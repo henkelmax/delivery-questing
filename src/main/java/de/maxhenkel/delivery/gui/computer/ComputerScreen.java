@@ -1,14 +1,16 @@
 package de.maxhenkel.delivery.gui.computer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.gui.TaskWidget;
 import de.maxhenkel.delivery.integration.jei.ITaskWidgetScreen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nullable;
 
@@ -16,12 +18,12 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
 
     public static final ResourceLocation BACKGROUND = new ResourceLocation(Main.MODID, "textures/gui/container/computer.png");
 
-    private PlayerInventory playerInventory;
+    private Inventory playerInventory;
 
     @Nullable
     private ComputerProgram program;
 
-    public ComputerScreen(ComputerContainer container, PlayerInventory playerInventory, ITextComponent name) {
+    public ComputerScreen(ComputerContainer container, Inventory playerInventory, Component name) {
         super(BACKGROUND, container, playerInventory, name);
         this.playerInventory = playerInventory;
         imageWidth = 256;
@@ -32,8 +34,7 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
 
     @Override
     protected void init() {
-        buttons.clear();
-        children.clear();
+        clearWidgets();
         super.init();
         if (program != null) {
             program.init();
@@ -41,7 +42,7 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(matrixStack, partialTicks, mouseX, mouseY);
         if (program != null) {
             program.drawGuiContainerBackgroundLayer(matrixStack, partialTicks, mouseX, mouseY);
@@ -49,7 +50,7 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
         super.renderLabels(matrixStack, mouseX, mouseY);
         if (program != null) {
             program.drawGuiContainerForegroundLayer(matrixStack, mouseX, mouseY);
@@ -86,20 +87,19 @@ public class ComputerScreen extends ScreenBase<ComputerContainer> implements ITa
         return false;
     }
 
-    public PlayerInventory getPlayerInventory() {
+    public Inventory getPlayerInventory() {
         return playerInventory;
     }
 
     public void setProgram(ComputerProgram program) {
         this.program = program;
-        buttons.clear();
-        children.clear();
+        clearWidgets();
         hoverAreas.clear();
         program.init();
     }
 
-    public void addWidget(Widget widget) {
-        addButton(widget);
+    public <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T widget) {
+        return super.addRenderableWidget(widget);
     }
 
     public void addHoverArea(HoverArea hoverArea) {

@@ -1,16 +1,16 @@
 package de.maxhenkel.delivery.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 public abstract class CardboardBoxScreen extends ScreenBase<CardboardBoxContainer> {
 
-    private PlayerInventory playerInventory;
+    private Inventory playerInventory;
 
-    public CardboardBoxScreen(ResourceLocation texture, CardboardBoxContainer container, PlayerInventory playerInventory, ITextComponent name) {
+    public CardboardBoxScreen(ResourceLocation texture, CardboardBoxContainer container, Inventory playerInventory, Component name) {
         super(texture, container, playerInventory, name);
         this.playerInventory = playerInventory;
 
@@ -19,7 +19,7 @@ public abstract class CardboardBoxScreen extends ScreenBase<CardboardBoxContaine
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
         drawCentered(matrixStack, title, 9, FONT_COLOR);
         font.draw(matrixStack, playerInventory.getDisplayName(), 8F, (float) (imageHeight - 96 + 3), FONT_COLOR);
     }

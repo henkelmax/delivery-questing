@@ -2,11 +2,11 @@ package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.delivery.Tier;
 import de.maxhenkel.delivery.blocks.tileentity.CardboradBoxTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.Inventory;
 
 public class CardboardBoxContainerTier6 extends CardboardBoxContainer {
 
-    public CardboardBoxContainerTier6(int id, PlayerInventory playerInventory, CardboradBoxTileEntity cardboadBox) {
+    public CardboardBoxContainerTier6(int id, Inventory playerInventory, CardboradBoxTileEntity cardboadBox) {
         super(Containers.CARDBOARD_TIER_6_CONTAINER, id, playerInventory, cardboadBox, Tier.TIER_6);
 
         for (int j = 0; j < 6; j++) {

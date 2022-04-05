@@ -1,15 +1,15 @@
 package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 public class NonRecursiveSlot extends Slot {
 
-    public NonRecursiveSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+    public NonRecursiveSlot(Container inventoryIn, int index, int xPosition, int yPosition) {
         super(inventoryIn, index, xPosition, yPosition);
     }
 

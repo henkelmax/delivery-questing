@@ -3,8 +3,8 @@ package de.maxhenkel.delivery.fluid;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.items.ModItems;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.fluids.FluidAttributes;
 
 public class LiquidEnergySource extends ModFluidSource {

@@ -2,25 +2,24 @@ package de.maxhenkel.delivery.sounds;
 
 import de.maxhenkel.delivery.entity.DroneEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-public abstract class SoundLoopDrone extends TickableSound {
+public abstract class SoundLoopDrone extends AbstractTickableSoundInstance {
 
     protected DroneEntity drone;
 
-    public SoundLoopDrone(DroneEntity drone, SoundEvent event, SoundCategory category) {
+    public SoundLoopDrone(DroneEntity drone, SoundEvent event, SoundSource category) {
         super(event, category);
         this.drone = drone;
         this.looping = true;
         this.delay = 0;
         this.volume = 1F;
         this.pitch = 1F;
-        this.priority = true;
         this.relative = false;
-        this.attenuation = AttenuationType.LINEAR;
+        this.attenuation = Attenuation.LINEAR;
         this.updatePos();
     }
 
@@ -41,7 +40,7 @@ public abstract class SoundLoopDrone extends TickableSound {
             return;
         }
 
-        ClientPlayerEntity player = Minecraft.getInstance().player;
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null || !player.isAlive()) {
             stop();
             return;

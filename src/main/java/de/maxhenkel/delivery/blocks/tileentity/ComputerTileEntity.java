@@ -1,25 +1,29 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.corelib.blockentity.IServerTickableBlockEntity;
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.delivery.blocks.ComputerBlock;
 import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 
-public class ComputerTileEntity extends GroupTileEntity implements ITickableTileEntity {
+public class ComputerTileEntity extends GroupTileEntity implements IServerTickableBlockEntity {
 
     private static final int ENERGY_CAPACITY = 16_000;
 
     private UsableEnergyStorage energy;
 
-    public ComputerTileEntity() {
-        super(ModTileEntities.COMPUTER);
+    private LazyOptional<UsableEnergyStorage> energyCache;
+
+    public ComputerTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.COMPUTER, pos, state);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0);
+        energyCache = LazyOptional.of(() -> energy);
     }
 
     public UsableEnergyStorage getEnergy() {
@@ -27,10 +31,7 @@ public class ComputerTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     @Override
-    public void tick() {
-        if (level.isClientSide) {
-            return;
-        }
+    public void tickServer() {
         if (level.getGameTime() % 20 != 0) {
             return;
         }
@@ -51,6 +52,12 @@ public class ComputerTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     @Override
+    public void setRemoved() {
+        super.setRemoved();
+        energyCache.invalidate();
+    }
+
+    @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
         if (remove) {
             return super.getCapability(cap, side);
@@ -58,21 +65,21 @@ public class ComputerTileEntity extends GroupTileEntity implements ITickableTile
 
         if (cap == CapabilityEnergy.ENERGY) {
             if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getClockWise())) {
-                return LazyOptional.of(() -> energy).cast();
+                return energyCache.cast();
             }
         }
         return super.getCapability(cap, side);
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, ENERGY_CAPACITY, compound.getInt("Energy"));
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
         compound.putInt("Energy", energy.getEnergyStored());
-        return super.save(compound);
     }
 }

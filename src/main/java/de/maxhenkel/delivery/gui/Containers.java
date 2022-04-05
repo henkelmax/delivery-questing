@@ -7,29 +7,29 @@ import de.maxhenkel.delivery.gui.computer.ComputerContainer;
 import de.maxhenkel.delivery.gui.computer.ComputerScreen;
 import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryTask;
 import de.maxhenkel.delivery.gui.containerprovider.ContainerFactoryGroup;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.RegistryEvent;
 
 public class Containers {
 
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_1_CONTAINER;
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_2_CONTAINER;
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_3_CONTAINER;
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_4_CONTAINER;
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_5_CONTAINER;
-    public static ContainerType<CardboardBoxContainer> CARDBOARD_TIER_6_CONTAINER;
-    public static ContainerType<MailboxContainer> MAILBOX_CONTAINER;
-    public static ContainerType<EnergyLiquifierContainer> ENERGY_LIQUIFIER_CONTAINER;
-    public static ContainerType<EnvelopeContainer> ENVELOPE_CONTAINER;
-    public static ContainerType<ParcelContainer> PARCEL_CONTAINER;
-    public static ContainerType<BulletinBoardContainer> BULLETIN_BOARD_CONTAINER;
-    public static ContainerType<ContractContainer> CONTRACT_CONTAINER;
-    public static ContainerType<ComputerContainer> COMPUTER_CONTAINER;
-    public static ContainerType<DronePadContainer> DRONE_PAD_CONTAINER;
-    public static ContainerType<PackagerContainer> PACKAGER_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_1_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_2_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_3_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_4_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_5_CONTAINER;
+    public static MenuType<CardboardBoxContainer> CARDBOARD_TIER_6_CONTAINER;
+    public static MenuType<MailboxContainer> MAILBOX_CONTAINER;
+    public static MenuType<EnergyLiquifierContainer> ENERGY_LIQUIFIER_CONTAINER;
+    public static MenuType<EnvelopeContainer> ENVELOPE_CONTAINER;
+    public static MenuType<ParcelContainer> PARCEL_CONTAINER;
+    public static MenuType<BulletinBoardContainer> BULLETIN_BOARD_CONTAINER;
+    public static MenuType<ContractContainer> CONTRACT_CONTAINER;
+    public static MenuType<ComputerContainer> COMPUTER_CONTAINER;
+    public static MenuType<DronePadContainer> DRONE_PAD_CONTAINER;
+    public static MenuType<PackagerContainer> PACKAGER_CONTAINER;
 
     @OnlyIn(Dist.CLIENT)
     public static void clientSetup() {
@@ -50,64 +50,64 @@ public class Containers {
         ClientRegistry.registerScreen(PACKAGER_CONTAINER, PackagerScreen::new);
     }
 
-    public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-        CARDBOARD_TIER_1_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier1::new));
+    public static void registerContainers(RegistryEvent.Register<MenuType<?>> event) {
+        CARDBOARD_TIER_1_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier1::new));
         CARDBOARD_TIER_1_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_1"));
         event.getRegistry().register(CARDBOARD_TIER_1_CONTAINER);
 
-        CARDBOARD_TIER_2_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier2::new));
+        CARDBOARD_TIER_2_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier2::new));
         CARDBOARD_TIER_2_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_2"));
         event.getRegistry().register(CARDBOARD_TIER_2_CONTAINER);
 
-        CARDBOARD_TIER_3_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier3::new));
+        CARDBOARD_TIER_3_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier3::new));
         CARDBOARD_TIER_3_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_3"));
         event.getRegistry().register(CARDBOARD_TIER_3_CONTAINER);
 
-        CARDBOARD_TIER_4_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier4::new));
+        CARDBOARD_TIER_4_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier4::new));
         CARDBOARD_TIER_4_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_4"));
         event.getRegistry().register(CARDBOARD_TIER_4_CONTAINER);
 
-        CARDBOARD_TIER_5_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier5::new));
+        CARDBOARD_TIER_5_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier5::new));
         CARDBOARD_TIER_5_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_5"));
         event.getRegistry().register(CARDBOARD_TIER_5_CONTAINER);
 
-        CARDBOARD_TIER_6_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier6::new));
+        CARDBOARD_TIER_6_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(CardboardBoxContainerTier6::new));
         CARDBOARD_TIER_6_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "cardboard_tier_6"));
         event.getRegistry().register(CARDBOARD_TIER_6_CONTAINER);
 
-        MAILBOX_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(MailboxContainer::new));
+        MAILBOX_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(MailboxContainer::new));
         MAILBOX_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "mailbox"));
         event.getRegistry().register(MAILBOX_CONTAINER);
 
-        ENERGY_LIQUIFIER_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(EnergyLiquifierContainer::new));
+        ENERGY_LIQUIFIER_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(EnergyLiquifierContainer::new));
         ENERGY_LIQUIFIER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "energy_liquifier"));
         event.getRegistry().register(ENERGY_LIQUIFIER_CONTAINER);
 
-        ENVELOPE_CONTAINER = new ContainerType<>(EnvelopeContainer::new);
+        ENVELOPE_CONTAINER = new MenuType<>(EnvelopeContainer::new);
         ENVELOPE_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "envelope"));
         event.getRegistry().register(ENVELOPE_CONTAINER);
 
-        PARCEL_CONTAINER = new ContainerType<>(ParcelContainer::new);
+        PARCEL_CONTAINER = new MenuType<>(ParcelContainer::new);
         PARCEL_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "parcel"));
         event.getRegistry().register(PARCEL_CONTAINER);
 
-        BULLETIN_BOARD_CONTAINER = new ContainerType<>(new ContainerFactoryGroup<>(BulletinBoardContainer::new));
+        BULLETIN_BOARD_CONTAINER = new MenuType<>(new ContainerFactoryGroup<>(BulletinBoardContainer::new));
         BULLETIN_BOARD_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "bulletin_board"));
         event.getRegistry().register(BULLETIN_BOARD_CONTAINER);
 
-        CONTRACT_CONTAINER = new ContainerType<>(new ContainerFactoryTask<>(ContractContainer::new));
+        CONTRACT_CONTAINER = new MenuType<>(new ContainerFactoryTask<>(ContractContainer::new));
         CONTRACT_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "contract"));
         event.getRegistry().register(CONTRACT_CONTAINER);
 
-        COMPUTER_CONTAINER = new ContainerType<>(new ContainerFactoryGroup<>(ComputerContainer::new));
+        COMPUTER_CONTAINER = new MenuType<>(new ContainerFactoryGroup<>(ComputerContainer::new));
         COMPUTER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "computer"));
         event.getRegistry().register(COMPUTER_CONTAINER);
 
-        DRONE_PAD_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(DronePadContainer::new));
+        DRONE_PAD_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(DronePadContainer::new));
         DRONE_PAD_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "drone_pad"));
         event.getRegistry().register(DRONE_PAD_CONTAINER);
 
-        PACKAGER_CONTAINER = new ContainerType<>(new ContainerFactoryTileEntity<>(PackagerContainer::new));
+        PACKAGER_CONTAINER = new MenuType<>(new ContainerFactoryTileEntity<>(PackagerContainer::new));
         PACKAGER_CONTAINER.setRegistryName(new ResourceLocation(Main.MODID, "packager"));
         event.getRegistry().register(PACKAGER_CONTAINER);
     }

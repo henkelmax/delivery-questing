@@ -2,14 +2,14 @@ package de.maxhenkel.delivery.advancements;
 
 import com.google.gson.JsonObject;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
-public class ComputerAgeTrigger extends AbstractCriterionTrigger<ComputerAgeTrigger.Instance> {
+public class ComputerAgeTrigger extends SimpleCriterionTrigger<ComputerAgeTrigger.Instance> {
 
     private static final ResourceLocation ID = new ResourceLocation(Main.MODID, "reach_computer_age");
 
@@ -22,17 +22,17 @@ public class ComputerAgeTrigger extends AbstractCriterionTrigger<ComputerAgeTrig
     }
 
     @Override
-    public ComputerAgeTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entityPredicate, ConditionArrayParser conditionsParser) {
+    public ComputerAgeTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entityPredicate, DeserializationContext conditionsParser) {
         return new ComputerAgeTrigger.Instance(entityPredicate);
     }
 
-    public void trigger(ServerPlayerEntity player, int level) {
+    public void trigger(ServerPlayer player, int level) {
         trigger(player, (instance) -> instance.test(level));
     }
 
-    public static class Instance extends CriterionInstance {
+    public static class Instance extends AbstractCriterionTriggerInstance {
 
-        public Instance(EntityPredicate.AndPredicate player) {
+        public Instance(EntityPredicate.Composite player) {
             super(ComputerAgeTrigger.ID, player);
         }
 

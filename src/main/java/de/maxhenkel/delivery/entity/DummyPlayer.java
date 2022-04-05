@@ -1,16 +1,16 @@
 package de.maxhenkel.delivery.entity;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.maxhenkel.delivery.Main;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
@@ -20,13 +20,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class DummyPlayer extends RemoteClientPlayerEntity {
+public class DummyPlayer extends RemotePlayer {
 
     private static Map<String, ResourceLocation> cache = new HashMap<>();
 
     private ResourceLocation skin;
 
-    public DummyPlayer(ClientWorld world, String filename, String name) {
+    public DummyPlayer(ClientLevel world, String filename, String name) {
         super(world, new GameProfile(new UUID(0L, 0L), name));
 
         loadSkin(filename, resourceLocation -> skin = resourceLocation);

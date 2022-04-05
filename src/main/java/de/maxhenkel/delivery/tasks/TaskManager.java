@@ -2,8 +2,8 @@ package de.maxhenkel.delivery.tasks;
 
 import com.google.gson.Gson;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class TaskManager implements INBTSerializable<CompoundNBT> {
+public class TaskManager implements INBTSerializable<CompoundTag> {
 
     private List<Task> tasks;
     private List<EndGameTask> endgameTasks;
@@ -92,16 +92,16 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
 
-        ListNBT taskList = new ListNBT();
+        ListTag taskList = new ListTag();
         for (Task task : tasks) {
             taskList.add(task.serializeNBT());
         }
         compound.put("Tasks", taskList);
 
-        ListNBT endgameTaskList = new ListNBT();
+        ListTag endgameTaskList = new ListTag();
         for (EndGameTask task : endgameTasks) {
             endgameTaskList.add(task.serializeNBT());
         }
@@ -111,8 +111,8 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
-        ListNBT taskList = compound.getList("Tasks", 10);
+    public void deserializeNBT(CompoundTag compound) {
+        ListTag taskList = compound.getList("Tasks", 10);
         this.tasks = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             Task task = new Task();
@@ -120,7 +120,7 @@ public class TaskManager implements INBTSerializable<CompoundNBT> {
             this.tasks.add(task);
         }
 
-        ListNBT endgameTaskList = compound.getList("EndgameTasks", 10);
+        ListTag endgameTaskList = compound.getList("EndgameTasks", 10);
         this.endgameTasks = new ArrayList<>();
         for (int i = 0; i < endgameTaskList.size(); i++) {
             EndGameTask task = new EndGameTask();

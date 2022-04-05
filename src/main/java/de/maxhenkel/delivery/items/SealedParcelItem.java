@@ -1,13 +1,13 @@
 package de.maxhenkel.delivery.items;
 
 import de.maxhenkel.delivery.Main;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
 
 public class SealedParcelItem extends SealedItem {
 
@@ -16,8 +16,8 @@ public class SealedParcelItem extends SealedItem {
     }
 
     @Override
-    IFormattableTextComponent getTooltip(ItemStack stack) {
-        return new TranslationTextComponent("tooltip.delivery.sealed_parcel").withStyle(TextFormatting.GRAY);
+    MutableComponent getTooltip(ItemStack stack) {
+        return new TranslatableComponent("tooltip.delivery.sealed_parcel").withStyle(ChatFormatting.GRAY);
     }
 
     @Override

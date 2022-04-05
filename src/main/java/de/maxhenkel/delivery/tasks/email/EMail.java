@@ -1,9 +1,9 @@
 package de.maxhenkel.delivery.tasks.email;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class EMail implements INBTSerializable<CompoundNBT> {
+public abstract class EMail implements INBTSerializable<CompoundTag> {
 
     protected Group group;
     protected UUID id;
@@ -26,14 +26,14 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
 
     public abstract boolean isValid();
 
-    public abstract IFormattableTextComponent getTitle();
+    public abstract MutableComponent getTitle();
 
-    public abstract IFormattableTextComponent getText();
+    public abstract MutableComponent getText();
 
-    public abstract IFormattableTextComponent getSender();
+    public abstract MutableComponent getSender();
 
     @OnlyIn(Dist.CLIENT)
-    public abstract void renderIcon(MatrixStack matrixStack, Group group);
+    public abstract void renderIcon(PoseStack matrixStack, Group group);
 
     public boolean isRead() {
         return read;
@@ -48,8 +48,8 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         compound.putByte("ID", id());
         compound.putUUID("EMailID", id);
         compound.putBoolean("Read", read);
@@ -57,13 +57,13 @@ public abstract class EMail implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         id = compound.getUUID("EMailID");
         read = compound.getBoolean("Read");
     }
 
     @Nullable
-    public static EMail deserialize(CompoundNBT compound, Group group) {
+    public static EMail deserialize(CompoundTag compound, Group group) {
         byte id = compound.getByte("ID");
         Class<? extends EMail> mailClass = mailTypes.get(id);
         if (mailClass == null) {

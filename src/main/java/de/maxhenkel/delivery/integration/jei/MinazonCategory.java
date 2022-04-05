@@ -1,27 +1,38 @@
 package de.maxhenkel.delivery.integration.jei;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Offer;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class MinazonCategory implements IRecipeCategory<Offer> {
 
+    private static ResourceLocation ICON = new ResourceLocation(Main.MODID, "textures/gui/computer/minazon_icon.png");
     private IGuiHelper helper;
 
     public MinazonCategory(IGuiHelper helper) {
         this.helper = helper;
+    }
+
+    @Override
+    public RecipeType<Offer> getRecipeType() {
+        return JEIPlugin.CATEGORY_MINAZON;
     }
 
     @Override
@@ -43,26 +54,28 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
             }
 
             @Override
-            public void draw(MatrixStack matrixStack, int x, int y) {
-                Minecraft.getInstance().getTextureManager().bind(new ResourceLocation(Main.MODID, "textures/gui/computer/minazon_icon.png"));
-                AbstractGui.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+            public void draw(PoseStack matrixStack, int x, int y) {
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+                RenderSystem.setShaderTexture(0, ICON);
+                GuiComponent.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             }
         };
     }
 
     @Override
-    public void setIngredients(Offer offer, IIngredients ingredients) {
-        ingredients.setOutput(VanillaTypes.ITEM, offer.getStack());
+    public void setRecipe(IRecipeLayoutBuilder builder, Offer recipe, IFocusGroup focuses) {
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 8, 14).addIngredient(VanillaTypes.ITEM_STACK, recipe.getStack());
     }
 
     @Override
-    public String getTitle() {
-        return new TranslationTextComponent("jei.delivery.minazon").getString();
+    public Component getTitle() {
+        return new TranslatableComponent("jei.delivery.minazon");
     }
 
     @Override
     public ResourceLocation getUid() {
-        return JEIPlugin.CATEGORY_MINAZON;
+        return new ResourceLocation(Main.MODID, "minazon");
     }
 
     @Override
@@ -71,16 +84,10 @@ public class MinazonCategory implements IRecipeCategory<Offer> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayout layout, Offer offer, IIngredients ingredients) {
-        IGuiItemStackGroup group = layout.getItemStacks();
-        group.init(0, false, 7, 13);
-        group.set(0, offer.getStack());
+    public void draw(Offer recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
+        Minecraft mc = Minecraft.getInstance();
+        ScreenBase.drawCentered(mc.font, stack, new TranslatableComponent("jei.delivery.minazon_level", recipe.getLevelRequirement()), 50, 1, 0xFFFFFF);
+        mc.font.draw(stack, new TranslatableComponent("jei.delivery.minazon_price", recipe.getPrice()), 30, 18, ScreenBase.FONT_COLOR);
     }
 
-    @Override
-    public void draw(Offer offer, MatrixStack matrixStack, double mouseX, double mouseY) {
-        Minecraft mc = Minecraft.getInstance();
-        ScreenBase.drawCentered(mc.font, matrixStack, new TranslationTextComponent("jei.delivery.minazon_level", offer.getLevelRequirement()), 50, 1, 0xFFFFFF);
-        mc.font.draw(matrixStack, new TranslationTextComponent("jei.delivery.minazon_price", offer.getPrice()), 30, 18, ScreenBase.FONT_COLOR);
-    }
 }

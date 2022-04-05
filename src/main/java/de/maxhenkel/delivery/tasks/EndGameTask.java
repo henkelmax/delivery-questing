@@ -1,19 +1,19 @@
 package de.maxhenkel.delivery.tasks;
 
 import de.maxhenkel.corelib.tag.SingleElementTag;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EndGameTask implements INBTSerializable<CompoundNBT> {
+public class EndGameTask implements INBTSerializable<CompoundTag> {
 
     private UUID id;
     private String contractorName;
@@ -96,14 +96,14 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
         if (!items.isEmpty()) {
             if (items.get(0).item instanceof SingleElementTag) {
                 SingleElementTag<Item> tag = (SingleElementTag<Item>) items.get(0).item;
-                name = new TranslationTextComponent(tag.getElement().getDescriptionId()).getString();
+                name = new TranslatableComponent(tag.getElement().getDescriptionId()).getString();
             } else {
                 name = localize(items.get(0).item.getName());
             }
         } else if (!fluids.isEmpty()) {
             if (fluids.get(0).item instanceof SingleElementTag) {
                 SingleElementTag<Fluid> tag = (SingleElementTag<Fluid>) fluids.get(0).item;
-                name = new TranslationTextComponent(new FluidStack(tag.getElement(), 1000).getTranslationKey()).getString();
+                name = new TranslatableComponent(new FluidStack(tag.getElement(), 1000).getTranslationKey()).getString();
             } else {
                 name = localize(fluids.get(0).item.getName());
             }
@@ -139,8 +139,8 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         compound.putUUID("ID", id);
         compound.putString("ContractorName", contractorName);
         compound.putString("Skin", skin);
@@ -149,13 +149,13 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
         compound.putInt("Experience", experience);
         compound.putInt("Money", money);
 
-        ListNBT itemList = new ListNBT();
+        ListTag itemList = new ListTag();
         for (ItemElement item : items) {
             itemList.add(item.serializeNBT());
         }
         compound.put("Items", itemList);
 
-        ListNBT fluidList = new ListNBT();
+        ListTag fluidList = new ListTag();
         for (FluidElement fluid : fluids) {
             fluidList.add(fluid.serializeNBT());
         }
@@ -169,7 +169,7 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         id = compound.getUUID("ID");
         contractorName = compound.getString("ContractorName");
         skin = compound.getString("Skin");
@@ -179,18 +179,18 @@ public class EndGameTask implements INBTSerializable<CompoundNBT> {
         money = compound.getInt("Money");
 
         items = new ArrayList<>();
-        ListNBT itemList = compound.getList("Items", 10);
+        ListTag itemList = compound.getList("Items", 10);
         for (int i = 0; i < itemList.size(); i++) {
-            CompoundNBT e = itemList.getCompound(i);
+            CompoundTag e = itemList.getCompound(i);
             ItemElement item = new ItemElement();
             item.deserializeNBT(e);
             items.add(item);
         }
 
         fluids = new ArrayList<>();
-        ListNBT fluidList = compound.getList("Fluids", 10);
+        ListTag fluidList = compound.getList("Fluids", 10);
         for (int i = 0; i < fluidList.size(); i++) {
-            CompoundNBT e = fluidList.getCompound(i);
+            CompoundTag e = fluidList.getCompound(i);
             FluidElement fluid = new FluidElement();
             fluid.deserializeNBT(e);
             fluids.add(fluid);

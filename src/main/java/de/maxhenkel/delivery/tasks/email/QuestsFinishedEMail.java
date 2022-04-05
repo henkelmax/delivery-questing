@@ -1,13 +1,14 @@
 package de.maxhenkel.delivery.tasks.email;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -25,26 +26,28 @@ public class QuestsFinishedEMail extends EMail {
     }
 
     @Override
-    public IFormattableTextComponent getTitle() {
-        return new TranslationTextComponent("message.delivery.quests_finished");
+    public MutableComponent getTitle() {
+        return new TranslatableComponent("message.delivery.quests_finished");
     }
 
     @Override
-    public IFormattableTextComponent getText() {
-        return new TranslationTextComponent("message.delivery.quests_finished_description");
+    public MutableComponent getText() {
+        return new TranslatableComponent("message.delivery.quests_finished_description");
     }
 
     @Override
-    public IFormattableTextComponent getSender() {
-        return new TranslationTextComponent("message.delivery.unknown");
+    public MutableComponent getSender() {
+        return new TranslatableComponent("message.delivery.unknown");
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderIcon(MatrixStack matrixStack, Group group) {
+    public void renderIcon(PoseStack matrixStack, Group group) {
         matrixStack.pushPose();
-        Minecraft.getInstance().getTextureManager().bind(ICON);
-        AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderTexture(0, ICON);
+        GuiComponent.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
         matrixStack.popPose();
     }
 }

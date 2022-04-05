@@ -1,24 +1,24 @@
 package de.maxhenkel.delivery.tasks;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
-public class Offer implements INBTSerializable<CompoundNBT> {
+public class Offer implements INBTSerializable<CompoundTag> {
 
     private UUID id;
-    private net.minecraft.item.Item item;
+    private Item item;
     private int amount;
     private int price;
     private int levelRequirement;
     private boolean forEveryMember;
 
-    public Offer(UUID id, net.minecraft.item.Item item, int amount, int price, int levelRequirement, boolean forEveryMember) {
+    public Offer(UUID id, Item item, int amount, int price, int levelRequirement, boolean forEveryMember) {
         this.id = id;
         this.item = item;
         this.amount = amount;
@@ -60,8 +60,8 @@ public class Offer implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
         compound.putUUID("ID", id);
         ResourceLocation i = ForgeRegistries.ITEMS.getKey(item);
         compound.putString("Item", i.toString());
@@ -73,7 +73,7 @@ public class Offer implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         id = compound.getUUID("ID");
         item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Item")));
         amount = compound.getInt("Amount");

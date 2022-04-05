@@ -2,9 +2,9 @@ package de.maxhenkel.delivery.gui;
 
 import de.maxhenkel.corelib.inventory.ContainerBase;
 import de.maxhenkel.delivery.blocks.tileentity.EnergyLiquifierTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
@@ -12,7 +12,7 @@ public class EnergyLiquifierContainer extends ContainerBase {
 
     protected EnergyLiquifierTileEntity energyLiquifier;
 
-    public EnergyLiquifierContainer(int id, PlayerInventory playerInventory, EnergyLiquifierTileEntity energyLiquifier) {
+    public EnergyLiquifierContainer(int id, Inventory playerInventory, EnergyLiquifierTileEntity energyLiquifier) {
         super(Containers.ENERGY_LIQUIFIER_CONTAINER, id, playerInventory, energyLiquifier.getInventory());
         this.energyLiquifier = energyLiquifier;
         addSlot(new Slot(inventory, 0, 53, 36) {

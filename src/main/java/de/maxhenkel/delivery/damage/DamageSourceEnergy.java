@@ -1,6 +1,6 @@
 package de.maxhenkel.delivery.damage;
 
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 
 public class DamageSourceEnergy extends DamageSource {
 

@@ -5,23 +5,26 @@ import de.maxhenkel.delivery.blocks.ModBlocks;
 import de.maxhenkel.delivery.gui.BulletinBoardScreen;
 import de.maxhenkel.delivery.gui.ContractScreen;
 import de.maxhenkel.delivery.gui.computer.ComputerScreen;
+import de.maxhenkel.delivery.tasks.Offer;
 import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 
-@mezz.jei.api.JeiPlugin
+@JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
-    public static final ResourceLocation CATEGORY_MINAZON = new ResourceLocation(Main.MODID, "minazon");
-    public static final ResourceLocation CATEGORY_ENERGY_LIQUIFYING = new ResourceLocation(Main.MODID, "energy_liquifying");
+    public static final RecipeType<Offer> CATEGORY_MINAZON = RecipeType.create(Main.MODID, "minazon", Offer.class);
+    public static final RecipeType<Boolean> CATEGORY_ENERGY_LIQUIFYING = RecipeType.create(Main.MODID, "energy_liquifying", Boolean.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -42,20 +45,20 @@ public class JEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(Main.OFFER_MANAGER.getOffers(), CATEGORY_MINAZON);
-        registration.addRecipes(Arrays.asList(true, false), CATEGORY_ENERGY_LIQUIFYING);
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_1), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_1.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_2), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_2.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_3), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_3.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_4), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_4.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_5), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_5.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_6), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.barrel_tier_6.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_1), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_1.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_2), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_2.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_3), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_3.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_4), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_4.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_5), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_5.description").getString());
-        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_6), VanillaTypes.ITEM, new TranslationTextComponent("jei.delivery.cardboard_box_tier_6.description").getString());
+        registration.addRecipes(CATEGORY_MINAZON, Main.OFFER_MANAGER.getOffers());
+        registration.addRecipes(CATEGORY_ENERGY_LIQUIFYING, Arrays.asList(true, false));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_1), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_1.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_2), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_2.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_3), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_3.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_4), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_4.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_5), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_5.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.BARREL_TIER_6), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.barrel_tier_6.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_1), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_1.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_2), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_2.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_3), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_3.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_4), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_4.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_5), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_5.description"));
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CARDBOARD_BOX_TIER_6), VanillaTypes.ITEM_STACK, new TranslatableComponent("jei.delivery.cardboard_box_tier_6.description"));
     }
 
     @Override

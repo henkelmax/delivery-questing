@@ -1,5 +1,6 @@
 package de.maxhenkel.delivery.blocks.tileentity;
 
+import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import de.maxhenkel.corelib.energy.UsableEnergyStorage;
 import de.maxhenkel.corelib.inventory.ItemListInventory;
 import de.maxhenkel.delivery.Tier;
@@ -7,17 +8,16 @@ import de.maxhenkel.delivery.blocks.HorizontalRotatableBlock;
 import de.maxhenkel.delivery.entity.DroneEntity;
 import de.maxhenkel.delivery.items.UpgradeItem;
 import de.maxhenkel.delivery.tasks.Group;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -30,11 +30,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class DronePadTileEntity extends GroupTileEntity implements ITickableTileEntity {
+public class DronePadTileEntity extends GroupTileEntity implements ITickableBlockEntity {
 
     public static final int ENERGY_CAPACITY = 16_000;
 
-    private final IIntArray fields = new IIntArray() {
+    private final ContainerData fields = new ContainerData() {
         @Override
         public int get(int index) {
             if (index == 0) {
@@ -63,12 +63,18 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     @Nullable
     private UUID droneID;
 
-    public DronePadTileEntity() {
-        super(ModTileEntities.DRONE_PAD);
+    private LazyOptional<IItemHandler> itemHandlerCache;
+    private LazyOptional<UsableEnergyStorage> energyCache;
+
+    public DronePadTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.DRONE_PAD, pos, state);
         inventory = NonNullList.withSize(1, ItemStack.EMPTY);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
         temporaryDroneInventory = NonNullList.withSize(1, ItemStack.EMPTY);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0);
+
+        itemHandlerCache = LazyOptional.of(this::createItemHandler);
+        energyCache = LazyOptional.of(() -> energy);
     }
 
     @Nullable
@@ -136,7 +142,7 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     public DroneEntity getDrone() {
         List<DroneEntity> drone = level.getEntitiesOfClass(
                 DroneEntity.class,
-                new AxisAlignedBB(getBlockPos().getX() - 16, -16, getBlockPos().getZ() - 16, getBlockPos().getX() + 16, level.getHeight() + 256, getBlockPos().getZ() + 16),
+                new AABB(getBlockPos().getX() - 16, level.getMinBuildHeight() - 16, getBlockPos().getZ() - 16, getBlockPos().getX() + 16, level.getMaxBuildHeight() + 256, getBlockPos().getZ() + 16),
                 droneEntity -> droneEntity.getPadLocation().equals(getBlockPos()) && (level.isClientSide || droneEntity.getUUID().equals(droneID))
         );
         return drone.stream().findAny().orElse(null);
@@ -148,14 +154,14 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         drone.setPos(getBlockPos().getX() + 0.5D + direction.getStepX() * 1D / 16D, getBlockPos().getY() + 32, getBlockPos().getZ() + 0.5D + direction.getStepZ() * 1D / 16D);
         drone.setPadLocation(getBlockPos());
         drone.setEnergy(16000);
-        drone.yRot = direction.toYRot();
+        drone.yRotO = direction.toYRot();
         level.addFreshEntity(drone);
         setDroneID(drone.getUUID());
         return drone;
     }
 
     public boolean isSkyFree() {
-        BlockPos.Mutable p = new BlockPos.Mutable(worldPosition.getX(), 0, worldPosition.getZ());
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos(worldPosition.getX(), 0, worldPosition.getZ());
         for (int y = worldPosition.getY() + 1; y < level.getHeight(); y++) {
             p.setY(y);
             if (!level.isEmptyBlock(p)) {
@@ -179,6 +185,13 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         setChanged();
     }
 
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        itemHandlerCache.invalidate();
+        energyCache.invalidate();
+    }
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
@@ -187,19 +200,19 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         }
         if (side == null || side.equals(Direction.DOWN) || side.equals(getBlockState().getValue(HorizontalRotatableBlock.FACING).getOpposite())) {
             if (cap == CapabilityEnergy.ENERGY) {
-                return LazyOptional.of(() -> energy).cast();
+                return energyCache.cast();
             } else if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-                return LazyOptional.of(this::getItemHandler).cast();
+                return itemHandlerCache.cast();
             }
         }
         return super.getCapability(cap, side);
     }
 
-    public IInventory getInventory() {
+    public Container getInventory() {
         return new ItemListInventory(inventory, this::setChanged);
     }
 
-    public IInventory getUpgradeInventory() {
+    public Container getUpgradeInventory() {
         return new ItemListInventory(upgradeInventory, this::setChanged);
     }
 
@@ -213,12 +226,12 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         return null;
     }
 
-    public IInventory getTemporaryDroneInventory() {
+    public Container getTemporaryDroneInventory() {
         return new ItemListInventory(temporaryDroneInventory, () -> {
         });
     }
 
-    private IItemHandler getItemHandler() {
+    private IItemHandler createItemHandler() {
         return new ItemStackHandler(inventory) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
@@ -227,17 +240,17 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
         };
     }
 
-    public IIntArray getFields() {
+    public ContainerData getFields() {
         return fields;
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         inventory = NonNullList.withSize(1, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
+        ContainerHelper.loadAllItems(compound.getCompound("Inventory"), inventory);
         upgradeInventory = NonNullList.withSize(1, ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
+        ContainerHelper.loadAllItems(compound.getCompound("UpgradeInventory"), upgradeInventory);
         energy = new UsableEnergyStorage(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, compound.getInt("Energy"));
         if (compound.contains("DroneID")) {
             droneID = compound.getUUID("DroneID");
@@ -247,13 +260,13 @@ public class DronePadTileEntity extends GroupTileEntity implements ITickableTile
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
-        compound.put("Inventory", ItemStackHelper.saveAllItems(new CompoundNBT(), inventory, true));
-        compound.put("UpgradeInventory", ItemStackHelper.saveAllItems(new CompoundNBT(), upgradeInventory, true));
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
+        compound.put("Inventory", ContainerHelper.saveAllItems(new CompoundTag(), inventory, true));
+        compound.put("UpgradeInventory", ContainerHelper.saveAllItems(new CompoundTag(), upgradeInventory, true));
         compound.putInt("Energy", energy.getEnergyStored());
         if (droneID != null) {
             compound.putUUID("DroneID", droneID);
         }
-        return super.save(compound);
     }
 }

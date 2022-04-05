@@ -5,9 +5,9 @@ import de.maxhenkel.delivery.Main;
 import de.maxhenkel.delivery.advancements.ModTriggers;
 import de.maxhenkel.delivery.tasks.Group;
 import de.maxhenkel.delivery.tasks.Task;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
@@ -43,13 +43,13 @@ public class MessageAcceptTask implements Message<MessageAcceptTask> {
     }
 
     @Override
-    public MessageAcceptTask fromBytes(PacketBuffer packetBuffer) {
+    public MessageAcceptTask fromBytes(FriendlyByteBuf packetBuffer) {
         task = packetBuffer.readUUID();
         return this;
     }
 
     @Override
-    public void toBytes(PacketBuffer packetBuffer) {
+    public void toBytes(FriendlyByteBuf packetBuffer) {
         packetBuffer.writeUUID(task);
     }
 }

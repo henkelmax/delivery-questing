@@ -2,9 +2,9 @@ package de.maxhenkel.delivery.tasks;
 
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.maxhenkel.delivery.Main;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskProgress implements INBTSerializable<CompoundNBT> {
+public class TaskProgress implements INBTSerializable<CompoundTag> {
 
     private UUID taskID;
     private long experienceStarted;
@@ -91,23 +91,23 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag compound = new CompoundTag();
 
         compound.putUUID("ID", taskID);
         compound.putLong("ExperienceStarted", experienceStarted);
 
-        ListNBT taskList = new ListNBT();
+        ListTag taskList = new ListTag();
         for (ItemStack item : taskItems) {
             if (!item.isEmpty()) {
-                taskList.add(ItemUtils.writeOverstackedItem(new CompoundNBT(), item));
+                taskList.add(ItemUtils.writeOverstackedItem(new CompoundTag(), item));
             }
         }
         compound.put("TaskItems", taskList);
 
-        ListNBT taskFluidList = new ListNBT();
+        ListTag taskFluidList = new ListTag();
         for (FluidStack fluid : taskFluids) {
-            taskFluidList.add(fluid.writeToNBT(new CompoundNBT()));
+            taskFluidList.add(fluid.writeToNBT(new CompoundTag()));
         }
         compound.put("TaskFluids", taskFluidList);
 
@@ -115,11 +115,11 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT compound) {
+    public void deserializeNBT(CompoundTag compound) {
         taskID = compound.getUUID("ID");
         experienceStarted = compound.getLong("ExperienceStarted");
 
-        ListNBT taskList = compound.getList("TaskItems", 10);
+        ListTag taskList = compound.getList("TaskItems", 10);
         this.taskItems = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             ItemStack stack = ItemUtils.readOverstackedItem(taskList.getCompound(i));
@@ -128,7 +128,7 @@ public class TaskProgress implements INBTSerializable<CompoundNBT> {
             }
         }
 
-        ListNBT taskFluidList = compound.getList("TaskFluids", 10);
+        ListTag taskFluidList = compound.getList("TaskFluids", 10);
         this.taskFluids = new ArrayList<>();
         for (int i = 0; i < taskFluidList.size(); i++) {
             FluidStack stack = FluidStack.loadFluidStackFromNBT(taskFluidList.getCompound(i));
