@@ -7,8 +7,6 @@ assignees: henkelmax
 
 ---
 
-**Please read the [FAQ](https://modrepo.de/minecraft/delivery/faq) before submitting a bug report!**
-
 **Bug description**
 A clear and concise description of what the bug is.
 
