@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "delivery:barrel_tier_1",
+    "delivery:barrel_tier_2",
+    "delivery:barrel_tier_3",
+    "delivery:barrel_tier_4",
+    "delivery:barrel_tier_5",
+    "delivery:barrel_tier_6",
+    "delivery:computer",
+    "delivery:drone_pad",
+    "delivery:energy_liquifier",
+    "delivery:mailbox",
+    "delivery:mailbox_post",
+    "delivery:packager"
+  ]
+}
